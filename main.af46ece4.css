@@ -46,6 +46,13 @@ a:visited {
 #about.invisible {
   visibility: hidden;
 }
+#thex {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  padding: 6px;
+  font-weight: bolder;
+}
 
 #main {
   display: flex;
