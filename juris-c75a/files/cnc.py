@@ -177,8 +177,7 @@ def main():
                      'Neck frame: X along the neck, Z=0 at the fingerboard gluing plane. Setup A fingerboard face, truss channel, headstock face; setup B: flip about X, back carve, heel, volute, headstock back. Tuner holes: separate op with the headstock face held flat.')
     parts['fingerboard'] = (B.build_fingerboard(), TN, 'bottom', False,
                             'Flat side down. Radius the top (12"), cut 0.6 mm fret slots, profile the taper.')
-    br, _ = B.build_bridge()
-    parts['bridge'] = (br, None, 'bottom', True, 'Base down for the crown and sides; flip about X for the relief under the bridge. Sand the crown to final action.')
+    # the bridge is purchased (flat-bottomed base + compensated archtop top), so it is not machined
 
     report = {}
     for name, (man, T, z0, two, note) in parts.items():

@@ -41,7 +41,8 @@ P = dict(
     tenon_w=38.0, tenon_len=42.0, tenon_depth=26.0, tenon_fit=0.1,
     truss_w=6.35, truss_d=9.5, truss_len=381.0,   # 15" dual-action rod, 1/4" channel
     fret_slot_w=0.6, fret_slot_d=3.0,
-    tuner_hole=10.0, dowel_d=6.0, dowel_depth=10.0,          # Lollar gold foil, floating mount (dims in build_pickup)
+    tuner_hole=8.73,     # 11/32" for Grover 133 Vintage Deluxe press-in bushings (8.8 mm)
+    dowel_d=6.0, dowel_depth=10.0,
 )
 
 OUT = os.path.join(os.path.dirname(__file__), 'out'); os.makedirs(OUT, exist_ok=True)

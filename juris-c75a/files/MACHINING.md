@@ -21,7 +21,6 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.95 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
 | 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 1/2 in thick | Back | Finished 0.36 in at most. Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
 | 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
-| 1 | Ebony bridge blank | 5 × 1 × 1½ in | Bridge | Finished 3.8 × 0.85 × 1.3 in. |
 | 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
 | 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the stacked pot, the stereo jack and the battery door. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
@@ -29,6 +28,21 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | End-loading 9 V sleeve | 32 × 22 mm, 54 mm deep | Battery | Fold from 1.5 mm ABS or aluminium, or 3D-print it; it fixes to the back of the plate around the door opening. The door is cut from the plate offcut and held by a quarter-turn latch. |
 | 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
+
+## Hardware to buy
+
+| Item | Choice | Fit notes |
+|---|---|---|
+| Tuners | Genuine Grover Deluxe SD90, 3+3, nickel, safety post (133N), as on the C-75 | 15:1, 6 mm posts. 11/32 in post holes with 8.8 mm press-in bushings; one back screw per tuner. |
+| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. **Its length must fit the plateau:** the plateau is 100 mm (3.94 in) wide across the strings. Measure the base; if it's longer, the plateau gets widened before cutting. |
+| Bridge top | A standard wooden compensated archtop bridge top (ebony or rosewood) with post holes at 74 mm | Must match the base's 74 mm post spacing. |
+| Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | **The flat at the tail is only 32 mm (1.26 in) wide**, so a standard 51 mm mounting plate overhangs it. Either widen the tail flat to about 56 mm before cutting, or use a narrow-plate or custom tailpiece (Kluson makes custom trapezes). See the break angle note below. |
+| Pickup | EMG 91 | Comes with its mounting bracket, screws, output cable and battery cable. Use EMG's bracket from the fingerboard extension; the strap bracket in the model is a stand-in. |
+| Pot | EMG 25KX2 stacked volume/tone, 25k, solderless (part 5129) | Comes with a split stacked knob. Check the bushing against the 3/8 in hole. |
+| Output jack | Stereo 1/4 in jack with 9 V battery connector, e.g. EMG's prewired jack, or a Switchcraft stereo jack | 3/8 in hole; the 2 mm plate suits a short-thread jack. |
+| Battery | 9 V alkaline or lithium | End-loads into the sleeve behind the door. |
+
+**Break angle and tailpiece length.** Because the plateau is high, a shorter trapeze gives more break angle, not less. With the string anchor 5.5 mm above the top: 50 mm from the tail edge gives about 14°, 100 mm about 17°, and a 5 in (125 mm) trapeze about 22°. Over about 18° the bridge sees noticeably more down-pressure (about a third more at 22°). The top has the margin for it, but the extra drive also changes the sound, so a longer trapeze, with its anchor 2–3 in from the tail, is the conservative choice.
 
 ## Tools
 
@@ -54,7 +68,6 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
 | Fingerboard | `fingerboard/` | Ebony, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
-| Bridge | `bridge/` | Ebony, 5 × 1 × 1½ in | 2 | Base down: compensated, radiused saddle crown and sides. Flip: relief under the centre. |
 
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm ebony or black fibre headstock overlay with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
@@ -72,8 +85,8 @@ The `flat/` folder has 2D cut files:
 8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
 9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
 10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
-11. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 10 mm; change `tuner_hole` in `build.py` if your tuners are different.
-12. **Bridge:** sand the saddle crown down to set the action. It is left 1.5 mm tall on purpose. Then file the string notches.
+11. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 11/32 in (8.73 mm) for the Grover 133's press-in bushings; check the fit in scrap first. Each tuner also takes one small screw on the back of the headstock; mark it from the tuner itself.
+12. **Bridge:** set the flat-bottomed base on the plateau (it needs no fitting) and the compensated top on its thumbwheels. Put the treble end about 1.5 mm and the bass end about 3.5 mm behind the scale line, then set intonation by sliding the bridge. The saddle sits about 31.6 mm (1.24 in) above the plateau, so check that your base and top reach that with adjustment to spare.
 
 ## Check against your hardware before cutting
 
@@ -81,7 +94,7 @@ These dimensions come from typical parts. Measure yours and change the parameter
 
 | Part | Assumed | Parameter |
 |---|---|---|
-| Tuners | 10 mm post holes | `tuner_hole` |
+| Tuners | Grover 133 Vintage Deluxe (safety post), 11/32 in holes, 8.8 mm press-in bushings | `tuner_hole` |
 | Truss rod | 15 in long, needs a 1/4 × 3/8 in channel | `truss_len`, `truss_w`, `truss_d` |
 | Pickup | EMG 91, 86.3 × 38.1 × 10.9 mm (EMG sheet, 0.43 in max height), on a fingerboard-extension bracket | `EMG91`, `build_pickup_bracket` |
 | Battery | 9 V, 48.5 × 26.5 × 17.5 mm, end-loaded through a door in the plate | `BATTERY`, `CTRL_DOOR`, `SLEEVE_DEPTH` |
@@ -94,4 +107,4 @@ These dimensions come from typical parts. Measure yours and change the parameter
 - **Outline accuracy:** the body outline was traced from the C-75 PDF at about 0.13 mm per pixel. If you have the original CAD outline, replace the traced edges in `outline.py`.
 - **Curved surfaces:** the STEP models describe the neck carve, volute and fingerboard radius as many small flat faces, about 0.005 mm from the true shape. That's fine for 3D finishing, but they won't behave as single smooth surfaces in CAD.
 - **Undercut check:** casts vertical rays on a 0.5 mm grid (0.25 mm for the fingerboard and bridge). Four cells on the neck read 1 mm² in total, all where rays graze the curved sides; recasting those spots gives clean results, so it's numerical noise.
-- **Hardware not modelled for machining:** the tailpiece, pickup, knobs, pickup bracket and control plate hardware are purchased or fabricated.
+- **Hardware not modelled for machining:** the tailpiece, bridge, pickup, knobs, pickup bracket and control plate hardware are purchased or fabricated. The bridge in the 3D model is a stand-in at the right height and position.
