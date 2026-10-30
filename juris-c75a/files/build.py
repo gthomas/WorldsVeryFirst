@@ -27,7 +27,7 @@ P = dict(
     top_plateau_t=6.0, top_fall_t_at_plateau=3.8,
     beam_w=5.0, beam_h=8.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
-    slot_area=780.0, xbar_h=7.0,
+    slot_area=545.0, collar_h=7.5, collar_w=4.0, xbar_h=7.0,
     bar_x=46.0, bar_w=6.0, bar_h=9.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
     back_arch=7.0,           # ridge depth below the back edge
@@ -389,6 +389,42 @@ def build_cross_bar():
 def build_bars():
     return union([_scalloped_bar(a, b) for a, b in bar_segments()] + [build_cross_bar()])
 
+def collar_cs():
+    """plan shape of the soundhole collars: a band round each slot, with any gap to the ring beam
+    narrower than the 1/4 in cutter filled in (closing by the tool radius + a little)"""
+    from shapely.geometry import Polygon
+    beam_in = Polygon(offset_polygon(ccw(TOP_HEX), P['beam_w'])); beam = Polygon(TOP_HEX) - beam_in
+    out = []
+    for sl in SLOTS:
+        s = Polygon(sl); band = s.buffer(P['collar_w'], join_style=1)
+        r = 3.6
+        u = (band | beam.buffer(-0.5, join_style=2)).buffer(r, join_style=1).buffer(-r, join_style=1)   # edges kept off the beam faces
+        # run 1 mm into the beam rather than stopping on its face, so no faces coincide
+        reg = (u - beam_in.buffer(1.0, join_style=2)).buffer(0) & s.buffer(P['collar_w'] + 12.0, join_style=1)
+        reg = reg - s
+        out.append(reg)
+    return out
+
+def build_collars(below_inner):
+    """a lip hanging under each soundhole, collar_h below the inside surface. It lengthens the port,
+    which lowers the air resonance without a deeper rim or smaller holes. Cut with the inside (setup B)."""
+    h = P['collar_h']
+    deeper = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP - h, FALL_IN_AT_PLAT - h, Z_PLAT_IN - h, Z_RIM_TOP - h)
+    up = 1.0     # overlap into the plate so the union has no coincident faces
+    raised = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP + up, FALL_IN_AT_PLAT + up, Z_PLAT_IN + up, Z_RIM_TOP + up)
+    sheet = raised - deeper
+    sols = []
+    from shapely.geometry import Polygon, MultiPolygon
+    for reg in collar_cs():
+        polys = list(reg.geoms) if isinstance(reg, MultiPolygon) else [reg]
+        for pg in polys:
+            ext = ccw(np.array(pg.exterior.coords)[:-1])
+            sol = prism(ext, -BIG, BIG)
+            for hole in pg.interiors:
+                sol = sol - prism(ccw(np.array(hole.coords)[:-1]), -BIG, BIG)
+            sols.append(sol)
+    return union(sols) ^ sheet
+
 def build_top(chamfer=True):
     below_outer = terrain_below(TOP_TRIS, TOP_HEX, Z_EDGE, Z_PLAT, Z_PLAT, Z_EDGE)
     below_inner = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP, FALL_IN_AT_PLAT, Z_PLAT_IN, Z_RIM_TOP)
@@ -396,7 +432,7 @@ def build_top(chamfer=True):
     shell = shell ^ prism(OUTL, Z_RIM_TOP - 0.001, BIG)
     beam_in = open_poly(offset_polygon(ccw(TOP_HEX), P['beam_w']))
     beam = prism(TOP_HEX, Z_PLAT_IN - P['beam_h'] + 0.0, Z_PLAT_IN + 0.5) - prism(beam_in, -BIG, BIG)
-    top = shell + beam + build_bars()
+    top = shell + beam + build_bars() + build_collars(below_inner)
     for sl in SLOTS:
         top = top - prism(sl, -BIG, BIG)
     top = top - prism(tenon_poly(P['tenon_fit']), -BIG, BIG)      # notch the tenon drops through
@@ -834,7 +870,7 @@ def build_tailpiece():
     # hinge on the tail face, strap over the edge, trapeze plate to the string anchor bar
     zt = top_height_at(0, TAIL_ANCHOR_Y)
     anchor = np.array([0, TAIL_ANCHOR_Y, zt + 4.5])
-    hinge = hull([(sx * 13, y, z) for sx in (-1, 1) for y in (-7.0, -1.0) for z in (Z_BACK_IN + 14, Z_BACK_IN + 36)])
+    hinge = hull([(sx * 25.5, y, z) for sx in (-1, 1) for y in (-3.0, -1.0) for z in (Z_BACK_IN + 10, Z_BACK_IN + 46)])   # standard 51 mm plate
     strap = hull([(sx * 11, y, z) for sx in (-1, 1) for y in (-7.0, -1.5) for z in (Z_BACK_IN + 30, Z_EDGE + 7.5)])
     strap = strap + hull([(sx * 11, y, z) for sx in (-1, 1) for y in (-7.0, 7.0) for z in (Z_EDGE + 4.8, Z_EDGE + 7.5)])
     p0 = np.array([0, 6.0, Z_EDGE + 6.0])
@@ -1062,6 +1098,9 @@ def main():
                            metadata=dict(material=MAT[k], group=GROUP[k], explode=EXPLODE[GROUP[k]]))
         if k == 'top':
             to_trimesh(build_top()).export(os.path.join(OUT, 'top.stl'))   # one solid part (dye mask is cosmetic)
+            _bc = globals()['build_collars']; globals()['build_collars'] = lambda bi: m3.Manifold()
+            to_trimesh(build_top()).export(os.path.join(OUT, 'top_fea.stl'))   # for fea.py: lips left off (conservative)
+            globals()['build_collars'] = _bc
         elif k in ('back', 'rim', 'neck', 'fingerboard', 'bridge'):
             tm.export(os.path.join(OUT, f'{k}.stl'))
     scene.export(os.path.join(OUT, 'juris_c75a.glb'))
@@ -1081,7 +1120,7 @@ def main():
     A = sum(abs(signed_area(s)) for s in SLOTS)
     t_hole = top_z_outer(0) - top_z_inner(0)
     # slots sit on a fall ~ halfway: thickness ~ 3.9
-    t_hole = 3.9
+    t_hole = 3.9 + P['collar_h']            # plate + collar lip
     a_eq = math.sqrt(A / 2 / math.pi)
     L_eff = t_hole + 1.7 * a_eq
     c = 343e3
@@ -1117,7 +1156,7 @@ def write_dxf():
     import ezdxf
     doc = ezdxf.new('R2010'); doc.units = ezdxf.units.MM; ms = doc.modelspace()
     for lay, col in [('OUTLINE', 7), ('RIM_INNER', 1), ('LINING_INNER', 2), ('BLOCKS', 3), ('TOP_PLATEAU', 4),
-                     ('TOP_FOLDS', 5), ('TOP_BEAM', 6), ('SOUNDHOLES', 1), ('BACK_PLATEAU', 4), ('BACK_FOLDS', 5), ('TOP_BARS', 6), ('TOP_DYE_MASK', 1), ('CENTERLINE', 8), ('BRIDGE_LINE', 8)]:
+                     ('TOP_FOLDS', 5), ('TOP_BEAM', 6), ('SOUNDHOLES', 1), ('SOUNDHOLE_LIPS', 6), ('BACK_PLATEAU', 4), ('BACK_FOLDS', 5), ('TOP_BARS', 6), ('TOP_DYE_MASK', 1), ('CENTERLINE', 8), ('BRIDGE_LINE', 8)]:
         doc.layers.add(lay, color=col)
     def poly(pts, layer, closed=True): ms.add_lwpolyline([tuple(map(float, p)) for p in pts], close=closed, dxfattribs={'layer': layer})
     poly(OUTL, 'OUTLINE')
@@ -1139,6 +1178,7 @@ def write_dxf():
                 pa = outer[a[1]] if a[0] == 'o' else hexa[a[1]]; pb = outer[b[1]] if b[0] == 'o' else hexa[b[1]]
                 ms.add_line(tuple(pa), tuple(pb), dxfattribs={'layer': lay})
     for s in SLOTS: poly(s, 'SOUNDHOLES')
+    for c in collar_cs(): poly(np.array(c.exterior.coords)[:-1], 'SOUNDHOLE_LIPS')
     for c in OUTL_CS.offset(-BINDING_W, m3.JoinType.Round, circular_segments=96).to_polygons(): poly(c, 'TOP_DYE_MASK')
     for ra, rb in bar_segments() + [cross_bar_segment()]: ms.add_line(tuple(ra), tuple(rb), dxfattribs={'layer': 'TOP_BARS'})
     ms.add_line((0, -10), (0, 480), dxfattribs={'layer': 'CENTERLINE'})

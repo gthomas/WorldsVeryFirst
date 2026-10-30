@@ -34,9 +34,9 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | Item | Choice | Fit notes |
 |---|---|---|
 | Tuners | Genuine Grover Deluxe SD90, 3+3, nickel, safety post (133N), as on the C-75 | 15:1, 6 mm posts. 11/32 in post holes with 8.8 mm press-in bushings; one back screw per tuner. |
-| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 8 mm ring beam. Strength check with this base: about 0.24 mm sink under the feet, 0.38 mm at most. |
+| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 8 mm ring beam. Strength check with this base: about 0.27 mm sink under the feet, 0.35 mm at most (checked without the soundhole lips, which only add stiffness). |
 | Bridge top | A standard wooden compensated archtop bridge top (ebony or rosewood) with post holes at 74 mm | Must match the base's 74 mm post spacing. |
-| Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | **The flat at the tail is only 32 mm (1.26 in) wide**, so a standard 51 mm mounting plate overhangs it. Either widen the tail flat to about 56 mm before cutting, or use a narrow-plate or custom tailpiece (Kluson makes custom trapezes). See the break angle note below. |
+| Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | The flat at the tail is 56 mm (2.2 in) wide, so a standard 51 mm (2 in) mounting plate sits on it with about 2.5 mm to spare each side. Its screws go into the tail block (68 mm wide). See the break angle note below. |
 | Pickup | EMG 91 | Comes with its mounting bracket, screws, output cable and battery cable. Use EMG's bracket from the fingerboard extension; the strap bracket in the model is a stand-in. |
 | Pot | EMG 25KX2 stacked volume/tone, 25k, solderless (part 5129) | Comes with a split stacked knob. Check the bushing against the 3/8 in hole. |
 | Output jack | Stereo 1/4 in jack with 9 V battery connector, e.g. EMG's prewired jack, or a Switchcraft stereo jack | 3/8 in hole; the 2 mm plate suits a short-thread jack. |
@@ -62,7 +62,7 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
-| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
+| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 7.5 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside ridge panels and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
 | Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
@@ -97,6 +97,7 @@ These dimensions come from typical parts. Measure yours and change the parameter
 | Tuners | Grover 133 Vintage Deluxe (safety post), 11/32 in holes, 8.8 mm press-in bushings | `tuner_hole` |
 | Truss rod | 15 in long, needs a 1/4 × 3/8 in channel | `truss_len`, `truss_w`, `truss_d` |
 | Bridge base | Gretsch 008-0636-200, measured 135 × 14.95 × 11.75 mm, posts at 74 mm; plateau 141 mm wide | `BASE`, `plat_half_w` |
+| Tailpiece | Standard trapeze, 51 mm (2 in) mounting plate | `TAIL_HALF` in `outline.py` (flat is 2 × 28 mm) |
 | Pickup | EMG 91, 86.3 × 38.1 × 10.9 mm (EMG sheet, 0.43 in max height), on a fingerboard-extension bracket | `EMG91`, `build_pickup_bracket` |
 | Battery | 9 V, 48.5 × 26.5 × 17.5 mm, end-loaded through a door in the plate | `BATTERY`, `CTRL_DOOR`, `SLEEVE_DEPTH` |
 | Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |

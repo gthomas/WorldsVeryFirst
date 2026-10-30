@@ -19,7 +19,7 @@ a_neck = math.atan2(nut[2] - sad[2], nut[1] - sad[1])          # negative: strin
 F = TENSION_N * (math.sin(a_tail) + math.sin(-a_neck))
 
 # ---- mesh
-tm = trimesh.load('out/top.stl')
+tm = trimesh.load('out/top_fea.stl')   # top without the soundhole lips: they only add stiffness, and tetgen can't mesh their joint
 tg = tetgen.TetGen(tm.vertices, tm.faces)
 _r = tg.tetrahedralize(order=1, mindihedral=12, minratio=1.6, maxvolume=MAXVOL); nodes, elems = _r[0], _r[1]
 m = MeshTet(nodes.T.copy(), elems.T.copy())
@@ -73,17 +73,25 @@ foot_area = sum(f.area for f in feet)
 p = F / foot_area
 def on_feet(x):
     return np.array([(abs(z - B.Z_PLAT) < 0.05) and any(f.contains(Point(px, py)) for f in feet) for px, py, z in x.T])
-facets = m.facets_satisfying(lambda x: on_feet(x), boundaries_only=True)
-fb = FacetBasis(m, e, facets=facets, intorder=3)
-
-@LinearForm
-def unit(v, w):
-    return -v[2]
-f1 = asm(unit, fb)
-p = F / (-f1.sum())            # loaded facets overhang the foot outline a little; scale so the total is exactly F
-f = p * f1
-applied = -f.sum()   # check
-print(f'downforce {F:.1f} N, feet area {foot_area:.0f} mm2, assembled load {applied:.1f} N', flush=True)
+# Load every plateau-top facet by the exact area it shares with the feet, so the load does not
+# depend on how tetgen happened to triangulate the plateau. For a P2 triangle under uniform
+# pressure the corner nodes carry nothing and each mid-edge node carries a third.
+from shapely.geometry import Polygon as _Pg
+from shapely.ops import unary_union
+feet_u = unary_union(feet)
+bf = m.boundary_facets()
+fz = m.p[2][m.facets[:, bf]]
+plat = bf[np.all(np.abs(fz - B.Z_PLAT) < 0.05, axis=0)]
+f = np.zeros(ib.N); loaded_area = 0.0
+for fi in plat:
+    tri = m.p[:2, m.facets[:, fi]].T
+    a = _Pg(tri).intersection(feet_u).area
+    if a <= 0: continue
+    loaded_area += a
+    for ed in m.f2e[:, fi]:
+        f[ib.edge_dofs[2, ed]] -= p * a / 3.0
+applied = -f.sum()
+print(f'downforce {F:.1f} N, feet area {foot_area:.0f} mm2, loaded {loaded_area:.0f} mm2, assembled load {applied:.1f} N', flush=True)
 
 # ---- solve
 import pyamg

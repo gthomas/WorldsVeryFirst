@@ -44,7 +44,7 @@ def _at_x(l, x):
 
 
 NECK_HALF = 28.0          # half-width of neck/heel tongue at body (2.2")
-TAIL_HALF = 16.0          # small flat at tail for tailpiece hinge / endpin
+TAIL_HALF = 28.0          # flat at tail, 56 mm wide: takes a standard 51 mm trapeze tailpiece plate
 
 
 def sharp_outline(neck_end_y_in=17.6):
