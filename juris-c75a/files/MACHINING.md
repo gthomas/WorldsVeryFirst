@@ -48,11 +48,11 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
-| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes cut through. |
+| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside ridge panels and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
 | Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
-| Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane, truss rod channel, headstock face. B (flipped): back carve, heel, tenon, volute, headstock back. |
+| Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
 | Fingerboard | `fingerboard/` | Ebony, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
 | Bridge | `bridge/` | Ebony, 5 × 1 × 1½ in | 2 | Base down: compensated, radiused saddle crown and sides. Flip: relief under the centre. |
 
@@ -65,8 +65,8 @@ The `flat/` folder has 2D cut files:
 1. **Rim:** glue the two halves on four 6 × 20 mm dowels. Check that the faces are flat and the ledges line up.
 2. **Back:** glue the back onto the lower ledge.
 3. **Truss rod:** fit a 15 in dual-action rod into the neck channel. It adjusts at the headstock, under the cover.
-4. **Neck:** glue the neck tenon into the open-top mortise. Below the rim top the heel face is flat on the body's end face; the tenon floor sets the height.
-5. **Top:** glue the top onto the upper ledge and neck block. It also covers the tenon.
+4. **Top:** glue the top onto the upper ledge and neck block. It has a notch at the neck end, open to the end face, directly over the mortise.
+5. **Neck:** set the neck from above, after the body is closed. The tenon drops through the notch in the top into the mortise, and the tongue lands on the top over the neck block; glue all three faces (tenon, tongue on top, heel on the end face). The tenon floor sets the height, so you can still check the neck angle with the body closed.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
 7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Fix the battery sleeve to the back of the control plate around the door opening, with the battery clip at its inner end. Mount the stacked pot and the stereo jack on the plate, wire everything through the window (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, open the door and slide the 9 V out; the plate stays put.
 8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
@@ -93,5 +93,5 @@ These dimensions come from typical parts. Measure yours and change the parameter
 
 - **Outline accuracy:** the body outline was traced from the C-75 PDF at about 0.13 mm per pixel. If you have the original CAD outline, replace the traced edges in `outline.py`.
 - **Curved surfaces:** the STEP models describe the neck carve, volute and fingerboard radius as many small flat faces, about 0.005 mm from the true shape. That's fine for 3D finishing, but they won't behave as single smooth surfaces in CAD.
-- **Undercut check:** casts vertical rays on a 0.5 mm grid (0.25 mm for the fingerboard and bridge). One cell on the neck reads 0.2 mm²; recasting that spot gives a clean result, so it's numerical noise.
+- **Undercut check:** casts vertical rays on a 0.5 mm grid (0.25 mm for the fingerboard and bridge). Four cells on the neck read 1 mm² in total, all where rays graze the curved sides; recasting those spots gives clean results, so it's numerical noise.
 - **Hardware not modelled for machining:** the tailpiece, pickup, knobs, pickup bracket and control plate hardware are purchased or fabricated.

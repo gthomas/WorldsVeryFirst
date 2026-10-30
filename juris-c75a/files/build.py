@@ -399,6 +399,7 @@ def build_top(chamfer=True):
     top = shell + beam + build_bars()
     for sl in SLOTS:
         top = top - prism(sl, -BIG, BIG)
+    top = top - prism(tenon_poly(P['tenon_fit']), -BIG, BIG)      # notch the tenon drops through
     wx, wy, wd = WIRE_HOLE
     top = top - m3.Manifold.cylinder(2 * BIG, wd / 2, wd / 2, 32).translate([wx, wy, -BIG])
     return top ^ KEEP_TOP if chamfer else top
@@ -520,10 +521,22 @@ def build_neck():
         rings.append(NB(section_loop(u, W, d, nexp, fbb, npts=96)))
     neck = loft(rings, [np.array([(p[1], p[2]) for p in [b2nv(q) for q in rings[0]]]),
                         np.array([(p[1], p[2]) for p in [b2nv(q) for q in rings[-1]]])])
-    neck = (neck ^ heel_keep()) + build_tenon()
+    neck = (neck ^ heel_keep()) + build_tenon() + build_tongue()
     neck = neck + build_headstock_wood(holes=False)
     neck = neck - truss_channel()
     return neck
+
+TONGUE_Y0 = 392.0       # tongue runs from the heel face back to the end of the neck block
+def build_tongue():
+    """Neck tongue under the fingerboard extension: fills the space between the top and the board
+    over the neck block, glued to both. The fingerboard overhangs past it toward the pickup."""
+    pts = []
+    for y in (TONGUE_Y0, Y_NECK_END + 4.0):
+        u, _ = b2n(y, Z_EDGE + 8.0)
+        hw = fb_width(u) / 2 - 0.5
+        for x in (-hw, hw):
+            pts += [(x, y, Z_EDGE), (x, y, fb_bottom_z(y))]
+    return hull(pts)
 
 def heel_keep():
     """Below the rim top the heel face is the body's vertical end face (y = Y_NECK_END) and the heel
@@ -568,7 +581,7 @@ def tenon_poly(grow=0.0):
     return ccw(np.array(pts))
 
 def build_tenon():
-    return prism(tenon_poly(), Z_RIM_TOP - P['tenon_depth'], Z_RIM_TOP)
+    return prism(tenon_poly(), Z_RIM_TOP - P['tenon_depth'], Z_EDGE + 0.5)   # passes up through a notch in the top into the tongue
 
 def mortise():
     """open-top pocket in the upper rim half's neck block; floor in the upper half, walls vertical"""
