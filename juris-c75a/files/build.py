@@ -22,9 +22,10 @@ P = dict(
     rim_wall=7.0,
     lining_w=12.0, lining_h=8.0,   # integral glue ledges, routed in
     # top (spruce): faceted arch
-    top_arch=14.0, plat_half_w=50.0, plat_tip=85.0, plat_tip_neck=70.0, plat_side=45.0,
-    top_plateau_t=5.0, top_fall_t_at_plateau=3.8,
-    beam_w=5.0, beam_h=6.0,
+    top_arch=14.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
+    plat_tip=85.0, plat_tip_neck=70.0, plat_side=45.0,
+    top_plateau_t=6.0, top_fall_t_at_plateau=3.8,
+    beam_w=5.0, beam_h=8.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
     slot_area=780.0, xbar_h=7.0,
     bar_x=46.0, bar_w=6.0, bar_h=9.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
@@ -309,29 +310,27 @@ def y_at_x(line, x):
     p, d = line; t = (x - p[0]) / d[0]; return p[1] + t * d[1]
 
 def soundhole(side):
-    """Mirror-image slots in the upper side facets (plateau upper corner, lower-bout corner, waist).
-    Long sides parallel to the fold from the plateau corner; kept outboard of the tone bars.
-    """
-    from shapely.geometry import Polygon, box
+    """Mirror-image slots in the side facets beside the bridge plateau (plateau long side to the
+    lower-bout corner of the arch), long sides parallel to the plateau edge, like f-holes flanking
+    the bridge. Kept 9 mm inside every fold line."""
+    from shapely.geometry import Polygon
     sg = 1 if side == 'treble' else -1
-    UT = TOP_HEX[2] * [1, 1]; tL = np.array(ARCH[ARCH_NAMES.index('tLower')]); tW = np.array(ARCH[ARCH_NAMES.index('tWaist')])
-    cen = (UT + tL + tW) / 3
-    def band(p, q, d0, d1):
-        e = (q - p) / np.linalg.norm(q - p); n = np.array([-e[1], e[0]])
-        if np.dot(cen - p, n) < 0: n = -n
-        return Polygon([p - e * 1e3 + n * d0, q + e * 1e3 + n * d0, q + e * 1e3 + n * d1, p - e * 1e3 + n * d1])
-    reg = band(UT, tL, 9, 21) & band(tL, tW, 9, 400) & band(tW, UT, 9, 400)
-    reg = reg & box(P['bar_x'] + P['bar_w'] / 2 + 7, -1e3, 1e3, 1e3)
-    # shorten from the lower-bout end until the area matches the target (keeps the air resonance where it was)
-    e = (tL - UT) / np.linalg.norm(tL - UT)
-    lo, hi = 0.0, 200.0
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        cut = Polygon([UT + e * mid + np.array([-e[1], e[0]]) * 1e3, UT + e * mid - np.array([-e[1], e[0]]) * 1e3,
-                       UT - e * 1e3 - np.array([-e[1], e[0]]) * 1e3, UT - e * 1e3 + np.array([-e[1], e[0]]) * 1e3])
-        if (reg & cut).area > P['slot_area']: hi = mid
-        else: lo = mid
-    reg = reg & cut
+    LT, UT = TOP_HEX[1], TOP_HEX[2]
+    tL = np.array(ARCH[ARCH_NAMES.index('tLower')])
+    facet = Polygon([LT, UT, tL])
+    inset = facet.buffer(-9.0, join_style=2)
+    e = (UT - LT) / np.linalg.norm(UT - LT); n = np.array([e[1], -e[0]])
+    if np.dot(tL - LT, n) < 0: n = -n
+    band = Polygon([LT - e * 1e3 + n * 9, UT + e * 1e3 + n * 9, UT + e * 1e3 + n * 27, LT - e * 1e3 + n * 27])
+    reg = inset & band
+    if reg.area > P['slot_area']:            # trim from the lower end to the target area
+        lo, hi = 0.0, 300.0
+        for _ in range(40):
+            mid = (lo + hi) / 2
+            cut = Polygon([UT - e * mid + n * 1e3, UT - e * mid - n * 1e3, UT + e * 1e3 - n * 1e3, UT + e * 1e3 + n * 1e3])
+            if (reg & cut).area > P['slot_area']: hi = mid
+            else: lo = mid
+        reg = reg & cut
     pts = np.array(reg.exterior.coords)[:-1]
     pts[:, 0] *= sg
     return ccw(pts)
@@ -805,23 +804,30 @@ def point_in_poly(p, poly):
 def string_z_at(y):
     t = (y - SADDLE[1]) / (NUT_PT[1] - SADDLE[1]); return SADDLE[2] + t * (NUT_PT[2] - SADDLE[2])
 
-BRIDGE_FIT = 1.5        # extra height left on the saddle crown, sanded down to set the action
+BRIDGE_FIT = 0.0
+BASE = dict(L=135.0, W=14.95, H=11.75, post=37.0)   # Gretsch 008-0636-200 flat-bottom rosewood base, posts at 74 mm
 def build_bridge():
-    """one-piece ebony bridge for the flat plateau: flat base, relieved centre, compensated and
-    radiused saddle crown (treble +1.5 mm, bass +3.5 mm behind the scale line)."""
-    h = SADDLE[2] - Z_PLAT + BRIDGE_FIT
-    y0 = P['bridge_y']
-    comp = lambda x: -(2.5 - x / 35.0 * 1.0)          # x=+35 (treble) -1.5, x=-35 (bass) -3.5
-    pts = [(sx * 48, y0 + sy * 10.5 + comp(sx * 35) * 0.3, Z_PLAT) for sx in (-1, 1) for sy in (-1, 1)]
-    pts += [(sx * 41, y0 + sy * 6 + comp(sx * 35) * 0.6, Z_PLAT + h * 0.55) for sx in (-1, 1) for sy in (-1, 1)]
-    pts += [(sx * 38, y0 + sy * 1.6 + comp(sx * 35), Z_PLAT + h + 3) for sx in (-1, 1) for sy in (-1, 1)]
-    b = hull(pts)
+    """Stand-in for the purchased bridge: Gretsch flat-bottom base on the plateau, thumbwheels on
+    74 mm posts, and a compensated wooden archtop top with a radiused saddle crown."""
+    h = SADDLE[2] - Z_PLAT
+    y0 = P['bridge_y']; L, W, H = BASE['L'], BASE['W'], BASE['H']
+    # base: full width at the centre, tapering to narrow wing tips
+    base = hull([(sx * L / 2, y0 + sy * 3.0, Z_PLAT + dz) for sx in (-1, 1) for sy in (-1, 1) for dz in (0.0, 5.0)] +
+                [(sx * 30.0, y0 + sy * W / 2, Z_PLAT + dz) for sx in (-1, 1) for sy in (-1, 1) for dz in (0.0, H - 1.5)] +
+                [(sx * 12.0, y0 + sy * (W / 2 - 2), Z_PLAT + H) for sx in (-1, 1) for sy in (-1, 1)])
+    feet_relief = hull([(sx * 22.0, y0 + sy * 10, Z_PLAT - 1) for sx in (-1, 1) for sy in (-1, 1)] +
+                       [(sx * 18.0, y0 + sy * 10, Z_PLAT + 2.5) for sx in (-1, 1) for sy in (-1, 1)])
+    base = base - feet_relief
+    zt = Z_PLAT + H + 3.0                       # thumbwheels set the gap
+    wheels = union([m3.Manifold.cylinder(3.0, 10.0, 10.0, 32).translate([sx * BASE['post'], y0, Z_PLAT + H]) for sx in (-1, 1)])
+    posts = union([m3.Manifold.cylinder(h - H, 2.0, 2.0, 16).translate([sx * BASE['post'], y0, Z_PLAT + H]) for sx in (-1, 1)])
+    comp = lambda x: -(2.5 - x / 35.0 * 1.0)   # treble ~1.5 mm, bass ~3.5 mm behind the scale line
+    top = hull([(sx * 58.0, y0 + sy * 6.0 + comp(sx * 35) * 0.4, zt) for sx in (-1, 1) for sy in (-1, 1)] +
+               [(sx * 52.0, y0 + sy * 4.5 + comp(sx * 35) * 0.7, zt + (SADDLE[2] - zt) * 0.6) for sx in (-1, 1) for sy in (-1, 1)] +
+               [(sx * 38.0, y0 + sy * 1.4 + comp(sx * 35), SADDLE[2] + 3) for sx in (-1, 1) for sy in (-1, 1)])
     R_ = P['fb_radius']
-    crown_cyl = m3.Manifold.cylinder(200, R_, R_, 720).rotate([90, 0, 0]).translate([0, y0 + 100, Z_PLAT + h - R_])
-    b = b ^ crown_cyl
-    arch = hull([(sx * 28, y0 + sy * 20, Z_PLAT - 1) for sx in (-1, 1) for sy in (-1, 1)] +
-                [(sx * 22, y0 + sy * 20, Z_PLAT + 5.5) for sx in (-1, 1) for sy in (-1, 1)])
-    return b - arch, h - BRIDGE_FIT
+    top = top ^ m3.Manifold.cylinder(200, R_, R_, 720).rotate([90, 0, 0]).translate([0, y0 + 100, SADDLE[2] - R_])
+    return union([base, wheels, posts, top]), h
 
 TAIL_ANCHOR_Y = 50.0
 def build_tailpiece():

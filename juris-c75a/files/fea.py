@@ -21,7 +21,7 @@ F = TENSION_N * (math.sin(a_tail) + math.sin(-a_neck))
 # ---- mesh
 tm = trimesh.load('out/top.stl')
 tg = tetgen.TetGen(tm.vertices, tm.faces)
-_r = tg.tetrahedralize(switches=f"pq1.6a{MAXVOL}Q"); nodes, elems = _r[0], _r[1]
+_r = tg.tetrahedralize(order=1, mindihedral=12, minratio=1.6, maxvolume=MAXVOL); nodes, elems = _r[0], _r[1]
 m = MeshTet(nodes.T.copy(), elems.T.copy())
 e = ElementVector(ElementTetP2())
 ib = Basis(m, e, intorder=3)
@@ -67,8 +67,8 @@ fixed = ib.get_dofs(lambda x: glued(x)).all()
 print('fixed dofs', len(fixed), flush=True)
 
 # ---- bridge feet on the plateau
-feet = [Polygon([(sx * 28, B.P['bridge_y'] - 10.5), (sx * 48, B.P['bridge_y'] - 10.5),
-                 (sx * 48, B.P['bridge_y'] + 10.5), (sx * 28, B.P['bridge_y'] + 10.5)]) for sx in (-1, 1)]
+feet = [Polygon([(sx * 22, B.P['bridge_y'] - 5.0), (sx * 67.5, B.P['bridge_y'] - 3.0),
+                 (sx * 67.5, B.P['bridge_y'] + 3.0), (sx * 22, B.P['bridge_y'] + 5.0)]) for sx in (-1, 1)]
 foot_area = sum(f.area for f in feet)
 p = F / foot_area
 def on_feet(x):
