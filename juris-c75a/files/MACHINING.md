@@ -10,6 +10,24 @@ This folder holds the CAM-ready files for every machined part. It does not hold 
 - **Origin for every model:** X/Y at the centre of the part's bounding box. Z0 is at the top of the part as exported, or at the bottom for the fingerboard and bridge. The setup DXF for each part draws the stock, the part outline and the origin.
 - **Two-sided parts:** flip about the X axis, along the line through the two registration pins. The pin holes (1/4 in, 6.35 mm) are drawn on each setup DXF in the waste at both ends of the stock.
 
+## Stock to buy
+
+Standard sizes from a luthier supply. Finished part sizes are in the Parts table below.
+
+| Qty | Item | Typical size | Used for | Notes |
+|---|---|---|---|---|
+| 2 | Mahogany body blank, 2-piece | 21 × 14 × 1¾–2 in | One rim half each | The half is 18.05 × 13.6 × 1.12 in finished. A 14 in blank leaves only about 0.2 in per side, so hold it by the ends (the pin holes in the setup DXF are at the ends), or buy oversized 15 in blanks. The centre seam is fine: it runs through the neck and tail blocks. |
+| 1 | Mahogany neck blank | 30 × 3 × 1 in | Neck | Needs three glue-ups before machining: a 13° scarf-jointed headstock, a stacked heel (two 1 in layers glued under the heel end, about 3 in of total depth there), and headstock ears to reach 3.5 in width. Or buy a one-piece blank of at least 26 × 3.5 × 3 in and skip the glue-ups. |
+| 1 | Spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.95 in thick at the plateau, which sits on the centre line. |
+| 1 | Spruce back set, bookmatched | 2 halves, each about 22 × 8 in, about 1/2 in thick | Back | Finished 0.36 in at most. |
+| 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
+| 1 | Ebony bridge blank | 5 × 1 × 1½ in | Bridge | Finished 3.8 × 0.85 × 1.3 in. |
+| 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
+| 1 | Black pickguard sheet (acrylic or celluloid) | 8 × 5 × 0.09 in | Pickguard | |
+| 1 | Brass sheet | 2 × 1 in, 1.5 mm | Fingerboard plate | |
+| 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
+| 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
+
 ## Tools
 
 | Tool | Used for |
@@ -30,11 +48,11 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 |---|---|---|---|---|
 | Top | `top/` | Bookmatched spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes cut through. |
 | Back | `back/` | Bookmatched spruce, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue skirt, arch underside). B: outside facets. |
-| Rim, lower half | `rim_lower/` | Mahogany 6/4, 16 × 20 × 1.25 in finished thickness | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, drill 4 dowel holes 10 mm deep, profile the outside. |
+| Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half, then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
-| Neck | `neck/` | Mahogany, 26 × 5.5 × 3.25 in, or an 8/4 blank with a glued-on heel block | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane, truss rod channel, headstock face. B (flipped): back carve, heel, tenon, volute, headstock back. |
-| Fingerboard | `fingerboard/` | Ebony, 20 × 4.25 × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
-| Bridge | `bridge/` | Ebony, 6 × 3 × 1.5 in | 2 | Base down: compensated, radiused saddle crown and sides. Flip: relief under the centre. |
+| Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane, truss rod channel, headstock face. B (flipped): back carve, heel, tenon, volute, headstock back. |
+| Fingerboard | `fingerboard/` | Ebony, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
+| Bridge | `bridge/` | Ebony, 5 × 1 × 1½ in | 2 | Base down: compensated, radiused saddle crown and sides. Flip: relief under the centre. |
 
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm ebony or black fibre headstock overlay with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
