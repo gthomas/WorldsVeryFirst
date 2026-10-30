@@ -22,19 +22,19 @@ P = dict(
     rim_wall=7.0,
     lining_w=12.0, lining_h=8.0,   # integral glue ledges, routed in
     # top (spruce): faceted arch
-    top_arch=14.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
+    top_arch=11.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
     plat_tip=85.0, plat_tip_neck=70.0, plat_side=45.0,
     top_plateau_t=3.5, top_fall_t_at_plateau=2.8,   # lightened (study/run.py v4)
     beam_w=5.0, beam_h=6.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
-    slot_area=545.0, collar_h=8.0, collar_w=4.0, xbar_h=5.0,
+    slot_area=545.0, collar_h=8.5, collar_w=4.0, xbar_h=5.0,
     bar_x=46.0, bar_w=6.0, bar_h=5.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
     back_arch=7.0,           # ridge depth below the back edge
     ridge_x=76.0, ridge_y=(70.0, 330.0), ridge_tips=(25.0, 372.0),   # centre-ridge footprint: long sides parallel to the ridge, pointed ends
     chamfer=3.5,
     # neck
-    fb_above_edge=18.0,      # fingerboard top (centre) above top edge at the joint
+    fb_above_edge=15.0,      # fingerboard top (centre) above top edge at the joint
     nut_w=42.86, fb_end_w=56.4, fb_radius=304.8, fb_t=7.3, fret_h=1.4, frets=22,
     neck_d1=21.8, neck_d12=24.4,  # '59 roundback total depth incl. fingerboard
     action12=2.0,
