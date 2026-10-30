@@ -14,7 +14,11 @@ TUNER_G = 33.0                         # Grover 133N, each, with bushing and scr
 
 # ---- geometry: one solid, element material picked by which part its centroid falls in
 B.fret_slots = lambda *a, **k: B.m3.Manifold()          # frets fill their slots
+rods = B.build_carbon_rods() if hasattr(B, 'build_carbon_rods') and os.environ.get('NO_CARBON') != '1' else B.m3.Manifold()
+_cc = getattr(B, 'carbon_channels', None)
+if _cc: B.carbon_channels = lambda *a, **k: B.m3.Manifold()    # solid neck; carbon elements are picked out below
 neck = B.build_neck() + B.truss_channel()                # rod fills its channel; tuner posts fill their holes
+if _cc: B.carbon_channels = _cc
 fb = B.build_fingerboard()
 face = B.build_faceplate()
 whole = neck + fb + face
@@ -31,11 +35,13 @@ uniq, inv = np.unique(allc, axis=0, return_inverse=True)
 from skfem import MeshHex, ElementHex1
 m = MeshHex((uniq * PITCH + origin).T.copy(), inv.reshape(-1, 8).T.copy())
 e = ElementVector(ElementHex1())
-ib = Basis(m, e, intorder=2)
+ib = Basis(m, e, intorder=1)   # dof bookkeeping only
 print(f'mesh: {m.nelements} hexes at {PITCH} mm, {ib.N} dofs', flush=True)
 cent = m.p[:, m.t].mean(axis=1).T
 fb_tm, face_tm = B.to_trimesh(fb), B.to_trimesh(face)
 is_eb = fb_tm.contains(cent) | face_tm.contains(cent)
+is_cf = B.to_trimesh(rods).contains(cent) if rods.volume() > 0 else np.zeros(len(cent), bool)
+print('carbon elements', int(is_cf.sum()), flush=True)
 
 # neck frame axes in body coordinates: L along the neck, R across (x), T through the neck depth
 L = B.n2b(1, 0, 0) - B.n2b(0, 0, 0); L /= np.linalg.norm(L)
@@ -65,6 +71,8 @@ def rotate_C(C, Q):
 C_mah = rotate_C(ortho_C(10100, 1080, 660, 880, 630, 210, 0.31, 0.39, 0.60), Q)
 C_ebo = rotate_C(ortho_C(17000, 2500, 1600, 1500, 1300, 500, 0.35, 0.40, 0.55), Q)
 RHO_MAH, RHO_EBO = 590e-12, 1150e-12
+C_cf = rotate_C(ortho_C(130000, 8000, 8000, 4500, 4500, 3000, 0.30, 0.30, 0.40), Q)   # pultruded carbon rod
+RHO_CF = 1550e-12
 
 def voigt(E):
     return [E[0, 0], E[1, 1], E[2, 2], 2 * E[1, 2], 2 * E[0, 2], 2 * E[0, 1]]
@@ -72,27 +80,35 @@ def voigt(E):
 eb_field = ib.zeros()          # placeholder to get shapes
 eb_el = is_eb.astype(float)
 
-@BilinearForm
-def stiffness(u, v, w):
-    eu, ev = voigt(sym_grad(u)), voigt(sym_grad(v))
-    k = w['eb']
-    out = 0
-    for i in range(6):
-        for j in range(6):
-            c = C_mah[i, j] * (1 - k) + C_ebo[i, j] * k
-            if np.any(c != 0):
-                out = out + c * eu[j] * ev[i]
-    return out
+def make_forms(C, rho):
+    @BilinearForm
+    def stiffness(u, v, w):
+        eu, ev = voigt(sym_grad(u)), voigt(sym_grad(v))
+        out = 0
+        for i in range(6):
+            for j in range(6):
+                if C[i, j] != 0:
+                    out = out + C[i, j] * eu[j] * ev[i]
+        return out
+    @BilinearForm
+    def mass(u, v, w):
+        return rho * dot(u, v)
+    return stiffness, mass
 
-@BilinearForm
-def mass(u, v, w):
-    k = w['eb']
-    return (RHO_MAH * (1 - k) + RHO_EBO * k) * dot(u, v)
-
-ebq = np.repeat(eb_el[:, None], ib.X.shape[-1], axis=1)
+# assemble each material on its own elements, in chunks to keep memory down
+mat_of = np.where(is_eb, 1, np.where(is_cf, 2, 0))
+MATS_ = [(C_mah, RHO_MAH), (C_ebo, RHO_EBO), (C_cf, RHO_CF)]
 t0 = time.time()
-K = asm(stiffness, ib, eb=ebq)
-M = asm(mass, ib, eb=ebq)
+K = None; M = None
+for k_, (C_, r_) in enumerate(MATS_):
+    els = np.where(mat_of == k_)[0]
+    sf, mf = make_forms(C_, r_)
+    for ch in np.array_split(els, max(1, len(els) // 25000)):
+        if len(ch) == 0: continue
+        bb = Basis(m, e, intorder=2, elements=ch)
+        Kk = asm(sf, bb); Mk = asm(mf, bb)
+        K = Kk if K is None else K + Kk; M = Mk if M is None else M + Mk
+        del bb
 print('assembled', round(time.time() - t0, 1), 's', flush=True)
 
 # tuners: lumped mass on the dofs round each post hole
@@ -148,5 +164,5 @@ for k in range(NMODES):
     where = [f'{s} fret {n - o}' for s, o in OPEN.items() if 0 <= n - o <= 15]
     modes.append(dict(hz=float(fr[k]), kind=kind, note=nm, cents=float(cents), where=where))
     print(f'{fr[k]:7.1f} Hz  {kind:18s}  {nm:4s} {cents:+5.0f}c  {", ".join(where)}', flush=True)
-json.dump(dict(tuner_g=TUNER_G, modes=modes, note='neck held rigid at the body; real values somewhat lower'),
-          open('out/neck_modes.json', 'w'), indent=1)
+json.dump(dict(tuner_g=TUNER_G, carbon=bool(is_cf.any()), modes=modes, note='neck held rigid at the body; real values somewhat lower'),
+          open(os.environ.get('NECK_OUT', 'out/neck_modes.json'), 'w'), indent=1)
