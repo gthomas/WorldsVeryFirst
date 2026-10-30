@@ -23,9 +23,10 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
 | 1 | Ebony bridge blank | 5 × 1 × 1½ in | Bridge | Finished 3.8 × 0.85 × 1.3 in. |
 | 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
-| 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the volume and tone pots and the output jack. |
+| 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the stacked pot, the stereo jack and the battery door. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
-| 1 | 9 V battery holder (snap clip or box) | about 55 × 33 mm footprint | Battery | Glued to the inside of the back just inside the control window. |
+| 1 | Stacked (concentric) pot, 25k, with a concentric knob | 3/8 in bushing | Volume and tone | EMG actives use 25k pots. |
+| 1 | End-loading 9 V sleeve | 32 × 22 mm, 54 mm deep | Battery | Fold from 1.5 mm ABS or aluminium, or 3D-print it; it fixes to the back of the plate around the door opening. The door is cut from the plate offcut and held by a quarter-turn latch. |
 | 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
@@ -57,7 +58,7 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm ebony or black fibre headstock overlay with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
-- `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the jack, volume and tone, four screw holes, and the outline of the window it covers.
+- `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the stereo jack and the stacked pot, the 32 × 22 mm battery door opening, four screw holes, and the outline of the window it covers.
 
 ## Build order
 
@@ -67,7 +68,7 @@ The `flat/` folder has 2D cut files:
 4. **Neck:** glue the neck tenon into the open-top mortise. Below the rim top the heel face is flat on the body's end face; the tenon floor sets the height.
 5. **Top:** glue the top onto the upper ledge and neck block. It also covers the tenon.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
-7. **Wiring:** glue the battery holder to the inside of the back, just inside the control window (before the top goes on, or through the window afterwards). Feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Mount the pots and the stereo jack on the control plate, wire them through the window with the battery clip (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, take off the plate.
+7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Fix the battery sleeve to the back of the control plate around the door opening, with the battery clip at its inner end. Mount the stacked pot and the stereo jack on the plate, wire everything through the window (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, open the door and slide the 9 V out; the plate stays put.
 8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
 9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
 10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
@@ -83,9 +84,9 @@ These dimensions come from typical parts. Measure yours and change the parameter
 | Tuners | 10 mm post holes | `tuner_hole` |
 | Truss rod | 15 in long, needs a 1/4 × 3/8 in channel | `truss_len`, `truss_w`, `truss_d` |
 | Pickup | EMG 91, 86.3 × 38.1 × 10.9 mm (EMG sheet, 0.43 in max height), on a fingerboard-extension bracket | `EMG91`, `build_pickup_bracket` |
-| Battery | 9 V, 48.5 × 26.5 × 17.5 mm, lying flat inside the window | `BATTERY`, `build_battery` |
+| Battery | 9 V, 48.5 × 26.5 × 17.5 mm, end-loaded through a door in the plate | `BATTERY`, `CTRL_DOOR`, `SLEEVE_DEPTH` |
 | Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |
-| Pots and jack | 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
+| Pots and jack | Stacked pot and stereo jack, 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
 
 ## Known limits

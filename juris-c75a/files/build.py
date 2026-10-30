@@ -877,7 +877,9 @@ CTRL_PLATE = (100.0, 44.0, 2.0)          # along the rim, tall, thick (black fib
 CTRL_WIN = (84.0, 30.0)                  # opening through the rim wall behind it
 CTRL_PAD_L = 116.0
 CTRL_SCREWS = [(se, sz) for se in (-46.0, 46.0) for sz in (-17.0, 17.0)]
-CTRL_HOLES = [('jack', -28.0, 9.5), ('volume', 0.0, 9.5), ('tone', 28.0, 9.5)]   # position along the plate, hole dia
+CTRL_HOLES = [('jack', -34.0, 9.5), ('concentric', -6.0, 9.5)]   # stereo jack; stacked volume/tone pot. Position along the plate, hole dia
+CTRL_DOOR = (26.0, 0.0, 32.0, 22.0)   # battery door: centre along the plate, centre height, length, height
+SLEEVE_DEPTH = 54.0                     # end-loading 9 V sleeve behind the door
 
 def ctrl_box(L, n0, n1):
     """plan rectangle centred on the control face: +-L/2 along the rim, n0..n1 along the outward normal"""
@@ -898,7 +900,22 @@ def build_control_plate():
         plate = plate - m3.Manifold.cylinder(20, d / 2, d / 2, 40).rotate([90, 0, 0]).translate([x, 10, 0])
     for se, sz in CTRL_SCREWS:
         plate = plate - m3.Manifold.cylinder(20, 1.4, 1.4, 16).rotate([90, 0, 0]).translate([se, 10, sz])
+    dx, dz, dl, dh = CTRL_DOOR
+    plate = plate - m3.Manifold.cube([dl, 30, dh], True).translate([dx, 0, dz])
     return _ctrl_local(plate)
+
+def build_battery_box():
+    """battery door in the control plate and the end-loading 9 V sleeve behind it"""
+    T = CTRL_PLATE[2]; dx, dz, dl, dh = CTRL_DOOR
+    door = m3.Manifold.cube([dl - 0.6, T + 0.6, dh - 0.6], True).translate([dx, (T + 0.6) / 2, dz])
+    door = door - m3.Manifold.cube([8.0, 2.0, 4.0], True).translate([dx + dl / 2 - 6.0, T + 0.6, dz])     # thumb notch
+    door = door + m3.Manifold.cylinder(1.2, 2.0, 2.0, 16).rotate([-90, 0, 0]).translate([dx - dl / 2 + 4.0, T + 0.6, dz])   # quarter-turn latch
+    wall = 1.5
+    sleeve = m3.Manifold.cube([dl, SLEEVE_DEPTH, dh], True).translate([dx, -SLEEVE_DEPTH / 2, dz]) - \
+             m3.Manifold.cube([dl - 2 * wall, SLEEVE_DEPTH - wall, dh - 2 * wall], True).translate([dx, -(SLEEVE_DEPTH - wall) / 2 + 0.01, dz])
+    Lb, Tb, Hb = BATTERY
+    bat = m3.Manifold.cube([Hb, Lb, Tb], True).translate([dx, -(Lb / 2 + 1.0), dz])            # end-loaded, terminals inboard
+    return _ctrl_local(door), _ctrl_local(sleeve), _ctrl_local(bat)
 
 def build_control_hardware():
     """knobs, jack nut, screw heads, and the pot bodies behind the plate (for clearance checks)"""
@@ -908,28 +925,17 @@ def build_control_hardware():
         if name == 'jack':
             out.append(hexa(7.5, T, T + 3.0).translate([x, 0, 0]) - m3.Manifold.cylinder(30, 3.3, 3.3, 24).rotate([90, 0, 0]).translate([x, 15, 0]))
             out.append(m3.Manifold.cylinder(28, 6.0, 6.0, 32).rotate([90, 0, 0]).translate([x, 0, 0]))       # barrel inside
-        else:
-            out.append(hull([(9.0 * math.cos(t), y, 9.0 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1] for y in (T + 1.0,)] +
-                            [(7.5 * math.cos(t), T + 15.0, 7.5 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]]).translate([x, 0, 0]))
-            out.append(m3.Manifold.cylinder(20, 12.0, 12.0, 32).rotate([90, 0, 0]).translate([x, -1.0, 0]))   # pot body
+        else:   # stacked (concentric) pot: outer hex knob for volume, inner knob for tone
+            ring = lambda r0, r1, y0, y1: hull([(r0 * math.cos(t), y0, r0 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]] +
+                                               [(r1 * math.cos(t), y1, r1 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]])
+            out.append(ring(11.0, 10.0, T + 1.0, T + 9.0).translate([x, 0, 0]))
+            out.append(ring(7.0, 6.0, T + 9.0, T + 17.0).translate([x, 0, 0]))
+            out.append(m3.Manifold.cylinder(32, 12.0, 12.0, 32).rotate([90, 0, 0]).translate([x, -1.0, 0]))   # stacked pot body
     for se, sz in CTRL_SCREWS:
         out.append(m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).rotate([-90, 0, 0]).translate([se, T, sz]))
     return _ctrl_local(union(out))
 
 BATTERY = (48.5, 17.5, 26.5)      # 9 V: long, thick, tall
-BATTERY_DEPTH = 24.0              # from the plate face into the body to the battery's near edge
-def build_battery():
-    """9 V battery for the EMG, lying flat in a holder glued to the back, just inside the control
-    window; reachable by taking the plate off"""
-    Lb, Tb, Hb = BATTERY
-    zc = Z_BACK_IN + 1.5 + Tb / 2 - Z_SPLIT
-    x0 = -40.0 + Lb / 2 + 6
-    box = m3.Manifold.cube([Lb, Hb, Tb], True).translate([x0, -(BATTERY_DEPTH + Hb / 2), zc])
-    snaps = union([m3.Manifold.cylinder(4, 3.0, 3.0, 16).rotate([0, 90, 0]).translate([x0 + Lb / 2, -(BATTERY_DEPTH + Hb / 2) + dy, zc]) for dy in (-6, 6)])
-    holder = m3.Manifold.cube([Lb + 6, Hb + 6, 1.5], True).translate([x0, -(BATTERY_DEPTH + Hb / 2), Z_BACK_IN + 0.75 - Z_SPLIT])
-    holder = holder + union([m3.Manifold.cube([Lb + 6, 1.5, 8], True).translate([x0, -(BATTERY_DEPTH + Hb / 2) + sy * (Hb / 2 + 2.25), Z_BACK_IN + 4 - Z_SPLIT]) for sy in (-1, 1)])
-    return _ctrl_local(box + snaps), _ctrl_local(holder)
-
 def fb_bottom_z(y):
     u = U_FB_END + (n2b(U_FB_END, 0, -P['fb_t'])[1] - y) * -1 / math.cos(TH)
     return n2b(u, 0, -P['fb_t'])[2]
@@ -1007,7 +1013,7 @@ def main():
     parts['pickup_bracket'] = build_pickup_bracket(pk_info)
     parts['control_plate'] = build_control_plate()
     parts['controls'] = build_control_hardware()
-    parts['battery'], parts['battery_clip'] = build_battery()
+    parts['battery_door'], parts['battery_sleeve'], parts['battery'] = build_battery_box()
     parts['strap_buttons'] = build_strap_buttons()
     st, string_lines = build_strings(anchor); parts['strings'] = st
 
@@ -1016,11 +1022,11 @@ def main():
 
     MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
-               pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_clip='black',
+               pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_door='black', battery_sleeve='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
     GROUP = dict(top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
-                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware', battery='Hardware', battery_clip='Hardware',
+                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware', battery='Hardware', battery_door='Hardware', battery_sleeve='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
@@ -1044,7 +1050,7 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_clip=5, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_door=3, battery_sleeve=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
     for k, g in nominal.items(): mass[k] = g
     total_g = sum(mass.values())
 

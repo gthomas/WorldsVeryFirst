@@ -251,6 +251,9 @@ def flat_parts():
     L, H, T = B.CTRL_PLATE
     pl(ms, [(-L / 2, -H / 2), (L / 2, -H / 2), (L / 2, H / 2), (-L / 2, H / 2)], 'OUTLINE')
     for name, x, dia in B.CTRL_HOLES: circ(ms, (x, 0), dia, 'POT_AND_JACK_HOLES')
+    dx, dz, dl, dh = B.CTRL_DOOR
+    doc.layers.add('BATTERY_DOOR_OPENING', color=2)
+    pl(ms, B.open_poly(np.array([(dx - dl / 2, dz - dh / 2), (dx + dl / 2, dz - dh / 2), (dx + dl / 2, dz + dh / 2), (dx - dl / 2, dz + dh / 2)]), 2.0), 'BATTERY_DOOR_OPENING')
     for se, sz in B.CTRL_SCREWS: circ(ms, (se, sz), 2.8, 'SCREW_HOLES')
     W, Hw = B.CTRL_WIN
     pl(ms, [(-W / 2, -Hw / 2), (W / 2, -Hw / 2), (W / 2, Hw / 2), (-W / 2, Hw / 2)], 'RIM_WINDOW_behind')
@@ -264,7 +267,7 @@ def flat_parts():
         tuner_holes_face_coords_mm=[[round(v, 1), round(s, 1)] for v, s, _ in B.TUNER_LIST], tuner_hole_dia_mm=B.P['tuner_hole'],
         control_plate=dict(center_body_xy=[round(float(c), 1) for c in B.CTRL_C], z=round(B.Z_SPLIT, 1),
                            outward_normal=[round(float(c), 4) for c in B.CTRL_N], along_rim=[round(float(c), 4) for c in B.CTRL_E],
-                           holes={n: dict(along_mm=x, dia_mm=dd) for n, x, dd in B.CTRL_HOLES}, screws_mm=B.CTRL_SCREWS,
+                           holes={n: dict(along_mm=x, dia_mm=dd) for n, x, dd in B.CTRL_HOLES}, battery_door=dict(zip(('along_mm', 'height_mm', 'length_mm', 'tall_mm'), B.CTRL_DOOR)), screws_mm=B.CTRL_SCREWS,
                            note='the window behind it is machined; drill the four 2 mm pilot holes square to the rim face'),
         pickup_wire_hole=dict(center_body_xy=list(B.WIRE_HOLE[:2]), dia_mm=B.WIRE_HOLE[2], note='through the top, under the fingerboard extension (machined with the top)'),
         endpin=dict(center_body_xy=[0.0, 0.0], z=round(B.Z_BACK_IN + B.P['rim_h'] / 2 - 4, 1), dia_mm=12.0),

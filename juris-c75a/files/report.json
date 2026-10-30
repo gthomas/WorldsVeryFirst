@@ -49,8 +49,9 @@
   "pickup_bracket": 10,
   "control_plate": 15,
   "controls": 70,
+  "battery_door": 3,
+  "battery_sleeve": 12,
   "battery": 45,
-  "battery_clip": 5,
   "strap_buttons": 8,
   "strings": 10,
   "pickup_plate": 0,
@@ -58,8 +59,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 2039,
- "total_mass_lb": 4.49,
+ "total_mass_g": 2049,
+ "total_mass_lb": 4.52,
  "manifold_ok": {
   "top": true,
   "top_binding": true,
@@ -79,8 +80,9 @@
   "pickup_bracket": true,
   "control_plate": true,
   "controls": true,
+  "battery_door": true,
+  "battery_sleeve": true,
   "battery": true,
-  "battery_clip": true,
   "strap_buttons": true,
   "strings": true
  },
