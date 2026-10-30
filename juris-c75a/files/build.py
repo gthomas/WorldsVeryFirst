@@ -29,7 +29,8 @@ P = dict(
     slot_area=780.0, xbar_h=7.0,
     bar_x=46.0, bar_w=6.0, bar_h=9.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
-    back_arch=6.0, back_cy=205.0, back_half_w=75.0, back_tip=140.0, back_side=75.0,
+    back_arch=7.0,           # ridge depth below the back edge
+    ridge_x=76.0, ridge_y=(70.0, 330.0), ridge_tips=(25.0, 372.0),   # centre-ridge footprint: long sides parallel to the ridge, pointed ends
     chamfer=3.5,
     # neck
     fb_above_edge=18.0,      # fingerboard top (centre) above top edge at the joint
@@ -154,9 +155,15 @@ ARCH_ASSIGN = dict(aTail=[0], tTail=[0, 1], tLower=[1, 2], tWaist=[2, 3], aNeck=
                    bLower=[4, 5], bTail=[5, 0])
 
 TOP_HEX = hexagon(0, P['bridge_y'], P['plat_half_w'], P['plat_tip'], P['plat_side'], P['plat_tip_neck'])
-BACK_HEX = hexagon(0, P['back_cy'], P['back_half_w'], P['back_tip'], P['back_side'])
+# back: single centre ridge. Footprint hexagon (flat skirt outside it), ridge line along the centreline.
+_y1, _y2 = P['ridge_y']; _yt, _yn = P['ridge_tips']; _X0 = P['ridge_x']
+BACK_FOOT = np.array([(0, _yt), (_X0, _y1), (_X0, _y2), (0, _yn), (-_X0, _y2), (-_X0, _y1)], float)
+BACK_HEX = np.array([(0, _y1), (0, _y2)], float)          # the ridge (degenerate plateau)
 TOP_TRIS = facet_triangles(TOP_HEX, ARCH_NAMES, ARCH_ASSIGN)
-BACK_TRIS = facet_triangles(BACK_HEX)
+BACK_TRIS = [[('o', 1), ('o', 2), ('p', 1)], [('o', 1), ('p', 1), ('p', 0)],      # treble panel
+             [('o', 4), ('o', 5), ('p', 0)], [('o', 4), ('p', 0), ('p', 1)],      # bass panel
+             [('o', 0), ('o', 1), ('p', 0)], [('o', 5), ('o', 0), ('p', 0)],      # tail end
+             [('o', 2), ('o', 3), ('p', 1)], [('o', 3), ('o', 4), ('p', 1)]]      # neck end
 
 def tri_pts(tri, hexa, z_outline, z_plat, outer=None):
     outer = SHARP if outer is None else outer
@@ -222,11 +229,11 @@ def _terrain(tris, hexa, z_edge, z_plat_edge, z_plateau, z_far, outer=None):
     return man
 
 def terrain_below(tris, hexa, z_edge, z_plat_edge, z_plateau, slab_z=None):
-    outer = ARCH if tris is TOP_TRIS else SHARP
+    outer = ARCH if tris is TOP_TRIS else (BACK_FOOT if tris is BACK_TRIS else SHARP)
     return _terrain(tris, hexa, z_edge, z_plat_edge, z_plateau, -BIG, outer)
 
 def terrain_above(tris, hexa, z_edge, z_plat_edge, z_plateau, slab_z=None):
-    outer = ARCH if tris is TOP_TRIS else SHARP
+    outer = ARCH if tris is TOP_TRIS else (BACK_FOOT if tris is BACK_TRIS else SHARP)
     return _terrain(tris, hexa, z_edge, z_plat_edge, z_plateau, BIG, outer)
 
 # chamfer keep-solids (45 deg) for the top and bottom outer edges
@@ -1073,9 +1080,9 @@ def write_dxf():
                     (OUTL_CS.offset(-(P['rim_wall'] + P['lining_w']), m3.JoinType.Round), 'LINING_INNER')]:
         for c in cs.to_polygons(): poly(c, lay)
     poly(TOP_HEX, 'TOP_PLATEAU'); poly(offset_polygon(ccw(TOP_HEX), P['beam_w']), 'TOP_BEAM')
-    poly(BACK_HEX, 'BACK_PLATEAU')
+    poly(BACK_HEX, 'BACK_FOLDS'); poly(BACK_FOOT, 'BACK_FOLDS')
     poly(ARCH, 'TOP_FOLDS')
-    for tris, hexa, lay, outer in [(TOP_TRIS, TOP_HEX, 'TOP_FOLDS', ARCH), (BACK_TRIS, BACK_HEX, 'BACK_FOLDS', SHARP)]:
+    for tris, hexa, lay, outer in [(TOP_TRIS, TOP_HEX, 'TOP_FOLDS', ARCH), (BACK_TRIS, BACK_HEX, 'BACK_FOLDS', BACK_FOOT)]:
         seen = set()
         for t in tris:
             for a, b in [(t[0], t[1]), (t[1], t[2]), (t[2], t[0])]:

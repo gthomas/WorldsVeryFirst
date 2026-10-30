@@ -5,7 +5,7 @@
  "body_length_in": 18.056279691180222,
  "lower_bout_in": 13.600405119235658,
  "depth_at_edge": 63.50000000000001,
- "depth_max": 83.5,
+ "depth_max": 84.5,
  "neck_joint_fret": 15.245121570287935,
  "saddle_z": 109.0934087123873,
  "plateau_z": 77.5,
@@ -33,12 +33,12 @@
   "pickguard_clearance_to_top": 16.905246175392946
  },
  "soundhole_area_each": 765.2215777173092,
- "air_volume_l": 6.064405373713725,
- "helmholtz_hz_est": 157.20434300620892,
+ "air_volume_l": 5.7983645910069095,
+ "helmholtz_hz_est": 160.7703258825423,
  "masses_g": {
   "top": 164.4,
   "top_binding": 8.7,
-  "back": 185.5,
+  "back": 186.5,
   "rim": 566.1,
   "neck": 289.7,
   "fingerboard": 179.0,
@@ -62,8 +62,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 1962,
- "total_mass_lb": 4.32,
+ "total_mass_g": 1963,
+ "total_mass_lb": 4.33,
  "manifold_ok": {
   "top": true,
   "top_binding": true,
@@ -118,11 +118,16 @@
   "bar_h": 9.0,
   "bar_taper": 35.0,
   "bar_end_inset": 14.0,
-  "back_arch": 6.0,
-  "back_cy": 205.0,
-  "back_half_w": 75.0,
-  "back_tip": 140.0,
-  "back_side": 75.0,
+  "back_arch": 7.0,
+  "ridge_x": 76.0,
+  "ridge_y": [
+   70.0,
+   330.0
+  ],
+  "ridge_tips": [
+   25.0,
+   372.0
+  ],
   "chamfer": 3.5,
   "fb_above_edge": 18.0,
   "nut_w": 42.86,

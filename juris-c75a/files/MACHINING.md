@@ -47,7 +47,7 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
 | Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes cut through. |
-| Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue skirt, arch underside). B: outside facets. |
+| Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside ridge panels and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
 | Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half, then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane, truss rod channel, headstock face. B (flipped): back carve, heel, tenon, volute, headstock back. |
