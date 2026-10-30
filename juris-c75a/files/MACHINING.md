@@ -110,6 +110,7 @@ The top is graduated light: the plateau is 3.5 mm, the falls are 2.8 mm at the p
 
 - **Creases:** each fold between facets has a concave side, inside or out. Finish all the facets with the 1/4 in ball-nose and leave its 3 mm radius in those inside corners; don't sharpen them by hand. The convex ridges can stay crisp, with just a light sanding break so they don't chip. With that radius the creases carry no more stress than the open facets.
 - **Tap tuning (optional):** after machining and before gluing, hold the top at a node and tap the plateau. The main tap tone should sit between two semitones and away from the air resonance (about 127 Hz). If it lands right on a note you'd play a lot, take a few tenths of a millimetre off the tone bars by hand, which lowers it.
+- **Neck dead spots:** `neck_modes.py` checks the neck, fingerboard and headstock with the tuners on, held rigid at the body. The mode most likely to deaden a note is the second up-and-down bend, near 190 Hz: around open G, the D string 4th–6th frets and the A string 9th–11th. In the real guitar it will land somewhat lower, so it can't be pinned to one note. If a note there sounds short once the guitar is strung up, try a small clamp-on mass on the headstock: a few grams moves the mode off the note.
 - **Humidity:** like any solid spruce top, it cracks along the grain if it dries out. Keep it between 40 and 55% relative humidity. The faceted shape gives a little more room for seasonal movement than a flat top.
 
 ## Known limits

@@ -1,0 +1,82 @@
+{
+ "tuner_g": 33.0,
+ "modes": [
+  {
+   "hz": 31.973264278151014,
+   "kind": "up-and-down bend",
+   "note": "C1",
+   "cents": -39.078691806354016,
+   "where": []
+  },
+  {
+   "hz": 34.06550241698205,
+   "kind": "side-to-side bend",
+   "note": "C#1",
+   "cents": -29.34416085438727,
+   "where": []
+  },
+  {
+   "hz": 108.63258246584053,
+   "kind": "twist",
+   "note": "A2",
+   "cents": -21.655973107311866,
+   "where": [
+    "E2 fret 5",
+    "A2 fret 0"
+   ]
+  },
+  {
+   "hz": 192.09216483765115,
+   "kind": "up-and-down bend",
+   "note": "G3",
+   "cents": -34.845818795599826,
+   "where": [
+    "E2 fret 15",
+    "A2 fret 10",
+    "D3 fret 5",
+    "G3 fret 0"
+   ]
+  },
+  {
+   "hz": 286.24979455773445,
+   "kind": "side-to-side bend",
+   "note": "D4",
+   "cents": -44.27463915942127,
+   "where": [
+    "D3 fret 12",
+    "G3 fret 7",
+    "B3 fret 3"
+   ]
+  },
+  {
+   "hz": 502.96648233768036,
+   "kind": "side-to-side bend",
+   "note": "B4",
+   "cents": 31.550486026772262,
+   "where": [
+    "B3 fret 12",
+    "E4 fret 7"
+   ]
+  },
+  {
+   "hz": 522.1585931859911,
+   "kind": "up-and-down bend",
+   "note": "C5",
+   "cents": -3.6185595344150556,
+   "where": [
+    "B3 fret 13",
+    "E4 fret 8"
+   ]
+  },
+  {
+   "hz": 673.5529737414581,
+   "kind": "twist",
+   "note": "E5",
+   "cents": 37.14547015354981,
+   "where": [
+    "E4 fret 12"
+   ]
+  }
+ ],
+ "note": "neck held rigid at the body; real values somewhat lower"
+}
