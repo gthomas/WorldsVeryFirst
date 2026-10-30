@@ -5,7 +5,7 @@
  "body_length_in": 17.9360568564162,
  "lower_bout_in": 13.600405119235658,
  "depth_at_edge": 63.50000000000001,
- "depth_max": 81.5,
+ "depth_max": 86.5,
  "neck_joint_fret": 15.449967208733394,
  "saddle_z": 105.82624807986171,
  "plateau_z": 74.5,
@@ -28,10 +28,10 @@
   "width": 38.1
  },
  "soundhole_area_each": 517.8656588680747,
- "air_volume_l": 5.7440205154872,
- "helmholtz_hz_est": 127.17098304797402,
+ "air_volume_l": 5.960295899151014,
+ "helmholtz_hz_est": 126.76455981398345,
  "masses_g": {
-  "top": 149.0,
+  "top": 148.3,
   "top_binding": 8.4,
   "back": 186.2,
   "rim": 570.3,
@@ -109,7 +109,7 @@
   "arch_inset": 22.0,
   "arch_neck_y": 340.0,
   "slot_area": 545.0,
-  "collar_h": 8.5,
+  "collar_h": 7.5,
   "collar_w": 4.0,
   "xbar_h": 5.0,
   "bar_x": 46.0,
@@ -117,15 +117,10 @@
   "bar_h": 5.0,
   "bar_taper": 35.0,
   "bar_end_inset": 14.0,
-  "back_arch": 7.0,
-  "ridge_x": 76.0,
+  "back_arch": 12.0,
   "ridge_y": [
-   70.0,
-   330.0
-  ],
-  "ridge_tips": [
-   25.0,
-   372.0
+   90.0,
+   280.0
   ],
   "chamfer": 3.5,
   "fb_above_edge": 15.0,

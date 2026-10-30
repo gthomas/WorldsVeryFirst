@@ -27,11 +27,11 @@ P = dict(
     top_plateau_t=3.5, top_fall_t_at_plateau=2.8,   # lightened (study/run.py v4)
     beam_w=5.0, beam_h=6.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
-    slot_area=545.0, collar_h=8.5, collar_w=4.0, xbar_h=5.0,
+    slot_area=545.0, collar_h=7.5, collar_w=4.0, xbar_h=5.0,
     bar_x=46.0, bar_w=6.0, bar_h=5.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
-    back_arch=7.0,           # ridge depth below the back edge
-    ridge_x=76.0, ridge_y=(70.0, 330.0), ridge_tips=(25.0, 372.0),   # centre-ridge footprint: long sides parallel to the ridge, pointed ends
+    back_arch=12.0,          # ridge depth below the back edge
+    ridge_y=(90.0, 280.0),   # centre ridge; the back arch uses the same eight-sided footprint as the top's arch
     chamfer=3.5,
     # neck
     fb_above_edge=15.0,      # fingerboard top (centre) above top edge at the joint
@@ -159,14 +159,15 @@ ARCH_ASSIGN = dict(aTail=[0], tTail=[0, 1], tLower=[1, 2], tWaist=[2, 3], aNeck=
 
 TOP_HEX = hexagon(0, P['bridge_y'], P['plat_half_w'], P['plat_tip'], P['plat_side'], P['plat_tip_neck'])
 # back: single centre ridge. Footprint hexagon (flat skirt outside it), ridge line along the centreline.
-_y1, _y2 = P['ridge_y']; _yt, _yn = P['ridge_tips']; _X0 = P['ridge_x']
-BACK_FOOT = np.array([(0, _yt), (_X0, _y1), (_X0, _y2), (0, _yn), (-_X0, _y2), (-_X0, _y1)], float)
+_y1, _y2 = P['ridge_y']
+BACK_FOOT = ARCH.copy()          # same footprint as the top's arch zone: broad, and it reads as one shape
 BACK_HEX = np.array([(0, _y1), (0, _y2)], float)          # the ridge (degenerate plateau)
 TOP_TRIS = facet_triangles(TOP_HEX, ARCH_NAMES, ARCH_ASSIGN)
-BACK_TRIS = [[('o', 1), ('o', 2), ('p', 1)], [('o', 1), ('p', 1), ('p', 0)],      # treble panel
-             [('o', 4), ('o', 5), ('p', 0)], [('o', 4), ('p', 0), ('p', 1)],      # bass panel
-             [('o', 0), ('o', 1), ('p', 0)], [('o', 5), ('o', 0), ('p', 0)],      # tail end
-             [('o', 2), ('o', 3), ('p', 1)], [('o', 3), ('o', 4), ('p', 1)]]      # neck end
+# ARCH order: 0 tail, 1 tTail, 2 tLower, 3 tWaist, 4 neck, 5 bWaist, 6 bLower, 7 bTail
+BACK_TRIS = [[('o', 0), ('o', 1), ('p', 0)], [('o', 1), ('o', 2), ('p', 0)], [('o', 2), ('p', 1), ('p', 0)],   # treble
+             [('o', 2), ('o', 3), ('p', 1)], [('o', 3), ('o', 4), ('p', 1)],
+             [('o', 7), ('o', 0), ('p', 0)], [('o', 6), ('o', 7), ('p', 0)], [('o', 6), ('p', 0), ('p', 1)],   # bass
+             [('o', 5), ('o', 6), ('p', 1)], [('o', 4), ('o', 5), ('p', 1)]]
 
 def tri_pts(tri, hexa, z_outline, z_plat, outer=None):
     outer = SHARP if outer is None else outer
