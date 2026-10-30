@@ -18,7 +18,7 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 |---|---|---|---|---|
 | 2 | Mahogany body blank, 2-piece | 21 × 14 × 1¾–2 in | One rim half each | The half is 18.05 × 13.6 × 1.12 in finished. A 14 in blank leaves only about 0.2 in per side, so hold it by the ends (the pin holes in the setup DXF are at the ends), or buy oversized 15 in blanks. The centre seam is fine: it runs through the neck and tail blocks. |
 | 1 | Mahogany neck blank | 30 × 3 × 1 in | Neck | Needs three glue-ups before machining: a 13° scarf-jointed headstock, a stacked heel (two 1 in layers glued under the heel end, about 3 in of total depth there), and headstock ears to reach 3.5 in width. Or buy a one-piece blank of at least 26 × 3.5 × 3 in and skip the glue-ups. |
-| 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.95 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
+| 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.87 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
 | 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 1/2 in thick | Back | Finished 0.36 in at most. Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
 | 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
 | 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
@@ -34,7 +34,7 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | Item | Choice | Fit notes |
 |---|---|---|
 | Tuners | Genuine Grover Deluxe SD90, 3+3, nickel, safety post (133N), as on the C-75 | 15:1, 6 mm posts. 11/32 in post holes with 8.8 mm press-in bushings; one back screw per tuner. |
-| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 8 mm ring beam. Strength check with this base: about 0.27 mm sink under the feet, 0.35 mm at most (checked without the soundhole lips, which only add stiffness). |
+| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 6 mm ring beam. Strength check with this base: about 0.27 mm sink under the feet, 0.35 mm at most (checked without the soundhole lips, which only add stiffness). |
 | Bridge top | A standard wooden compensated archtop bridge top (ebony or rosewood) with post holes at 74 mm | Must match the base's 74 mm post spacing. |
 | Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | The flat at the tail is 56 mm (2.2 in) wide, so a standard 51 mm (2 in) mounting plate sits on it with about 2.5 mm to spare each side. Its screws go into the tail block (68 mm wide). See the break angle note below. |
 | Pickup | EMG 91 | Comes with its mounting bracket, screws, output cable and battery cable. Use EMG's bracket from the fingerboard extension; the strap bracket in the model is a stand-in. |
@@ -62,7 +62,7 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
-| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 7.5 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
+| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 8 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside ridge panels and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
 | Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
@@ -103,6 +103,14 @@ These dimensions come from typical parts. Measure yours and change the parameter
 | Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |
 | Pots and jack | Stacked pot and stereo jack, 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
+
+## Voicing the top
+
+The top is graduated light: the plateau is 3.5 mm, the falls are 2.8 mm at the plateau rising to 3.2 mm at the skirt, the ring beam is 5 × 6 mm, the tone bars 6 × 5 mm and the cross bar 6 × 5 mm. It weighs about 150 g. Thinner than this gains nothing: the arched shape sets most of the stiffness, so the strength check shows the same flex under the bridge for anything lighter, with less safety margin.
+
+- **Creases:** each fold between facets has a concave side, inside or out. Finish all the facets with the 1/4 in ball-nose and leave its 3 mm radius in those inside corners; don't sharpen them by hand. The convex ridges can stay crisp, with just a light sanding break so they don't chip. With that radius the creases carry no more stress than the open facets.
+- **Tap tuning (optional):** after machining and before gluing, hold the top at a node and tap the plateau. The main tap tone should sit between two semitones and away from the air resonance (about 127 Hz). If it lands right on a note you'd play a lot, take a few tenths of a millimetre off the tone bars by hand, which lowers it.
+- **Humidity:** like any solid spruce top, it cracks along the grain if it dries out. Keep it between 40 and 55% relative humidity. The faceted shape gives a little more room for seasonal movement than a flat top.
 
 ## Known limits
 

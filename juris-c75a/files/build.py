@@ -24,11 +24,11 @@ P = dict(
     # top (spruce): faceted arch
     top_arch=14.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
     plat_tip=85.0, plat_tip_neck=70.0, plat_side=45.0,
-    top_plateau_t=6.0, top_fall_t_at_plateau=3.8,
-    beam_w=5.0, beam_h=8.0,
+    top_plateau_t=3.5, top_fall_t_at_plateau=2.8,   # lightened (study/run.py v4)
+    beam_w=5.0, beam_h=6.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
-    slot_area=545.0, collar_h=7.5, collar_w=4.0, xbar_h=7.0,
-    bar_x=46.0, bar_w=6.0, bar_h=9.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
+    slot_area=545.0, collar_h=8.0, collar_w=4.0, xbar_h=5.0,
+    bar_x=46.0, bar_w=6.0, bar_h=5.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
     back_arch=7.0,           # ridge depth below the back edge
     ridge_x=76.0, ridge_y=(70.0, 330.0), ridge_tips=(25.0, 372.0),   # centre-ridge footprint: long sides parallel to the ridge, pointed ends
@@ -46,6 +46,7 @@ P = dict(
     dowel_d=6.0, dowel_depth=10.0,
 )
 
+P.update(json.loads(os.environ.get('JURIS_P', '{}')))   # parameter overrides for studies
 OUT = os.path.join(os.path.dirname(__file__), 'out'); os.makedirs(OUT, exist_ok=True)
 DEG = math.pi / 180
 
@@ -1120,7 +1121,7 @@ def main():
     A = sum(abs(signed_area(s)) for s in SLOTS)
     t_hole = top_z_outer(0) - top_z_inner(0)
     # slots sit on a fall ~ halfway: thickness ~ 3.9
-    t_hole = 3.9 + P['collar_h']            # plate + collar lip
+    t_hole = P['top_fall_t_at_plateau'] + 0.1 + P['collar_h']      # plate at the slots + collar lip
     a_eq = math.sqrt(A / 2 / math.pi)
     L_eff = t_hole + 1.7 * a_eq
     c = 343e3
