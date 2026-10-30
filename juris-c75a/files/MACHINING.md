@@ -67,10 +67,11 @@ The `flat/` folder has 2D cut files:
 4. **Neck:** glue the neck tenon into the open-top mortise. Below the rim top the heel face is flat on the body's end face; the tenon floor sets the height.
 5. **Top:** glue the top onto the upper ledge and neck block. It also covers the tenon.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
-7. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
-8. **Hand-drilled holes:** drill the side jack and endpin square to the rim. Positions are in `positions.json`.
-9. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 10 mm; change `tuner_hole` in `build.py` if your tuners are different.
-10. **Bridge:** sand the saddle crown down to set the action. It is left 1.5 mm tall on purpose. Then file the string notches.
+7. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
+8. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
+9. **Hand-drilled holes:** drill the side jack and endpin square to the rim. Positions are in `positions.json`.
+10. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 10 mm; change `tuner_hole` in `build.py` if your tuners are different.
+11. **Bridge:** sand the saddle crown down to set the action. It is left 1.5 mm tall on purpose. Then file the string notches.
 
 ## Check against your hardware before cutting
 

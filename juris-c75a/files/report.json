@@ -36,7 +36,8 @@
  "air_volume_l": 6.064405373713725,
  "helmholtz_hz_est": 157.20434300620892,
  "masses_g": {
-  "top": 173.2,
+  "top": 164.4,
+  "top_binding": 8.7,
   "back": 185.5,
   "rim": 566.1,
   "neck": 289.7,
@@ -65,6 +66,7 @@
  "total_mass_lb": 4.32,
  "manifold_ok": {
   "top": true,
+  "top_binding": true,
   "back": true,
   "rim": true,
   "neck": true,

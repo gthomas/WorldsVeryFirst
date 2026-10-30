@@ -176,6 +176,7 @@ def top_z_inner(a):
     return Z_EDGE + a - t
 
 BIG = 400.0
+BINDING_W = 6.35     # undyed band around the top edge (faux binding), measured in plan from the outline
 NECK_HALF_X = 28.0
 HEEL_W = 2 * NECK_HALF_X - 3.0     # heel sits 1.5 mm inside the body's sides
 HEEL_HOLD = 9.0
@@ -961,6 +962,9 @@ def main():
     MORTISE = mortise()
     parts = {}
     print('top...');  parts['top'] = build_top()
+    band = m3.Manifold.extrude(OUTL_CS - OUTL_CS.offset(-BINDING_W, m3.JoinType.Round, circular_segments=96), 2 * BIG).translate([0, 0, -BIG])
+    parts['top_binding'] = parts['top'] ^ band          # left undyed: faux binding
+    parts['top'] = parts['top'] - band
     print('back...'); parts['back'] = build_back()
     print('rim...');  parts['rim'] = build_rim()
     print('neck...'); parts['neck'] = build_neck() - tuner_holes()
@@ -984,17 +988,17 @@ def main():
     for k, v in parts.items():
         if v.is_empty(): print('EMPTY', k)
 
-    MAT = dict(truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
+    MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
                pickup='gold', pickup_plate='brass', pickup_poles='nickel', pickguard_bracket='nickel', pickguard='black', knobs='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
-    GROUP = dict(truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
+    GROUP = dict(top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
                  pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickguard_bracket='Hardware', pickguard='Hardware', knobs='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
-    DENS = dict(gold=8400, brass=8500, spruce=430, spruce_back=430, maple=550, mahogany=590, ebony=1150, bone=1900, nickel=8400, steel=7850, black=1400)
+    DENS = dict(gold=8400, brass=8500, spruce=430, spruce_black=430, spruce_back=430, maple=550, mahogany=590, ebony=1150, bone=1900, nickel=8400, steel=7850, black=1400)
 
     scene = trimesh.Scene()
     vols = {}
@@ -1004,7 +1008,9 @@ def main():
         tm.metadata['name'] = k
         scene.add_geometry(tm, node_name=k, geom_name=k,
                            metadata=dict(material=MAT[k], group=GROUP[k], explode=EXPLODE[GROUP[k]]))
-        if k in ('top', 'back', 'rim', 'neck', 'fingerboard', 'bridge'):
+        if k == 'top':
+            to_trimesh(build_top()).export(os.path.join(OUT, 'top.stl'))   # one solid part (dye mask is cosmetic)
+        elif k in ('back', 'rim', 'neck', 'fingerboard', 'bridge'):
             tm.export(os.path.join(OUT, f'{k}.stl'))
     scene.export(os.path.join(OUT, 'juris_c75a.glb'))
     # extras per node are not always carried by trimesh; also write a sidecar json
@@ -1019,7 +1025,7 @@ def main():
     # air volume & Helmholtz estimate
     outer_body = (BODY_PRISM ^ terrain_below(TOP_TRIS, TOP_HEX, Z_EDGE, Z_PLAT, Z_PLAT, Z_EDGE)
                   ^ terrain_above(BACK_TRIS, BACK_HEX, 0.0, -P['back_arch'], -P['back_arch'], 0.0))
-    air = outer_body.volume() - vols['top'] - vols['back'] - vols['rim'] - (parts['neck'] ^ outer_body).volume()
+    air = outer_body.volume() - vols['top'] - vols['top_binding'] - vols['back'] - vols['rim'] - (parts['neck'] ^ outer_body).volume()
     A = sum(abs(signed_area(s)) for s in SLOTS)
     t_hole = top_z_outer(0) - top_z_inner(0)
     # slots sit on a fall ~ halfway: thickness ~ 3.9
@@ -1059,7 +1065,7 @@ def write_dxf():
     import ezdxf
     doc = ezdxf.new('R2010'); doc.units = ezdxf.units.MM; ms = doc.modelspace()
     for lay, col in [('OUTLINE', 7), ('RIM_INNER', 1), ('LINING_INNER', 2), ('BLOCKS', 3), ('TOP_PLATEAU', 4),
-                     ('TOP_FOLDS', 5), ('TOP_BEAM', 6), ('SOUNDHOLES', 1), ('BACK_PLATEAU', 4), ('BACK_FOLDS', 5), ('TOP_BARS', 6), ('CENTERLINE', 8), ('BRIDGE_LINE', 8)]:
+                     ('TOP_FOLDS', 5), ('TOP_BEAM', 6), ('SOUNDHOLES', 1), ('BACK_PLATEAU', 4), ('BACK_FOLDS', 5), ('TOP_BARS', 6), ('TOP_DYE_MASK', 1), ('CENTERLINE', 8), ('BRIDGE_LINE', 8)]:
         doc.layers.add(lay, color=col)
     def poly(pts, layer, closed=True): ms.add_lwpolyline([tuple(map(float, p)) for p in pts], close=closed, dxfattribs={'layer': layer})
     poly(OUTL, 'OUTLINE')
@@ -1081,6 +1087,7 @@ def write_dxf():
                 pa = outer[a[1]] if a[0] == 'o' else hexa[a[1]]; pb = outer[b[1]] if b[0] == 'o' else hexa[b[1]]
                 ms.add_line(tuple(pa), tuple(pb), dxfattribs={'layer': lay})
     for s in SLOTS: poly(s, 'SOUNDHOLES')
+    for c in OUTL_CS.offset(-BINDING_W, m3.JoinType.Round, circular_segments=96).to_polygons(): poly(c, 'TOP_DYE_MASK')
     for ra, rb in bar_segments() + [cross_bar_segment()]: ms.add_line(tuple(ra), tuple(rb), dxfattribs={'layer': 'TOP_BARS'})
     ms.add_line((0, -10), (0, 480), dxfattribs={'layer': 'CENTERLINE'})
     ms.add_line((-60, P['bridge_y']), (60, P['bridge_y']), dxfattribs={'layer': 'BRIDGE_LINE'})
