@@ -839,47 +839,30 @@ def rrect(w, l, r, n=6):
 def string_slope():
     return (NUT_PT[2] - SADDLE[2]) / (NUT_PT[1] - SADDLE[1])
 
+EMG91 = dict(L=86.3, W=38.1, H=10.9, R=5.0)     # EMG 91 floating humbucker (EMG install sheet; 0.43 in max height)
 def build_pickup():
-    """Lollar gold foil, floating (pickguard) mount, per Lollar drawing:
-    2.941 x 1.250 in, 0.160 R corners, 0.350 in overall incl. 0.050 base plate,
-    0.750 x 0.880 in mounting tab off one end. Pole spacing 1.940 in."""
+    """EMG 91 active floating humbucker, hung from the fingerboard extension on a bracket.
+    Black housing, no exposed poles. Sits parallel to the strings, 4 mm under them."""
     pk = P['pickup']
-    W, L, R = 2.941 * IN, 1.250 * IN, 0.160 * IN
-    H, T = 0.350 * IN, 0.050 * IN
-    TAB_L, TAB_W = 0.750 * IN, 0.880 * IN
+    L, W, H, R = EMG91['L'], EMG91['W'], EMG91['H'], EMG91['R']
     fb_end_y = n2b(U_FB_END, 0, 0)[1]
-    yc = fb_end_y - L / 2 - 2.0
+    yc = fb_end_y - W / 2 - 2.0
     ztop = string_z_at(yc) - pk['string_gap']
     zbot = ztop - H
-    # local frame: origin at pickup centre on the underside of the base plate; tilted to sit parallel to the strings
-    base = prism(rrect(W, L, R), 0, T)
-    tab = prism(np.array([(W / 2 - R, -TAB_W / 2), (W / 2 + TAB_L, -TAB_W / 2), (W / 2 + TAB_L, TAB_W / 2), (W / 2 - R, TAB_W / 2)]), 0, T)
-    e = W / 2 + TAB_L
-    for hx, hy in [(e - 0.490 * IN, 0.150 * IN), (e - 0.490 * IN, -0.150 * IN), (e - 0.130 * IN, 0.0)]:
-        tab = tab - m3.Manifold.cylinder(10, 0.040 * IN, 0.040 * IN, 16).translate([hx, hy, -5])
-    inner = rrect(W - 1.2, L - 1.2, R - 0.6)
-    lo = [(x, y, T) for x, y in inner]; hi = [(x * (W - 4) / (W - 1.2), y * (L - 4) / (L - 1.2), H) for x, y in inner]
-    mid = [(x, y, H - 1.4) for x, y in inner]
-    cover = hull(lo + mid + hi)
-    poles = []
-    for i in range(6):
-        x = -0.970 * IN + i * 0.388 * IN
-        poles.append(m3.Manifold.cylinder(0.35, 1.9, 1.9, 16).translate([x, 0.29 * IN, H]))
-        poles.append(m3.Manifold.cylinder(0.25, 3.6, 3.6, 24).translate([x, -0.25 * IN, H]))
+    inner = rrect(L, W, R)
+    lo = [(x, y, 0.0) for x, y in inner]; mid = [(x, y, H - 1.2) for x, y in inner]
+    hi = [(x * (L - 2.4) / L, y * (W - 2.4) / W, H) for x, y in inner]
+    body = hull(lo + mid + hi)
     ang = math.degrees(math.atan(string_slope()))
     place = lambda man: man.rotate([ang, 0, 0]).translate([0, yc, zbot])
-    body, plate, pole = place(cover), place(base + tab), place(union(poles))
-    # clearance of the underside to the top
-    xs = np.linspace(-W / 2, W / 2, 13); ys = np.linspace(yc - L / 2, yc + L / 2, 9)
+    xs = np.linspace(-L / 2, L / 2, 13); ys = np.linspace(yc - W / 2, yc + W / 2, 9)
     sl = string_slope()
     clr = min(zbot + sl * (y - yc) - top_height_at(x, y) for x in xs for y in ys)
     topmax = max(top_height_at(x, y) for x in xs for y in ys)
-    info = dict(model='Lollar gold foil, floating mount', y=float(yc), z_top=float(ztop), height=H,
+    info = dict(model='EMG 91, fingerboard-bracket mount', y=float(yc), z_top=float(ztop), z_bottom=float(zbot), height=H,
                 max_height_for_3mm_clearance=float(ztop - 3.0 - topmax), clearance_to_top=float(clr),
-                string_to_top=float(string_z_at(yc) - topmax), pole_spacing=1.940 * IN,
-                string_spacing_at_pickup=float(STR_SPREAD_AT(yc)),
-                tab_top_z=float(zbot + T), tab_span_x=(float(W / 2 - R), float(e)))
-    return body, plate, pole, info
+                string_to_top=float(string_z_at(yc) - topmax), length=L, width=W)
+    return place(body), None, None, info
 
 def STR_SPREAD_AT(y):
     t = (y - SADDLE[1]) / (NUT_PT[1] - SADDLE[1]); return 52.4 + t * (35.0 - 52.4)
@@ -933,14 +916,28 @@ def build_control_hardware():
         out.append(m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).rotate([-90, 0, 0]).translate([se, T, sz]))
     return _ctrl_local(union(out))
 
+BATTERY = (48.5, 17.5, 26.5)      # 9 V: long, thick, tall
+BATTERY_DEPTH = 24.0              # from the plate face into the body to the battery's near edge
+def build_battery():
+    """9 V battery for the EMG, lying flat in a holder glued to the back, just inside the control
+    window; reachable by taking the plate off"""
+    Lb, Tb, Hb = BATTERY
+    zc = Z_BACK_IN + 1.5 + Tb / 2 - Z_SPLIT
+    x0 = -40.0 + Lb / 2 + 6
+    box = m3.Manifold.cube([Lb, Hb, Tb], True).translate([x0, -(BATTERY_DEPTH + Hb / 2), zc])
+    snaps = union([m3.Manifold.cylinder(4, 3.0, 3.0, 16).rotate([0, 90, 0]).translate([x0 + Lb / 2, -(BATTERY_DEPTH + Hb / 2) + dy, zc]) for dy in (-6, 6)])
+    holder = m3.Manifold.cube([Lb + 6, Hb + 6, 1.5], True).translate([x0, -(BATTERY_DEPTH + Hb / 2), Z_BACK_IN + 0.75 - Z_SPLIT])
+    holder = holder + union([m3.Manifold.cube([Lb + 6, 1.5, 8], True).translate([x0, -(BATTERY_DEPTH + Hb / 2) + sy * (Hb / 2 + 2.25), Z_BACK_IN + 4 - Z_SPLIT]) for sy in (-1, 1)])
+    return _ctrl_local(box + snaps), _ctrl_local(holder)
+
 def fb_bottom_z(y):
     u = U_FB_END + (n2b(U_FB_END, 0, -P['fb_t'])[1] - y) * -1 / math.cos(TH)
     return n2b(u, 0, -P['fb_t'])[2]
 
 def build_pickup_bracket(pk_info):
     """1.5 mm strap from the underside of the fingerboard extension down to the pickup's mounting tab"""
-    zt = pk_info['tab_top_z'] - 0.050 * IN; y0 = pk_info['y']; sl = string_slope()
-    x0, x1 = 22.0, 46.0; yb = 372.0
+    zt = pk_info['z_bottom']; y0 = pk_info['y']; sl = string_slope()
+    x0, x1 = 22.0, 40.0; yb = 372.0
     zfb = fb_bottom_z(yb)
     top = hull([(x, y, fb_bottom_z(y) - dz) for x in (x0 - 5, x0 + 5) for y in (yb - 8, yb + 8) for dz in (0.0, 1.5)])
     drop = hull([(x, y, z) for x in (x0 - 5, x0 + 5) for y in (yb - 8, yb - 6.5) for z in (zt - 1.5 + sl * (yb - 8 - y0), zfb)])
@@ -1006,10 +1003,11 @@ def main():
     br, bridge_h = build_bridge(); parts['bridge'] = br
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     pk_cover, pk_plate, pk_poles, pk_info = build_pickup()
-    parts['pickup'] = pk_cover; parts['pickup_plate'] = pk_plate; parts['pickup_poles'] = pk_poles
+    parts['pickup'] = pk_cover
     parts['pickup_bracket'] = build_pickup_bracket(pk_info)
     parts['control_plate'] = build_control_plate()
     parts['controls'] = build_control_hardware()
+    parts['battery'], parts['battery_clip'] = build_battery()
     parts['strap_buttons'] = build_strap_buttons()
     st, string_lines = build_strings(anchor); parts['strings'] = st
 
@@ -1018,11 +1016,11 @@ def main():
 
     MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
-               pickup='gold', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black',
+               pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_clip='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
     GROUP = dict(top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
-                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware',
+                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware', battery='Hardware', battery_clip='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
@@ -1046,7 +1044,7 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=110, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_clip=5, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
     for k, g in nominal.items(): mass[k] = g
     total_g = sum(mass.values())
 

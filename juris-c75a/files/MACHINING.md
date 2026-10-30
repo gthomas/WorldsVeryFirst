@@ -24,7 +24,8 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Ebony bridge blank | 5 × 1 × 1½ in | Bridge | Finished 3.8 × 0.85 × 1.3 in. |
 | 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
 | 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the volume and tone pots and the output jack. |
-| 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the pickup from the underside of the fingerboard extension, unless your pickup comes with a fingerboard-mount bracket. |
+| 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
+| 1 | 9 V battery holder (snap clip or box) | about 55 × 33 mm footprint | Battery | Glued to the inside of the back just inside the control window. |
 | 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
@@ -66,7 +67,7 @@ The `flat/` folder has 2D cut files:
 4. **Neck:** glue the neck tenon into the open-top mortise. Below the rim top the heel face is flat on the body's end face; the tenon floor sets the height.
 5. **Top:** glue the top onto the upper ledge and neck block. It also covers the tenon.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
-7. **Wiring:** feed the pickup lead through the 6 mm hole in the top under the fingerboard extension. Mount the pots and jack on the control plate, wire them through the rim window, and screw the plate on. Everything stays reachable through the window later.
+7. **Wiring:** glue the battery holder to the inside of the back, just inside the control window (before the top goes on, or through the window afterwards). Feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Mount the pots and the stereo jack on the control plate, wire them through the window with the battery clip (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, take off the plate.
 8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
 9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
 10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
@@ -81,7 +82,9 @@ These dimensions come from typical parts. Measure yours and change the parameter
 |---|---|---|
 | Tuners | 10 mm post holes | `tuner_hole` |
 | Truss rod | 15 in long, needs a 1/4 × 3/8 in channel | `truss_len`, `truss_w`, `truss_d` |
-| Pickup | Floating pickup on a fingerboard-extension bracket; modelled with the Lollar gold foil's dimensions | `build_pickup`, `build_pickup_bracket` |
+| Pickup | EMG 91, 86.3 × 38.1 × 10.9 mm (EMG sheet, 0.43 in max height), on a fingerboard-extension bracket | `EMG91`, `build_pickup_bracket` |
+| Battery | 9 V, 48.5 × 26.5 × 17.5 mm, lying flat inside the window | `BATTERY`, `build_battery` |
+| Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |
 | Pots and jack | 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
 
