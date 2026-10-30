@@ -37,7 +37,7 @@
  "helmholtz_hz_est": 157.20434300620892,
  "masses_g": {
   "top": 173.2,
-  "back": 145.0,
+  "back": 185.5,
   "rim": 566.1,
   "neck": 289.7,
   "fingerboard": 179.0,
@@ -61,8 +61,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 1921,
- "total_mass_lb": 4.24,
+ "total_mass_g": 1962,
+ "total_mass_lb": 4.32,
  "manifold_ok": {
   "top": true,
   "back": true,
