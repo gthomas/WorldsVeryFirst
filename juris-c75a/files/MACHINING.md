@@ -23,8 +23,8 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
 | 1 | Ebony bridge blank | 5 × 1 × 1½ in | Bridge | Finished 3.8 × 0.85 × 1.3 in. |
 | 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
-| 1 | Black pickguard sheet (acrylic or celluloid) | 8 × 5 × 0.09 in | Pickguard | |
-| 1 | Brass sheet | 2 × 1 in, 1.5 mm | Fingerboard plate | |
+| 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the volume and tone pots and the output jack. |
+| 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the pickup from the underside of the fingerboard extension, unless your pickup comes with a fingerboard-mount bracket. |
 | 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
@@ -48,16 +48,15 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 |---|---|---|---|---|
 | Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar. Soundholes cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1/2 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside ridge panels and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
-| Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, drill 4 dowel holes 10 mm deep, profile the outside. |
-| Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half, then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
+| Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
+| Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane, truss rod channel, headstock face. B (flipped): back carve, heel, tenon, volute, headstock back. |
 | Fingerboard | `fingerboard/` | Ebony, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
 | Bridge | `bridge/` | Ebony, 5 × 1 × 1½ in | 2 | Base down: compensated, radiused saddle crown and sides. Flip: relief under the centre. |
 
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm ebony or black fibre headstock overlay with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
-- `pickguard_2.3mm.dxf`: flat pattern for the floating guard, laid out in the guard's own plane. It includes the two 9.5 mm pot holes, the three Lollar tab holes and the mounting holes.
-- `fingerboard_plate_1.5mm_brass.dxf`: the small plate joining the guard to the underside of the fingerboard extension.
+- `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the jack, volume and tone, four screw holes, and the outline of the window it covers.
 
 ## Build order
 
@@ -67,11 +66,12 @@ The `flat/` folder has 2D cut files:
 4. **Neck:** glue the neck tenon into the open-top mortise. Below the rim top the heel face is flat on the body's end face; the tenon floor sets the height.
 5. **Top:** glue the top onto the upper ledge and neck block. It also covers the tenon.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
-7. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
-8. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
-9. **Hand-drilled holes:** drill the side jack and endpin square to the rim. Positions are in `positions.json`.
-10. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 10 mm; change `tuner_hole` in `build.py` if your tuners are different.
-11. **Bridge:** sand the saddle crown down to set the action. It is left 1.5 mm tall on purpose. Then file the string notches.
+7. **Wiring:** feed the pickup lead through the 6 mm hole in the top under the fingerboard extension. Mount the pots and jack on the control plate, wire them through the rim window, and screw the plate on. Everything stays reachable through the window later.
+8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
+9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
+10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
+11. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 10 mm; change `tuner_hole` in `build.py` if your tuners are different.
+12. **Bridge:** sand the saddle crown down to set the action. It is left 1.5 mm tall on purpose. Then file the string notches.
 
 ## Check against your hardware before cutting
 
@@ -81,8 +81,8 @@ These dimensions come from typical parts. Measure yours and change the parameter
 |---|---|---|
 | Tuners | 10 mm post holes | `tuner_hole` |
 | Truss rod | 15 in long, needs a 1/4 × 3/8 in channel | `truss_len`, `truss_w`, `truss_d` |
-| Pickup | Lollar gold foil, floating mount (drawing dimensions) | `build_pickup` |
-| Pots | 3/8 in bushings (9.5 mm holes) | pickguard DXF |
+| Pickup | Floating pickup on a fingerboard-extension bracket; modelled with the Lollar gold foil's dimensions | `build_pickup`, `build_pickup_bracket` |
+| Pots and jack | 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
 
 ## Known limits
@@ -90,4 +90,4 @@ These dimensions come from typical parts. Measure yours and change the parameter
 - **Outline accuracy:** the body outline was traced from the C-75 PDF at about 0.13 mm per pixel. If you have the original CAD outline, replace the traced edges in `outline.py`.
 - **Curved surfaces:** the STEP models describe the neck carve, volute and fingerboard radius as many small flat faces, about 0.005 mm from the true shape. That's fine for 3D finishing, but they won't behave as single smooth surfaces in CAD.
 - **Undercut check:** casts vertical rays on a 0.5 mm grid (0.25 mm for the fingerboard and bridge). One cell on the neck reads 0.2 mm²; recasting that spot gives a clean result, so it's numerical noise.
-- **Hardware not modelled for machining:** the tailpiece, pickup, knobs and brackets are purchased or fabricated.
+- **Hardware not modelled for machining:** the tailpiece, pickup, knobs, pickup bracket and control plate hardware are purchased or fabricated.

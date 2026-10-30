@@ -246,25 +246,15 @@ def flat_parts():
     for s_ in (8.0, 38.0): circ(ms, (0, s_), 2.0, 'TRUSS_COVER')
     doc.saveas(os.path.join(d, 'faceplate_and_truss_cover.dxf'))
 
-    # pickguard flat pattern (in the guard plane; y measured along the plane)
-    import json as _j
-    pk = _j.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'report.json')))['pickup']
-    sl = B.string_slope(); k = math.sqrt(1 + sl * sl); y0 = pk['y']
-    fy = lambda y: y0 + (y - y0) * k
-    doc, ms = doc_with([('OUTLINE', 7), ('POT_HOLES', 1), ('PICKUP_TAB_HOLES', 2), ('MOUNT_HOLES', 3)])
-    pl(ms, [(x, fy(y)) for x, y in B.PG_POLY], 'OUTLINE')
-    for x, y in [(92, 262), (70, 298)]: circ(ms, (x, fy(y)), 9.5, 'POT_HOLES')
-    IN = 25.4; W_, R_ = 2.941 * IN, 0.160 * IN; e = W_ / 2 + 0.750 * IN
-    for hx, hy in [(e - 0.490 * IN, 0.150 * IN), (e - 0.490 * IN, -0.150 * IN), (e - 0.130 * IN, 0.0)]:
-        circ(ms, (hx, y0 + hy), 0.080 * IN, 'PICKUP_TAB_HOLES')
-    for x, y in [(104.0, 252.0), (34.0, 364.5), (40.0, 364.5)]: circ(ms, (x, fy(y)), 3.2, 'MOUNT_HOLES')
-    doc.saveas(os.path.join(d, 'pickguard_2.3mm.dxf'))
-
-    # fingerboard-end plate (1.5 mm brass)
-    doc, ms = doc_with([('OUTLINE', 7), ('HOLES', 1)])
-    pl(ms, [(15, 361.5), (44, 361.5), (44, 367.5), (15, 367.5)], 'OUTLINE')
-    for x in (19, 25, 34, 40): circ(ms, (x, 364.5), 2.2, 'HOLES')
-    doc.saveas(os.path.join(d, 'fingerboard_plate_1.5mm_brass.dxf'))
+    # rim control plate (plate coordinates: x along the rim face, y up; origin at the plate centre)
+    doc, ms = doc_with([('OUTLINE', 7), ('POT_AND_JACK_HOLES', 1), ('SCREW_HOLES', 3), ('RIM_WINDOW_behind', 8)])
+    L, H, T = B.CTRL_PLATE
+    pl(ms, [(-L / 2, -H / 2), (L / 2, -H / 2), (L / 2, H / 2), (-L / 2, H / 2)], 'OUTLINE')
+    for name, x, dia in B.CTRL_HOLES: circ(ms, (x, 0), dia, 'POT_AND_JACK_HOLES')
+    for se, sz in B.CTRL_SCREWS: circ(ms, (se, sz), 2.8, 'SCREW_HOLES')
+    W, Hw = B.CTRL_WIN
+    pl(ms, [(-W / 2, -Hw / 2), (W / 2, -Hw / 2), (W / 2, Hw / 2), (-W / 2, Hw / 2)], 'RIM_WINDOW_behind')
+    doc.saveas(os.path.join(d, f'control_plate_{T:.0f}mm.dxf'))
 
     # positions table
     fb_end = B.n2b(B.U_FB_END, 0, 0)
@@ -272,7 +262,11 @@ def flat_parts():
         fret_positions_from_nut_mm=[round(B.fret_s(n), 2) for n in range(1, B.P['frets'] + 1)],
         side_dots_between_frets=[3, 5, 7, 9, 12, 15, 17, 19, 21], side_dot_dia_mm=2.0,
         tuner_holes_face_coords_mm=[[round(v, 1), round(s, 1)] for v, s, _ in B.TUNER_LIST], tuner_hole_dia_mm=B.P['tuner_hole'],
-        jack=dict(center_body_xy=[round(float(c), 1) for c in B._jp], z=round(B._jz, 1), dia_mm=12.7, note='drill square to the rim face after glue-up'),
+        control_plate=dict(center_body_xy=[round(float(c), 1) for c in B.CTRL_C], z=round(B.Z_SPLIT, 1),
+                           outward_normal=[round(float(c), 4) for c in B.CTRL_N], along_rim=[round(float(c), 4) for c in B.CTRL_E],
+                           holes={n: dict(along_mm=x, dia_mm=dd) for n, x, dd in B.CTRL_HOLES}, screws_mm=B.CTRL_SCREWS,
+                           note='the window behind it is machined; drill the four 2 mm pilot holes square to the rim face'),
+        pickup_wire_hole=dict(center_body_xy=list(B.WIRE_HOLE[:2]), dia_mm=B.WIRE_HOLE[2], note='through the top, under the fingerboard extension (machined with the top)'),
         endpin=dict(center_body_xy=[0.0, 0.0], z=round(B.Z_BACK_IN + B.P['rim_h'] / 2 - 4, 1), dia_mm=12.0),
         dowels_body_xy=B.DOWELS, dowel=f"{B.P['dowel_d']} mm x {2 * B.P['dowel_depth']} mm",
         truss_rod=f"{B.P['truss_len'] / 25.4:.0f} in dual-action, channel {B.P['truss_w']} x {B.P['truss_d']} mm",

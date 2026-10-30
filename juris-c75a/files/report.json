@@ -29,17 +29,16 @@
   "tab_span_x": [
    33.286699999999996,
    56.40069999999999
-  ],
-  "pickguard_clearance_to_top": 16.905246175392946
+  ]
  },
  "soundhole_area_each": 765.2215777173092,
- "air_volume_l": 5.7983645910069095,
- "helmholtz_hz_est": 160.7703258825423,
+ "air_volume_l": 5.785044745594107,
+ "helmholtz_hz_est": 160.9553032470395,
  "masses_g": {
   "top": 164.4,
   "top_binding": 8.7,
   "back": 186.5,
-  "rim": 566.1,
+  "rim": 574.1,
   "neck": 289.7,
   "fingerboard": 179.0,
   "faceplate": 20.5,
@@ -53,17 +52,16 @@
   "pickup": 110,
   "pickup_plate": 0,
   "pickup_poles": 0,
-  "pickguard": 20,
-  "knobs": 10,
-  "pickguard_bracket": 10,
-  "jack": 12,
+  "pickup_bracket": 10,
+  "control_plate": 15,
+  "controls": 70,
   "strap_buttons": 8,
   "strings": 10,
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 1963,
- "total_mass_lb": 4.33,
+ "total_mass_g": 2014,
+ "total_mass_lb": 4.44,
  "manifold_ok": {
   "top": true,
   "top_binding": true,
@@ -82,10 +80,9 @@
   "pickup": true,
   "pickup_plate": true,
   "pickup_poles": true,
-  "pickguard": true,
-  "knobs": true,
-  "pickguard_bracket": true,
-  "jack": true,
+  "pickup_bracket": true,
+  "control_plate": true,
+  "controls": true,
   "strap_buttons": true,
   "strings": true
  },

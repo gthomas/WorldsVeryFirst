@@ -310,7 +310,7 @@ def y_at_x(line, x):
 def soundhole(side):
     """Mirror-image slots in the upper side facets (plateau upper corner, lower-bout corner, waist).
     Long sides parallel to the fold from the plateau corner; kept outboard of the tone bars.
-    The treble one ends under the pickguard so the pickup lead drops into the body."""
+    """
     from shapely.geometry import Polygon, box
     sg = 1 if side == 'treble' else -1
     UT = TOP_HEX[2] * [1, 1]; tL = np.array(ARCH[ARCH_NAMES.index('tLower')]); tW = np.array(ARCH[ARCH_NAMES.index('tWaist')])
@@ -399,6 +399,8 @@ def build_top(chamfer=True):
     top = shell + beam + build_bars()
     for sl in SLOTS:
         top = top - prism(sl, -BIG, BIG)
+    wx, wy, wd = WIRE_HOLE
+    top = top - m3.Manifold.cylinder(2 * BIG, wd / 2, wd / 2, 32).translate([wx, wy, -BIG])
     return top ^ KEEP_TOP if chamfer else top
 
 # ----------------------------------------------------------------------------- BACK
@@ -421,7 +423,8 @@ DOWELS = [(0.0, 399.8), (-34.0, 405.0), (-20.0, 10.0), (20.0, 10.0)]
 def rim_regions():
     blocks = (m3.CrossSection([NECK_BLOCK]) + m3.CrossSection([TAIL_BLOCK])) ^ OUTL_CS
     through = open_cs(OUTL_CS.offset(-(P['rim_wall'] + P['lining_w']), m3.JoinType.Round, circular_segments=96) - blocks)
-    recess = open_cs(OUTL_CS.offset(-P['rim_wall'], m3.JoinType.Round, circular_segments=96) - blocks)
+    pad = m3.CrossSection([ctrl_box(CTRL_PAD_L, -30.0, 1.0)])      # wall left full ledge-thick behind the control plate
+    recess = open_cs(OUTL_CS.offset(-P['rim_wall'], m3.JoinType.Round, circular_segments=96) - blocks - pad)
     return through, recess
 
 def build_rim_halves(machining=True):
@@ -435,13 +438,19 @@ def build_rim_halves(machining=True):
                             .translate([x, y, z0]) for x, y in DOWELS])
     lower = ring.translate([0, 0, Z_BACK_IN]) - pocket.translate([0, 0, Z_BACK_IN + lh]) - dow(zs - P['dowel_depth'])
     upper = ring.translate([0, 0, zs]) - pocket.translate([0, 0, zs]) - dow(zs) - MORTISE
+    # control window: a notch through the wall in each half, cut from the split face (3-axis)
+    wh = CTRL_WIN[1] / 2
+    win = prism(ctrl_box(CTRL_WIN[0], -40.0, 6.0), zs - wh, zs + wh)
+    holes = union([m3.Manifold.cylinder(14, 1.0, 1.0, 16).rotate([0, 90, 0]).rotate([0, 0, math.degrees(math.atan2(CTRL_N[1], CTRL_N[0]))])
+                   .translate([*(CTRL_C + CTRL_E * se + CTRL_N * -12.0), zs + sz]) for se, sz in CTRL_SCREWS])
+    lower = lower - win; upper = upper - win          # plate screw pilots are drilled by hand into the rim face
     return lower, upper
 
 def build_rim():
     lower, upper = build_rim_halves()
     rim = lower + upper
-    # side jack bore (treble lower edge) and endpin bore: drilled by hand after glue-up
-    rim = rim - JACK_BORE - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + P['rim_h'] / 2 - 4])
+    # endpin bore: drilled by hand after glue-up (the jack lives on the control plate)
+    rim = rim - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + P['rim_h'] / 2 - 4])
     return rim ^ KEEP_TOP ^ KEEP_BOT
 
 # ----------------------------------------------------------------------------- NECK FRAME
@@ -875,59 +884,71 @@ def build_pickup():
 def STR_SPREAD_AT(y):
     t = (y - SADDLE[1]) / (NUT_PT[1] - SADDLE[1]); return 52.4 + t * (35.0 - 52.4)
 
-PG_POLY = np.array([(29.5, 368), (29.5, 360.5), (38.5, 359.5), (38.5, 326), (46, 296), (52, 240), (76, 214), (114, 238), (106, 338), (52, 368)], float)
-def build_pickguard(pk_info):
-    """Floating guard, parallel to the strings, sitting on the pickup's mounting tab."""
-    sl = string_slope(); y0 = pk_info['y']; zb0 = pk_info['tab_top_z']
-    PG_T = 2.3
-    zb = lambda x, y: zb0 + sl * (y - y0)
-    poly = ccw(PG_POLY)
-    r0 = np.array([(x, y, zb(x, y)) for x, y in poly]); r1 = r0 + [0, 0, PG_T]
-    pg = loft([r0, r1], [poly, poly])
-    samp = [(x, y) for x in np.linspace(38, 114, 40) for y in np.linspace(226, 357, 60) if point_in_poly((x, y), PG_POLY)]
-    pg_clear = min(zb(x, y) - top_height_at(x, y) for x, y in samp)
-    knobs = []
-    for (x, y) in [(92, 262), (70, 298)]:
-        z = zb(x, y) + PG_T
-        knobs.append(hull([(x + 9 * math.cos(a), y + 9 * math.sin(a), z) for a in np.linspace(0, 2 * math.pi, 7)[:-1]] +
-                          [(x + 7.5 * math.cos(a), y + 7.5 * math.sin(a), z + 15) for a in np.linspace(0, 2 * math.pi, 7)[:-1]]))
-    # rim bracket: strap on the treble side of the rim, arm under the guard
-    A, B = SHARP[names.index('tLower')], SHARP[names.index('tWaist')]
-    e = (B - A) / np.linalg.norm(B - A); n = np.array([e[1], -e[0]])
-    yb = 252.0; t = (yb - A[1]) / (B[1] - A[1]); p = A + (B - A) * t
-    g = zb(p[0], yb)
-    vert = hull([(*(p + n * dn + e * de), z) for dn in (0.3, 2.8) for de in (-6, 6) for z in (Z_BACK_IN + 22, g)])
-    tip = np.array([104.0, yb])
-    arm = hull([(*(q + e * de), z + sl * (q[1] + e[1] * de - yb)) for q in (p + n * 2.8, tip) for de in (-6, 6) for z in (g - 2.8, g - 0.3)])
-    # neck-end mount: a 1.5 mm plate under the fingerboard extension and the guard corner (both bottoms lie in
-    # the same plane here), two screws up into the ebony, two through the guard.
-    def fb_bottom_z(y):
-        u = U_FB_END + (n2b(U_FB_END, 0, -P['fb_t'])[1] - y) * -1 / math.cos(TH)
-        return n2b(u, 0, -P['fb_t'])[2]
-    plate = hull([(x, y, min(zb(x, y), fb_bottom_z(y)) - dz) for x in (15.0, 44.0) for y in (361.5, 367.5) for dz in (0.0, 1.5)])
-    heads = union([m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).translate([x, y, min(zb(x, y), fb_bottom_z(y)) - 2.5])
-                   for x, y in [(19.0, 364.5), (25.0, 364.5), (34.0, 364.5), (40.0, 364.5)]])
-    return pg, union(knobs), vert + arm + plate + heads, float(pg_clear)
-
-# side jack on the treble lower edge
-def jack_frame():
+# ----------------------------------------------------------------------------- CONTROLS (rim access plate)
+def ctrl_frame():
     a, b = SHARP[names.index('tTail')], SHARP[names.index('tLower')]
-    t = 0.45; p = a + (b - a) * t
-    e = (b - a) / np.linalg.norm(b - a); nrm = np.array([e[1], -e[0]])   # outward for CCW
-    return p, nrm, e
-_jp, _jn, _je = jack_frame()
-_jz = Z_BACK_IN + P['rim_h'] / 2
-def _along(n_mm, length, r):
-    ang = math.degrees(math.atan2(_jn[1], _jn[0]))
-    c = m3.Manifold.cylinder(length, r, r, 32).rotate([0, 90, 0]).rotate([0, 0, ang])
-    return c.translate([*(_jp + _jn * n_mm), _jz])
-JACK_BORE = _along(-30, 40, 6.4)
-def build_jack():
-    barrel = _along(-14, 16, 6.2) - _along(-20, 30, 3.2)
-    ang = math.degrees(math.atan2(_jn[1], _jn[0]))
-    plate = hull([(0, sy * 15, sz * 15 * (1 - abs(sy))) for sy in (-1, 0, 1) for sz in (-1, 1)] + [(1.8, sy * 15, sz * 15 * (1 - abs(sy))) for sy in (-1, 0, 1) for sz in (-1, 1)])
-    plate = plate.rotate([0, 0, ang]).translate([*(_jp + _jn * 0.2), _jz]) - _along(-5, 10, 3.6)
-    return barrel + plate
+    e = (b - a) / np.linalg.norm(b - a); n = np.array([e[1], -e[0]])     # n points out of the body (CCW outline)
+    return (a + b) / 2, n, e
+CTRL_C, CTRL_N, CTRL_E = ctrl_frame()
+CTRL_PLATE = (100.0, 44.0, 2.0)          # along the rim, tall, thick (black fibre or aluminium)
+CTRL_WIN = (84.0, 30.0)                  # opening through the rim wall behind it
+CTRL_PAD_L = 116.0
+CTRL_SCREWS = [(se, sz) for se in (-46.0, 46.0) for sz in (-17.0, 17.0)]
+CTRL_HOLES = [('jack', -28.0, 9.5), ('volume', 0.0, 9.5), ('tone', 28.0, 9.5)]   # position along the plate, hole dia
+
+def ctrl_box(L, n0, n1):
+    """plan rectangle centred on the control face: +-L/2 along the rim, n0..n1 along the outward normal"""
+    c, n, e = CTRL_C, CTRL_N, CTRL_E
+    return ccw(np.array([c + e * s_ + n * t for s_, t in [(-L / 2, n0), (L / 2, n0), (L / 2, n1), (-L / 2, n1)]]))
+
+def _ctrl_local(man):
+    """map a part built in plate-local coords (x along the rim, y out of the body, z up) onto the rim face"""
+    ang = math.degrees(math.atan2(CTRL_E[1], CTRL_E[0]))
+    return man.mirror([0, 1, 0]).rotate([0, 0, ang]).translate([*CTRL_C, Z_SPLIT])   # local +y -> outward normal
+
+def build_control_plate():
+    L, H, T = CTRL_PLATE; ch = 0.8
+    pts = [(sx * L / 2, 0.0, sz * H / 2) for sx in (-1, 1) for sz in (-1, 1)] + \
+          [(sx * (L / 2 - ch), T, sz * (H / 2 - ch)) for sx in (-1, 1) for sz in (-1, 1)]
+    plate = hull(pts)
+    for _, x, d in CTRL_HOLES:
+        plate = plate - m3.Manifold.cylinder(20, d / 2, d / 2, 40).rotate([90, 0, 0]).translate([x, 10, 0])
+    for se, sz in CTRL_SCREWS:
+        plate = plate - m3.Manifold.cylinder(20, 1.4, 1.4, 16).rotate([90, 0, 0]).translate([se, 10, sz])
+    return _ctrl_local(plate)
+
+def build_control_hardware():
+    """knobs, jack nut, screw heads, and the pot bodies behind the plate (for clearance checks)"""
+    T = CTRL_PLATE[2]; out = []
+    hexa = lambda r, y0, y1: hull([(r * math.cos(t), y, r * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1] for y in (y0, y1)])
+    for name, x, d in CTRL_HOLES:
+        if name == 'jack':
+            out.append(hexa(7.5, T, T + 3.0).translate([x, 0, 0]) - m3.Manifold.cylinder(30, 3.3, 3.3, 24).rotate([90, 0, 0]).translate([x, 15, 0]))
+            out.append(m3.Manifold.cylinder(28, 6.0, 6.0, 32).rotate([90, 0, 0]).translate([x, 0, 0]))       # barrel inside
+        else:
+            out.append(hull([(9.0 * math.cos(t), y, 9.0 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1] for y in (T + 1.0,)] +
+                            [(7.5 * math.cos(t), T + 15.0, 7.5 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]]).translate([x, 0, 0]))
+            out.append(m3.Manifold.cylinder(20, 12.0, 12.0, 32).rotate([90, 0, 0]).translate([x, -1.0, 0]))   # pot body
+    for se, sz in CTRL_SCREWS:
+        out.append(m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).rotate([-90, 0, 0]).translate([se, T, sz]))
+    return _ctrl_local(union(out))
+
+def fb_bottom_z(y):
+    u = U_FB_END + (n2b(U_FB_END, 0, -P['fb_t'])[1] - y) * -1 / math.cos(TH)
+    return n2b(u, 0, -P['fb_t'])[2]
+
+def build_pickup_bracket(pk_info):
+    """1.5 mm strap from the underside of the fingerboard extension down to the pickup's mounting tab"""
+    zt = pk_info['tab_top_z'] - 0.050 * IN; y0 = pk_info['y']; sl = string_slope()
+    x0, x1 = 22.0, 46.0; yb = 372.0
+    zfb = fb_bottom_z(yb)
+    top = hull([(x, y, fb_bottom_z(y) - dz) for x in (x0 - 5, x0 + 5) for y in (yb - 8, yb + 8) for dz in (0.0, 1.5)])
+    drop = hull([(x, y, z) for x in (x0 - 5, x0 + 5) for y in (yb - 8, yb - 6.5) for z in (zt - 1.5 + sl * (yb - 8 - y0), zfb)])
+    run = hull([(x, y, zt - 1.5 + sl * (y - y0) + dz) for x in (x0 - 5, x0 + 5) for y in (y0, yb - 6.5) for dz in (0.0, 1.5)])
+    arm = hull([(x, y, zt - 1.5 + sl * (y - y0) + dz) for x in (x0 - 5, x1) for y in (y0 - 5, y0 + 5) for dz in (0.0, 1.5)])
+    return union([top, drop, run, arm])
+
+WIRE_HOLE = (12.0, 384.0, 6.0)          # pickup lead into the body, hidden under the fingerboard extension
 
 MORTISE = None
 
@@ -986,9 +1007,9 @@ def main():
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     pk_cover, pk_plate, pk_poles, pk_info = build_pickup()
     parts['pickup'] = pk_cover; parts['pickup_plate'] = pk_plate; parts['pickup_poles'] = pk_poles
-    pg, knobs, pg_br, pg_clear = build_pickguard(pk_info); parts['pickguard'] = pg; parts['knobs'] = knobs
-    parts['pickguard_bracket'] = pg_br; pk_info['pickguard_clearance_to_top'] = pg_clear
-    parts['jack'] = build_jack()
+    parts['pickup_bracket'] = build_pickup_bracket(pk_info)
+    parts['control_plate'] = build_control_plate()
+    parts['controls'] = build_control_hardware()
     parts['strap_buttons'] = build_strap_buttons()
     st, string_lines = build_strings(anchor); parts['strings'] = st
 
@@ -997,11 +1018,11 @@ def main():
 
     MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
-               pickup='gold', pickup_plate='brass', pickup_poles='nickel', pickguard_bracket='nickel', pickguard='black', knobs='black',
+               pickup='gold', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
     GROUP = dict(top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
-                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickguard_bracket='Hardware', pickguard='Hardware', knobs='Hardware',
+                 pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
@@ -1025,7 +1046,7 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=110, frets=22, strings=10, jack=12, strap_buttons=8, knobs=10, pickguard=20, pickguard_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=110, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
     for k, g in nominal.items(): mass[k] = g
     total_g = sum(mass.values())
 
