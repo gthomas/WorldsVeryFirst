@@ -14,9 +14,11 @@ P = dict(
     bridge_y=190.5,          # saddle line, from tail (7.5")
     neck_angle=5.0,
     head_angle=13.0,
-    # rim (one-piece routed mahogany, from 8/4)
+    # machining assumptions: 3-axis router, 1/4" (6.35) end mill smallest for pockets/profiles
+    tool_r=3.5,              # minimum inside-corner radius on any pocket or cut-out
+    # rim: two routed halves from 6/4 mahogany, glued at mid-height, dowel-registered
     plate_edge=3.2,          # top & back thickness at the edge
-    rim_h=57.1,              # rim height -> 63.5 (2.500") edge depth; needs 12/4 stock
+    rim_h=57.1,              # rim height -> 63.5 (2.500") edge depth
     rim_wall=7.0,
     lining_w=12.0, lining_h=8.0,   # integral glue ledges, routed in
     # top (spruce): faceted arch
@@ -34,7 +36,11 @@ P = dict(
     nut_w=42.86, fb_end_w=56.4, fb_radius=304.8, fb_t=7.3, fret_h=1.4, frets=22,
     neck_d1=21.8, neck_d12=24.4,  # '59 roundback total depth incl. fingerboard
     action12=2.0,
-    pickup=dict(string_gap=4.0),          # Lollar gold foil, floating mount (dims in build_pickup)
+    pickup=dict(string_gap=4.0),
+    tenon_w=38.0, tenon_len=42.0, tenon_depth=26.0, tenon_fit=0.1,
+    truss_w=6.35, truss_d=9.5, truss_len=381.0,   # 15" dual-action rod, 1/4" channel
+    fret_slot_w=0.6, fret_slot_d=3.0,
+    tuner_hole=10.0, dowel_d=6.0, dowel_depth=10.0,          # Lollar gold foil, floating mount (dims in build_pickup)
 )
 
 OUT = os.path.join(os.path.dirname(__file__), 'out'); os.makedirs(OUT, exist_ok=True)
@@ -87,6 +93,15 @@ def tri_prism(tri3, zfar):
     """convex prism between a 3D triangle and its projection at z=zfar"""
     pts = [p for p in tri3] + [(p[0], p[1], zfar) for p in tri3]
     return hull(pts)
+
+def open_cs(cs, r=None):
+    """round every convex corner of a pocket/hole region to the tool radius"""
+    r = P['tool_r'] if r is None else r
+    return cs.offset(-r, m3.JoinType.Round, circular_segments=96).offset(r, m3.JoinType.Round, circular_segments=96)
+
+def open_poly(poly, r=None):
+    cs = open_cs(m3.CrossSection([ccw(np.asarray(poly, float))]), r)
+    return ccw(np.array(max(cs.to_polygons(), key=lambda q: abs(signed_area(np.array(q))))))
 
 def ccw(Pts):
     return Pts if signed_area(Pts) > 0 else Pts[::-1]
@@ -163,6 +178,7 @@ def top_z_inner(a):
 BIG = 400.0
 NECK_HALF_X = 28.0
 HEEL_W = 2 * NECK_HALF_X - 3.0     # heel sits 1.5 mm inside the body's sides
+HEEL_HOLD = 9.0
 OUT_GROW = m3.CrossSection([OUTL]).offset(3.0, m3.JoinType.Round)
 
 from outline import offset_polygon as _offp
@@ -311,7 +327,7 @@ def soundhole(side):
     pts[:, 0] *= sg
     return ccw(pts)
 
-SLOTS = [soundhole('bass'), soundhole('treble')]
+SLOTS = [open_poly(soundhole('bass')), open_poly(soundhole('treble'))]
 
 # ----------------------------------------------------------------------------- TOP
 def bar_segments():
@@ -365,45 +381,59 @@ def build_cross_bar():
 def build_bars():
     return union([_scalloped_bar(a, b) for a, b in bar_segments()] + [build_cross_bar()])
 
-def build_top():
+def build_top(chamfer=True):
     below_outer = terrain_below(TOP_TRIS, TOP_HEX, Z_EDGE, Z_PLAT, Z_PLAT, Z_EDGE)
     below_inner = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP, FALL_IN_AT_PLAT, Z_PLAT_IN, Z_RIM_TOP)
     shell = (BODY_PRISM ^ below_outer) - below_inner
     shell = shell ^ prism(OUTL, Z_RIM_TOP - 0.001, BIG)
-    beam_in = offset_polygon(ccw(TOP_HEX), P['beam_w'])
+    beam_in = open_poly(offset_polygon(ccw(TOP_HEX), P['beam_w']))
     beam = prism(TOP_HEX, Z_PLAT_IN - P['beam_h'] + 0.0, Z_PLAT_IN + 0.5) - prism(beam_in, -BIG, BIG)
     top = shell + beam + build_bars()
     for sl in SLOTS:
         top = top - prism(sl, -BIG, BIG)
-    return top ^ KEEP_TOP
+    return top ^ KEEP_TOP if chamfer else top
 
 # ----------------------------------------------------------------------------- BACK
-def build_back():
+def build_back(chamfer=True):
     a = P['back_arch']
     above_outer = terrain_above(BACK_TRIS, BACK_HEX, 0.0, -a, -a, 0.0)
     above_inner = terrain_above(BACK_TRIS, BACK_HEX, Z_BACK_IN, Z_BACK_IN - a, Z_BACK_IN - a, Z_BACK_IN)
     back = (BODY_PRISM ^ above_outer) - above_inner
     back = back ^ prism(OUTL, -BIG, Z_BACK_IN + 0.001)
-    return back ^ KEEP_BOT
+    return back ^ KEEP_BOT if chamfer else back
 
 # ----------------------------------------------------------------------------- RIM
 Y_NECK_END = SHARP[names.index('neckT')][1]
 
+NECK_BLOCK = np.array([(-44, 392), (44, 392), (44, 470), (-44, 470)], float)
+TAIL_BLOCK = np.array([(-34, -5), (34, -5), (34, 24), (-34, 24)], float)
+Z_SPLIT = Z_BACK_IN + P['rim_h'] / 2
+DOWELS = [(0.0, 399.8), (-34.0, 405.0), (-20.0, 10.0), (20.0, 10.0)]
+
+def rim_regions():
+    blocks = (m3.CrossSection([NECK_BLOCK]) + m3.CrossSection([TAIL_BLOCK])) ^ OUTL_CS
+    through = open_cs(OUTL_CS.offset(-(P['rim_wall'] + P['lining_w']), m3.JoinType.Round, circular_segments=96) - blocks)
+    recess = open_cs(OUTL_CS.offset(-P['rim_wall'], m3.JoinType.Round, circular_segments=96) - blocks)
+    return through, recess
+
+def build_rim_halves(machining=True):
+    """lower and upper rim halves. Each is a plain 2.5D part machined from its split face:
+    pocket the wall recess down to the glue ledge, then cut through inside the ledge, then profile."""
+    through, recess = rim_regions()
+    hh = P['rim_h'] / 2; lh = P['lining_h']; zs = Z_SPLIT
+    ring = m3.Manifold.extrude(OUTL_CS - through, hh)
+    pocket = m3.Manifold.extrude(recess, hh - lh)
+    dow = lambda z0: union([m3.Manifold.cylinder(P['dowel_depth'], P['dowel_d'] / 2 + 0.05, P['dowel_d'] / 2 + 0.05, 32)
+                            .translate([x, y, z0]) for x, y in DOWELS])
+    lower = ring.translate([0, 0, Z_BACK_IN]) - pocket.translate([0, 0, Z_BACK_IN + lh]) - dow(zs - P['dowel_depth'])
+    upper = ring.translate([0, 0, zs]) - pocket.translate([0, 0, zs]) - dow(zs) - MORTISE
+    return lower, upper
+
 def build_rim():
-    wall_in = OUTL_CS.offset(-P['rim_wall'], m3.JoinType.Round)
-    lin_in = OUTL_CS.offset(-(P['rim_wall'] + P['lining_w']), m3.JoinType.Round)
-    h = P['rim_h']; lh = P['lining_h']
-    nb = m3.CrossSection([np.array([(-44, 392), (44, 392), (44, 470), (-44, 470)], float)]) ^ OUTL_CS
-    tb = m3.CrossSection([np.array([(-34, -5), (34, -5), (34, 24), (-34, 24)], float)]) ^ OUTL_CS
-    blocks = nb + tb
-    rim = m3.Manifold.extrude((OUTL_CS - lin_in) + blocks, h)
-    recess = m3.Manifold.extrude(wall_in - blocks, h - 2 * lh).translate([0, 0, lh])
-    rim = rim - recess
-    rim = rim.translate([0, 0, Z_BACK_IN])
-    # mortise for the neck tenon
-    rim = rim - MORTISE
-    # side jack bore (treble lower edge), endpin bore
-    rim = rim - JACK_BORE - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + h / 2 - 4])
+    lower, upper = build_rim_halves()
+    rim = lower + upper
+    # side jack bore (treble lower edge) and endpin bore: drilled by hand after glue-up
+    rim = rim - JACK_BORE - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + P['rim_h'] / 2 - 4])
     return rim ^ KEEP_TOP ^ KEEP_BOT
 
 # ----------------------------------------------------------------------------- NECK FRAME
@@ -455,47 +485,80 @@ def build_neck():
         d = P['neck_d1'] + (P['neck_d12'] - P['neck_d1']) * (s - fret_s(1)) / (fret_s(12) - fret_s(1))
         d = d - P['fb_t']
         heel_start = 70.0
+        u = max(u - HEEL_HOLD, 0.0)          # hold full heel depth until the heel bottom has cleared the body face
         if u < heel_start:
-            target = FJ * math.cos(TH) - P['fb_t']   # heel bottom flush with the back edge at the body face
+            target = FJ / math.cos(TH) - P['fb_t'] + 3.0   # a little proud: trimmed flush with the back plane
             k = (1 - u / heel_start) ** 2.2
             d = d + (target - d) * k
         return d
-    stations = list(np.linspace(0.0, 70.0, 16)) + list(np.linspace(78, U_NUT - 25, 14))   # volute takes over near the nut
+    stations = list(np.linspace(-14.0, 0.0, 5))[:-1] + list(np.linspace(0.0, 70.0, 36)) + list(np.linspace(73, U_NUT - 25, 70))
     rings = []
     for u in stations:
-        s = U_NUT - u
-        W = fb_width(u) if u <= U_NUT else P['nut_w']
-        if u < 70: W = W + max(0.0, HEEL_W - W) * (1 - u / 70) ** 2
-        nexp = 2.25 + 0.9 * max(0.0, 1 - u / 70) ** 2      # keep the '59 round carve all the way into the heel
-        loop = section_loop(u, W, depth(u), nexp, fbb)
-        sh = math.tan(TH) * max(0.0, 1 - u / 70.0)        # shear heel sections so the heel face lies flat on the body
-        r = NB([(uu - ww * sh, vv, ww) for uu, vv, ww in loop])
-        rings.append(r)
+        uc = max(u, 0.0)
+        W = fb_width(uc)
+        ub = max(uc - HEEL_HOLD, 0.0)
+        if ub < 70: W = W + max(0.0, HEEL_W - W) * (1 - ub / 70) ** 2
+        nexp = 2.25 + 0.9 * max(0.0, 1 - ub / 70) ** 2      # keep the '59 round carve all the way into the heel
+        d = depth(uc) + (6.0 if u < 0 else 0.0) * min(1.0, -u / 3.0)
+        rings.append(NB(section_loop(u, W, d, nexp, fbb, npts=96)))
     neck = loft(rings, [np.array([(p[1], p[2]) for p in [b2nv(q) for q in rings[0]]]),
                         np.array([(p[1], p[2]) for p in [b2nv(q) for q in rings[-1]]])])
-    # tenon into the neck block
-    ten = []
-    wt = TENON_W_TOP; wb = wt - 29
-    for (u, v, w) in [(-42, -19, wt), (-42, 19, wt), (-42, 19, wb), (-42, -19, wb),
-                      (2, -19, wt), (2, 19, wt), (2, 19, wb), (2, -19, wb)]:
-        ten.append(n2b(u, v, w))
-    neck = neck + hull(ten)
-    neck = neck + build_headstock_wood()
+    neck = (neck ^ heel_keep()) + build_tenon()
+    neck = neck + build_headstock_wood(holes=False)
+    neck = neck - truss_channel()
     return neck
+
+def heel_keep():
+    """Below the rim top the heel face is the body's vertical end face (y = Y_NECK_END) and the heel
+    bottom is flush with the back; above the rim top the face is square to the fingerboard plane, so
+    nothing on the neck overhangs the tenon (3-axis friendly in the neck's own frame)."""
+    Yn = Y_NECK_END
+    lower = m3.Manifold.cube([400, 900, Z_RIM_TOP], False).translate([-200, Yn, 0]) + \
+            m3.Manifold.cube([400, 900, Z_RIM_TOP + 300], False).translate([-200, Yn + 150, -300])
+    uj, _ = b2n(Yn, Z_RIM_TOP)
+    upper = hull([n2b(u, v, w) for u in (uj, uj + 1200) for v in (-200, 200) for w in (-600, 600)])
+    upper = upper ^ m3.Manifold.cube([400, 2000, 400], False).translate([-200, -500, Z_RIM_TOP])
+    return lower + upper
+
+def nhull(pts):
+    """hull of points given in the neck frame (u, v, w)"""
+    return hull([n2b(*p) for p in pts])
+
+def truss_channel():
+    """1/4\" channel, 9.5 mm below the fingerboard plane; runs out through the headstock face under the
+    truss rod cover so the adjuster is reachable."""
+    w, d, L = P['truss_w'], P['truss_d'], P['truss_len']
+    u1 = U_H0 + 34.0 * math.cos(HA); u0 = u1 - L
+    r = w / 2; wb = -P['fb_t'] - d
+    pts = []
+    for uc in (u0 + r, u1 - r):
+        for t in np.linspace(0, 2 * math.pi, 33)[:-1]:
+            for ww in (wb, wb + 70):
+                pts.append((uc + r * math.cos(t), r * math.sin(t), ww))
+    return nhull(pts)
 
 def b2nv(p):
     u, w = b2n(p[1], p[2]); return (u, p[0], w)
 
-# tenon top sits 4 mm below the rim top at its far end, so it never reaches the top plate
-TENON_W_TOP = ((Z_RIM_TOP - 4.0) - FJ - 43 * math.sin(TH)) / math.cos(TH)
+def tenon_poly(grow=0.0):
+    """tenon plan (body x,y): runs from the heel face into the neck block, far corners at tool radius"""
+    w = P['tenon_w'] / 2 + grow; y1 = Y_NECK_END + 2.0; y0 = Y_NECK_END - P['tenon_len'] - grow
+    r = P['tool_r']
+    pts = [(w, y1), (-w, y1)]
+    for cx, a0 in [(-w + r, 180), (w - r, 270)]:
+        for t in np.linspace(a0, a0 + 90, 10):
+            pts.append((cx + r * math.cos(math.radians(t)), y0 + r + r * math.sin(math.radians(t))))
+    return ccw(np.array(pts))
+
+def build_tenon():
+    return prism(tenon_poly(), Z_RIM_TOP - P['tenon_depth'], Z_RIM_TOP)
 
 def mortise():
-    pts = []
-    wt = TENON_W_TOP + 0.3; wb = TENON_W_TOP - 29.3
-    for (u, v, w) in [(-43, -19.3, wt), (-43, 19.3, wt), (-43, 19.3, wb), (-43, -19.3, wb),
-                      (6, -19.3, wt), (6, 19.3, wt), (6, 19.3, wb), (6, -19.3, wb)]:
-        pts.append(n2b(u, v, w))
-    return hull(pts)
+    """open-top pocket in the upper rim half's neck block; floor in the upper half, walls vertical"""
+    return prism(tenon_poly(P['tenon_fit']), Z_RIM_TOP - P['tenon_depth'], Z_RIM_TOP + 5) + \
+           prism(np.array([(-P['tenon_w'] / 2 - P['tenon_fit'], Y_NECK_END - 1), (P['tenon_w'] / 2 + P['tenon_fit'], Y_NECK_END - 1),
+                           (P['tenon_w'] / 2 + P['tenon_fit'], Y_NECK_END + 5), (-P['tenon_w'] / 2 - P['tenon_fit'], Y_NECK_END + 5)]),
+                 Z_RIM_TOP - P['tenon_depth'], Z_RIM_TOP + 5)
 
 # headstock frame: origin at nut back face on the shaft top, face tilted back head_angle
 HA = P['head_angle'] * DEG
@@ -520,16 +583,21 @@ def head_slab(poly, n0, n1):
         pts.append(h2b(v, s, n0)); pts.append(h2b(v, s, n1))
     return pts
 
-def build_headstock_wood():
+def build_headstock_wood(holes=True):
     # plate as a loft of the outline at two normal offsets (non-convex safe)
     from shapely.geometry import Polygon, box
     poly = ccw(np.array(Polygon(HEAD_POLY).intersection(box(-200, HEAD_PLATE_S0, 200, 400)).exterior.coords)[:-1])
     ring = lambda pp, n: np.array([h2b(v, s, n) for v, s in pp])
     plate = loft([ring(poly, -HEAD_T), ring(poly, 0.0)], [poly, poly])   # base of the headstock comes from the volute
     tr = build_volute()
-    holes = union([m3.Manifold.cylinder(60, 5.0, 5.0, 24).translate([0, 0, -30]).transform(head_mat(v, s))
-                   for v, s, _ in TUNER_LIST])
-    return (plate + tr) - holes
+    if not holes:
+        return plate + tr
+    return (plate + tr) - tuner_holes()
+
+def tuner_holes():
+    r = P['tuner_hole'] / 2
+    return union([m3.Manifold.cylinder(60, r, r, 32).translate([0, 0, -30]).transform(head_mat(v, s))
+                  for v, s, _ in TUNER_LIST])
 
 def build_volute():
     """Smooth lofted transition from the neck shaft into the angled headstock, with a volute bump on the
@@ -547,7 +615,7 @@ def build_volute():
     def w_face(u):
         return -fbt if u <= U_H0 else -fbt - (u - U_H0) / cH * sH
     rings, caps = [], []
-    for u in np.linspace(U_NUT - 35, U_H0 + 62, 48):
+    for u in np.linspace(U_NUT - 35, U_H0 + 62, 110):
         top = w_face(u) - 0.02
         k = 0.05 + 5.0 * math.exp(-((u - U_H0) / 22.0) ** 2)          # fillet only around the break
         tail = float(np.clip((u - (U_H0 + 18)) / 20.0, 0, 1))          # finish 0.4 mm inside the headstock back
@@ -559,7 +627,7 @@ def build_volute():
             half = _head_edge_v((u - U_H0) / cH)
         W = 2 * half - 0.04                                  # matches the shaft, then the headstock sides
         t = float(np.clip((u - (U_H0 + 4)) / 26.0, 0, 1)); t = t * t * (3 - 2 * t)
-        loop = section_loop(u, W, top - bot, 2.25 + 45.0 * t ** 3, top, npts=64)   # round neck -> square headstock section
+        loop = section_loop(u, W, top - bot, 2.25 + 45.0 * t ** 3, top, npts=96)   # round neck -> square headstock section
         rings.append(NB(loop))
     caps = [np.array([(q[1], q[2]) for q in map(b2nv, r)]) for r in (rings[0], rings[-1])]
     return loft(rings, caps)
@@ -572,9 +640,9 @@ def build_faceplate():
     poly = ccw(HEAD_POLY)
     ring = lambda pp, n: np.array([h2b(v, s, n) for v, s in pp])
     fp = loft([ring(poly, 0.0), ring(poly, 1.6)], [poly, poly])
-    holes = union([m3.Manifold.cylinder(60, 5.0, 5.0, 24).translate([0, 0, -30]).transform(head_mat(v, s))
-                   for v, s, _ in TUNER_LIST])
-    return fp - holes
+    return fp - tuner_holes() - _face_part(TRUSS_ACCESS, -1.0, 3.0)
+
+TRUSS_ACCESS = np.array([(-5.0, -1.0), (5.0, -1.0), (5.0, 33.0), (-5.0, 33.0)])
 
 def _face_part(poly2d, n0, n1):
     poly2d = ccw(np.asarray(poly2d, float))
@@ -582,7 +650,9 @@ def _face_part(poly2d, n0, n1):
     return loft([ring(n0), ring(n1)], [poly2d, poly2d])
 
 def build_truss_cover():
-    return _face_part([(-6.5, 9), (6.5, 9), (6.5, 31), (0, 47), (-6.5, 31)], 1.5, 2.6)
+    return _face_part(TRUSS_COVER, 1.6, 2.7)
+
+TRUSS_COVER = np.array([(-8.0, 1.0), (8.0, 1.0), (8.0, 31.0), (0.0, 47.0), (-8.0, 31.0)])
 
 def build_badge():
     """riveted asset tag: brushed plate with a QR-style field (pattern is decorative)"""
@@ -614,11 +684,21 @@ def build_fingerboard():
     rings = []
     for u in np.linspace(U_FB_END, U_NUT, 8):
         W = fb_width(u); loop = []
-        for v in np.linspace(W / 2, -W / 2, 24): loop.append((u, v, crown(v)))
+        for v in np.linspace(W / 2, -W / 2, 48): loop.append((u, v, crown(v)))
         loop += [(u, -W / 2, -P['fb_t']), (u, W / 2, -P['fb_t'])]
         rings.append(NB(loop))
     caps = [np.array([(q[1], q[2]) for q in map(b2nv, r)]) for r in (rings[0], rings[-1])]
-    return loft(rings, caps)
+    return loft(rings, caps) - fret_slots()
+
+def fret_slots():
+    """0.6 mm slots, 3 mm deep at the board edge (deeper at the centre), flat-bottomed, full width"""
+    out = []
+    hw = P['fret_slot_w'] / 2
+    for u in FRET_U:
+        W = fb_width(u)
+        wb = crown(W / 2) - P['fret_slot_d']
+        out.append(nhull([(u + du, v, ww) for du in (-hw, hw) for v in (-W / 2 - 2, W / 2 + 2) for ww in (wb, 5.0)]))
+    return union(out)
 
 def build_frets():
     out = []
@@ -694,16 +774,23 @@ def point_in_poly(p, poly):
 def string_z_at(y):
     t = (y - SADDLE[1]) / (NUT_PT[1] - SADDLE[1]); return SADDLE[2] + t * (NUT_PT[2] - SADDLE[2])
 
+BRIDGE_FIT = 1.5        # extra height left on the saddle crown, sanded down to set the action
 def build_bridge():
-    h = SADDLE[2] - Z_PLAT
+    """one-piece ebony bridge for the flat plateau: flat base, relieved centre, compensated and
+    radiused saddle crown (treble +1.5 mm, bass +3.5 mm behind the scale line)."""
+    h = SADDLE[2] - Z_PLAT + BRIDGE_FIT
     y0 = P['bridge_y']
-    pts = [(sx * 48, y0 + sy * 10.5, Z_PLAT) for sx in (-1, 1) for sy in (-1, 1)]
-    pts += [(sx * 41, y0 + sy * 6, Z_PLAT + h * 0.55) for sx in (-1, 1) for sy in (-1, 1)]
-    pts += [(sx * 35, y0 + sy * 1.6, SADDLE[2]) for sx in (-1, 1) for sy in (-1, 1)]
+    comp = lambda x: -(2.5 - x / 35.0 * 1.0)          # x=+35 (treble) -1.5, x=-35 (bass) -3.5
+    pts = [(sx * 48, y0 + sy * 10.5 + comp(sx * 35) * 0.3, Z_PLAT) for sx in (-1, 1) for sy in (-1, 1)]
+    pts += [(sx * 41, y0 + sy * 6 + comp(sx * 35) * 0.6, Z_PLAT + h * 0.55) for sx in (-1, 1) for sy in (-1, 1)]
+    pts += [(sx * 38, y0 + sy * 1.6 + comp(sx * 35), Z_PLAT + h + 3) for sx in (-1, 1) for sy in (-1, 1)]
     b = hull(pts)
+    R_ = P['fb_radius']
+    crown_cyl = m3.Manifold.cylinder(200, R_, R_, 720).rotate([90, 0, 0]).translate([0, y0 + 100, Z_PLAT + h - R_])
+    b = b ^ crown_cyl
     arch = hull([(sx * 28, y0 + sy * 20, Z_PLAT - 1) for sx in (-1, 1) for sy in (-1, 1)] +
                 [(sx * 22, y0 + sy * 20, Z_PLAT + 5.5) for sx in (-1, 1) for sy in (-1, 1)])
-    return b - arch, h
+    return b - arch, h - BRIDGE_FIT
 
 TAIL_ANCHOR_Y = 50.0
 def build_tailpiece():
@@ -876,7 +963,7 @@ def main():
     print('top...');  parts['top'] = build_top()
     print('back...'); parts['back'] = build_back()
     print('rim...');  parts['rim'] = build_rim()
-    print('neck...'); parts['neck'] = build_neck()
+    print('neck...'); parts['neck'] = build_neck() - tuner_holes()
     parts['fingerboard'] = build_fingerboard()
     parts['faceplate'] = build_faceplate()
     parts['truss_cover'] = build_truss_cover()

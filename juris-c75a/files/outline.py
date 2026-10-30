@@ -81,7 +81,7 @@ RADII = dict(tailR=40, tailL=40, tTail=14, bTail=14, tLower=14, bLower=14, tWais
              tUpper=14, bUpper=14, tHorn=12, bHorn=12, tCut=19, bCut=8, neckT=0, neckB=0)   # square corners where the heel lands
 
 
-def fillet(names, P, radii=RADII, seg_deg=6.0):
+def fillet(names, P, radii=RADII, seg_deg=2.0):
     out = []
     n = len(P)
     for i in range(n):
