@@ -72,6 +72,7 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm maple headstock overlay (finished to match the top) with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
 - `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the stereo jack and the stacked pot, the 32 × 22 mm battery door opening, four screw holes, and the outline of the window it covers.
+- `goldfoil_bracket_flat.dxf`: flat pattern for the optional gold foil bracket (see below): outline, two bend lines, two holes for screws into the underside of the fingerboard end, and two for the pickup's mounting screws. Sizes are placeholders until the pickup is measured.
 
 ## Build order
 
@@ -103,6 +104,15 @@ These dimensions come from typical parts. Measure yours and change the parameter
 | Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |
 | Pots and jack | Stacked pot and stereo jack, 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
+
+## Optional pickup: Novak DeArmond-style gold foil
+
+The model and viewer carry a second pickup option: a Curtis Novak DeArmond-style gold foil in the mustache casing, hung on a bent bracket in place of the EMG (choose it under Pickup in the viewer).
+
+- **Bracket:** one 1.5 mm brass or aluminium strap. A tab screws to the underside of the fingerboard end, it drops about 5 mm just past the end of the board, and a shelf runs across under the casing's ears. The pickup screws down to the shelf through its ears over springs, which sets the height (about 3 mm of spring travel). The shelf clears the top by about 7 mm. Flat pattern: `flat/goldfoil_bracket_flat.dxf`.
+- **Sizes are placeholders.** I couldn't find published dimensions for Novak's mustache casing, so the model uses typical DeArmond mustache proportions: 124 mm tip to tip, a 78 × 34 mm housing 9 mm tall, and ear screws at ±56 mm. Measure the pickup when it arrives and change `GOLDFOIL` in `build.py`, then rebuild.
+- **Wiring:** it's passive. Use a 500k stacked volume/tone pot instead of the EMG's 25k, run a string ground to the tailpiece, and ground the casing. The battery door and sleeve aren't needed; the control plate can be cut without the door, or keep it to swap back to the EMG later.
+- **Lead:** it runs through the same 6 mm hole under the fingerboard end.
 
 ## Voicing the top
 

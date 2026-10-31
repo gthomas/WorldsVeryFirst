@@ -245,6 +245,22 @@ def flat_parts():
     for s_ in (8.0, 38.0): circ(ms, (0, s_), 2.0, 'TRUSS_COVER')
     doc.saveas(os.path.join(d, 'faceplate_and_truss_cover.dxf'))
 
+    # gold foil bracket flat pattern (strip along y from the fingerboard tab; shelf crosses at the far end)
+    gi = json.load(open(os.path.join(B.OUT, 'report.json'))).get('goldfoil')
+    if gi:
+        fp = gi['flat_pattern']; g = B.GOLDFOIL; bb = B.GF_BRACKET
+        w2, y1 = fp['width'] / 2, fp['tab']; y2 = y1 + fp['drop']; y3 = y2 + fp['arm']; sw = fp['shelf_W']; hs = fp['shelf_span'] / 2
+        doc, ms = doc_with([('OUTLINE', 7), ('BEND_LINES', 1), ('HOLES', 3), ('NOTES', 8)])
+        pl(ms, [(-w2, 0), (w2, 0), (w2, y3 - sw), (hs, y3 - sw), (hs, y3), (-hs, y3), (-hs, y3 - sw), (-w2, y3 - sw)], 'OUTLINE')
+        for yb in (y1, y2):
+            ms.add_line((-w2, yb), (w2, yb), dxfattribs={'layer': 'BEND_LINES'})
+        for x in bb['fb_screws']: circ(ms, (x, y1 / 2), 3.0, 'HOLES')
+        for sx in (-1, 1): circ(ms, (sx * g['screw_x'], y3 - sw / 2), bb['screw_d'], 'HOLES')
+        ms.add_text(f"{fp['t']} mm brass or aluminium. Bend 90 deg down at the first line, 90 deg back at the second. "
+                    "Lengths are to the inside of the bends; add your bend allowance. Gold foil sizes are placeholders.",
+                    dxfattribs={'layer': 'NOTES', 'height': 2.5}).set_placement((-hs, y3 + 6))
+        doc.saveas(os.path.join(d, 'goldfoil_bracket_flat.dxf'))
+
     # rim control plate (plate coordinates: x along the rim face, y up; origin at the plate centre)
     doc, ms = doc_with([('OUTLINE', 7), ('POT_AND_JACK_HOLES', 1), ('SCREW_HOLES', 3), ('RIM_WINDOW_behind', 8)])
     L, H, T = B.CTRL_PLATE

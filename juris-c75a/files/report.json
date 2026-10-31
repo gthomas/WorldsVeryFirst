@@ -27,6 +27,22 @@
   "length": 86.3,
   "width": 38.1
  },
+ "goldfoil": {
+  "model": "Novak DeArmond-style gold foil, mustache casing (placeholder size)",
+  "y": 340.82629005941135,
+  "z_top": 87.95122399844733,
+  "z_bottom": 78.95122399844733,
+  "bracket_clearance_to_top": 7.007856815351985,
+  "flat_pattern": {
+   "tab": 18.0,
+   "drop": 4.572790277383689,
+   "arm": 27.0,
+   "shelf_span": 128.0,
+   "width": 20.0,
+   "shelf_W": 14.0,
+   "t": 1.5
+  }
+ },
  "soundhole_area_each": 517.8656588680747,
  "air_volume_l": 6.0154125159084195,
  "helmholtz_hz_est": 126.18247905742544,
@@ -47,6 +63,9 @@
   "tailpiece": 95,
   "pickup": 85,
   "pickup_bracket": 10,
+  "goldfoil": 110,
+  "goldfoil_foil": 0,
+  "goldfoil_bracket": 12,
   "control_plate": 15,
   "controls": 70,
   "battery_door": 3,
@@ -78,6 +97,9 @@
   "tailpiece": true,
   "pickup": true,
   "pickup_bracket": true,
+  "goldfoil": true,
+  "goldfoil_foil": true,
+  "goldfoil_bracket": true,
   "control_plate": true,
   "controls": true,
   "battery_door": true,

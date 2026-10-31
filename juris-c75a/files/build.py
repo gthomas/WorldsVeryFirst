@@ -1039,6 +1039,77 @@ def build_pickup_bracket(pk_info):
 
 WIRE_HOLE = (12.0, 384.0, 6.0)          # pickup lead into the body, hidden under the fingerboard extension
 
+# ---- alternative pickup: Curtis Novak DeArmond-style gold foil in the "mustache" casing, on a bent bracket.
+# PLACEHOLDER sizes from typical DeArmond mustache pickups -- measure the one you buy and update these.
+GOLDFOIL = dict(body_L=78.0, body_W=34.0, body_H=9.0,      # centre housing: across strings, along strings, tall
+                span=124.0, ear_W=14.0, ear_t=1.6,         # mustache casing tip to tip, ear width, flange thickness
+                screw_x=56.0, screw_d=3.2,                 # mounting screw positions (+-) and hole size
+                spring_gap=3.0)                            # spring space between the casing ears and the shelf, set by the screws
+GF_BRACKET = dict(t=1.5, w=20.0, tab_L=18.0, shelf_W=14.0, screw_d=3.0, fb_screws=(-6.0, 6.0))   # brass or aluminium
+
+def _goldfoil_place():
+    g = GOLDFOIL
+    fb_end_y = n2b(U_FB_END, 0, 0)[1]
+    yc = fb_end_y - g['body_W'] / 2 - 2.0
+    ztop = string_z_at(yc) - P['pickup']['string_gap']
+    return yc, ztop
+
+def mustache_outline(n=40):
+    """plan outline of the mustache casing: full width over the body, sweeping to rounded ears"""
+    g = GOLDFOIL; hw = g['span'] / 2; bw = g['body_W'] / 2 + 3.0; ew = g['ear_W'] / 2
+    xs = np.linspace(-hw + ew, hw - ew, n)
+    def half(x):
+        t = min(1.0, max(0.0, (abs(x) - g['body_L'] / 2 + 6) / (hw - ew - g['body_L'] / 2 + 6)))
+        return bw + (ew - bw) * (3 * t * t - 2 * t * t * t)
+    top = [(x, half(x)) for x in xs]; bot = [(x, -half(x)) for x in xs[::-1]]
+    capR = [(hw - ew + ew * math.cos(a), ew * math.sin(a)) for a in np.linspace(-math.pi / 2, math.pi / 2, 9)]
+    capL = [(-hw + ew - ew * math.cos(a), -ew * math.sin(a)) for a in np.linspace(-math.pi / 2, math.pi / 2, 9)]
+    return np.array(capR + top[::-1][1:-1] + capL + bot[1:-1]) if False else ccw(np.array(top + capL[::-1] + bot + capR[::-1]))
+
+def build_goldfoil():
+    """gold foil pickup in a mustache casing; ears screw down to the bracket shelf over springs"""
+    g = GOLDFOIL; yc, ztop = _goldfoil_place(); sl = string_slope()
+    zb = ztop - g['body_H']
+    body = hull([(x, y, z) for x, y in rrect(g['body_L'], g['body_W'], 4.0) for z in (0.0, g['body_H'] - 1.0)] +
+                [(x * (g['body_L'] - 3) / g['body_L'], y * (g['body_W'] - 3) / g['body_W'], g['body_H']) for x, y in rrect(g['body_L'], g['body_W'], 4.0)])
+    flange = prism(mustache_outline(), 0.0, g['ear_t'])
+    for sx in (-1, 1):
+        flange = flange - m3.Manifold.cylinder(10, g['screw_d'] / 2, g['screw_d'] / 2, 20).translate([sx * g['screw_x'], 0, -5])
+    foil = m3.Manifold.cube([g['body_L'] - 14, g['body_W'] - 12, 0.4], True).translate([0, 0, g['body_H'] + 0.2])
+    ang = math.degrees(math.atan(sl))
+    place = lambda man: man.rotate([ang, 0, 0]).translate([0, yc, zb])
+    info = dict(model='Novak DeArmond-style gold foil, mustache casing (placeholder size)', y=float(yc), z_top=float(ztop), z_bottom=float(zb))
+    return place(body + flange), place(foil), info
+
+def build_goldfoil_bracket(info):
+    """one bent strap: tab screwed under the fingerboard extension, a drop just past the fingerboard end
+    (under the board, clear of the pickup), and a shelf running across under the pickup's ears"""
+    g, b = GOLDFOIL, GF_BRACKET; t = b['t']; sl = string_slope()
+    yc = info['y']; zb = info['z_bottom']
+    fb_end_y = n2b(U_FB_END, 0, 0)[1]
+    y_drop = fb_end_y + 1.0                                  # just under the board end, past the casing
+    z_shelf_top = zb - g['spring_gap']                       # shelf top, under the ears
+    zs = lambda y: z_shelf_top + sl * (y - yc)
+    w2 = b['w'] / 2
+    tab = hull([(x, y, fb_bottom_z(y) - dz) for x in (-w2, w2) for y in (y_drop, y_drop + b['tab_L']) for dz in (0.0, t)])
+    drop = hull([(x, y, z) for x in (-w2, w2) for y in (y_drop, y_drop + t) for z in (zs(y_drop) - t, fb_bottom_z(y_drop))])
+    arm = hull([(x, y, zs(y) - dz) for x in (-w2, w2) for y in (yc - b['shelf_W'] / 2, y_drop + t) for dz in (0.0, t)])
+    span = g['span'] / 2 + 2.0
+    shelf = hull([(x, y, zs(y) - dz) for x in (-span, span) for y in (yc - b['shelf_W'] / 2, yc + b['shelf_W'] / 2) for dz in (0.0, t)])
+    br = union([tab, drop, arm, shelf])
+    for sx in (-1, 1):
+        br = br - m3.Manifold.cylinder(60, b['screw_d'] / 2, b['screw_d'] / 2, 16).translate([sx * g['screw_x'], yc, zs(yc) - 30])
+    for x in b['fb_screws']:
+        y = y_drop + b['tab_L'] / 2
+        br = br - m3.Manifold.cylinder(30, 1.5, 1.5, 16).translate([x, y, fb_bottom_z(y) - 15])
+    # clearance from the shelf's underside to the top
+    xs = np.linspace(-span, span, 31); ys = np.linspace(yc - b['shelf_W'] / 2, y_drop + t, 7)
+    clr = min(zs(y) - t - top_height_at(x, y) for x in xs for y in ys if abs(x) <= w2 or abs(y - yc) <= b['shelf_W'] / 2)
+    info['bracket_clearance_to_top'] = float(clr)
+    info['flat_pattern'] = dict(tab=b['tab_L'], drop=float(fb_bottom_z(y_drop) - zs(y_drop)), arm=float(y_drop - (yc - b['shelf_W'] / 2)),
+                                shelf_span=2 * span, width=b['w'], shelf_W=b['shelf_W'], t=t)
+    return br
+
 MORTISE = None
 
 def build_strings(anchor):
@@ -1097,6 +1168,9 @@ def main():
     pk_cover, pk_plate, pk_poles, pk_info = build_pickup()
     parts['pickup'] = pk_cover
     parts['pickup_bracket'] = build_pickup_bracket(pk_info)
+    gf_body, gf_foil, gf_info = build_goldfoil()
+    parts['goldfoil'] = gf_body; parts['goldfoil_foil'] = gf_foil
+    parts['goldfoil_bracket'] = build_goldfoil_bracket(gf_info)
     parts['control_plate'] = build_control_plate()
     parts['controls'] = build_control_hardware()
     parts['battery_door'], parts['battery_sleeve'], parts['battery'] = build_battery_box()
@@ -1106,11 +1180,11 @@ def main():
     for k, v in parts.items():
         if v.is_empty(): print('EMPTY', k)
 
-    MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='richlite', faceplate='maple',
+    MAT = dict(goldfoil='nickel', goldfoil_foil='gold', goldfoil_bracket='brass', top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='richlite', faceplate='maple',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
                pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_door='black', battery_sleeve='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
-    GROUP = dict(top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
+    GROUP = dict(goldfoil='Pickup', goldfoil_foil='Pickup', goldfoil_bracket='Pickup', top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
                  pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware', battery='Hardware', battery_door='Hardware', battery_sleeve='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
@@ -1139,9 +1213,9 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_door=3, battery_sleeve=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(goldfoil=110, goldfoil_foil=0, goldfoil_bracket=12, tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_door=3, battery_sleeve=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
     for k, g in nominal.items(): mass[k] = g
-    total_g = sum(mass.values())
+    total_g = sum(v for k, v in mass.items() if not k.startswith('goldfoil'))     # gold foil is the alternative pickup
 
     # air volume & Helmholtz estimate
     outer_body = (BODY_PRISM ^ terrain_below(TOP_TRIS, TOP_HEX, Z_EDGE, Z_PLAT, Z_PLAT, Z_EDGE)
@@ -1169,7 +1243,7 @@ def main():
         string_break_angle_deg=float(math.degrees(math.atan2(SADDLE[2] - (anchor[2] + 2.6), SADDLE[1] - anchor[1] - 4))),
         nut_vs_top_edge=float(NUT_PT[2] - Z_EDGE),
         fb_end_y=float(fb_end[1]), fb_extension_clearance=float(fb_end_under[2] - top_height_at(0, fb_end_under[1])),
-        pickup=pk_info,
+        pickup=pk_info, goldfoil=gf_info,
         soundhole_area_each=float(A / 2), air_volume_l=float(air * 1e-6), helmholtz_hz_est=float(f_h),
         masses_g={k: round(v, 1) for k, v in mass.items()}, total_mass_g=round(total_g), total_mass_lb=round(total_g / 453.6, 2),
         manifold_ok={k: bool(v.status() == m3.Error.NoError and not v.is_empty()) for k, v in parts.items()},
