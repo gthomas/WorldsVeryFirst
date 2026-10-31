@@ -21,7 +21,7 @@ def _section(y, half, top, bot, p, n=33):
     return [(half * math.cos(a), y, top - D * (math.sin(a) ** p)) for a in np.linspace(0, math.pi, n)]
 
 def build(Y_N, Y_body, zgp, width, depth, head_angle_deg=0.0, head_T=14.0, volute=0.0,
-          heel_extra=0.0, heel_w=None, heel_len=45.0, heel_p=0.35, s_plate=32.0):
+          heel_extra=0.0, heel_w=None, heel_len=45.0, heel_p=0.35, s_plate=32.0, holes_on=True):
     """Y_N: nut line. Y_body: where the neck meets the body (the slices stop just inside it).
     width(y), depth(y): shaft width and depth below the gluing plane. heel_extra/heel_w: how much deeper/wider the
     neck gets over the last `heel_len` mm before the body; heel_p: how square the section gets there."""
@@ -62,9 +62,10 @@ def build(Y_N, Y_body, zgp, width, depth, head_angle_deg=0.0, head_T=14.0, volut
     # tuner holes, truss rod slot
     holes = B.union([tilt(m3.Manifold.cylinder(60, H.TUNER_HOLE / 2, H.TUNER_HOLE / 2, 28).translate([v, Y_N + s, zgp - 40]))
                      for v, s, _ in H.TUNER_LIST])
-    slot = tilt(B.prism(H.TRUSS_SLOT + np.array([0, Y_N]), zgp - 7, zgp + 2))
+    # access slot cut straight down (3-axis friendly), deep enough to reach the rod end below the angled face
+    slot = B.prism(H.TRUSS_SLOT * np.array([1, math.cos(HA)]) + np.array([0, Y_N]), zgp - 12, zgp + 5)
     # headstock face skin (finished to match the top): the face from just past the nut to the tip
     fpoly = Polygon(H.HEAD_OUTLINE).intersection(box(-200, 3.0, 200, 400)).buffer(-0.3)
     fp = B.ccw(np.array(fpoly.exterior.coords)[:-1] + np.array([0, Y_N]))
     face_skin = tilt(B.prism(fp, zgp - 0.01, zgp + 0.6)) - holes - slot
-    return neck - holes - slot, face_skin, tilt
+    return (neck - holes - slot if holes_on else neck - slot), face_skin, tilt

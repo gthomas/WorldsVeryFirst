@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461345.320150463
+2461345.3688078704
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461345.320150463
+2461345.3688078704
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{6040FA8A-3522-4F58-BECC-8D0A8D120B21}
+{DCEC5FBC-7BD0-4859-AB67-35E98E97A994}
   9
 $VERSIONGUID
   2
-{4A65CFDA-34FE-4F88-8D97-91F1302109BC}
+{95E51203-FB19-44D3-9939-F1046D6EED14}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -2439,7 +2439,7 @@ AcDbText
  40
 3.0
   1
-Juris headstock on a paddle-head T-style neck. Align the nut line with the nut face, cut the outline, drill 11/32" for Grover 133N.
+Juris headstock face (tilt-back, 13 deg): outline, 11/32" tuner holes for Grover 133N, measured along the face from the nut line.
  11
 -60.0
  21
@@ -3451,7 +3451,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-31T14:41:01.656707+00:00
+1.4.5 @ 2026-10-31T15:51:05.788173+00:00
   0
 DICTIONARYVAR
   5
@@ -3463,7 +3463,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-31T14:41:01.658707+00:00
+1.4.5 @ 2026-10-31T15:51:05.791352+00:00
   0
 ENDSEC
   0
