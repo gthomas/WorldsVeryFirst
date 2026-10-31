@@ -83,13 +83,12 @@ def string_z_body(y):
 
 # ---- body
 def build_body():
-    TS.OUTL = OUTL; TS.P['bevel_drop'] = P['bevel_drop']
+    TS.P['bevel_drop'] = P['bevel_drop']
     body = B.prism(OUTL, 0.0, T)
-    for verts in (TS.BASS_V, TS.TREB_V):
-        body = body - TS.bevel_cutters(verts, T, +1) - TS.bevel_cutters(verts, 0.0, -1)
+    body = body - TS.bevel_band(OUTL, SHARP, names, T, +1) - TS.bevel_band(OUTL, SHARP, names, 0.0, -1)
     # chambers in both wings under the cap, leaving a solid centre block under the pickups and bridge
     from shapely.geometry import Polygon, box
-    inner = Polygon(np.r_[TS.BASS_V, TS.TREB_V[::-1]]).buffer(0)
+    inner = Polygon(np.r_[TS.bevel_chains(OUTL, SHARP, names)[0], TS.bevel_chains(OUTL, SHARP, names)[1][::-1]]).buffer(0)
     ch = []
     for side in (-1, 1):
         wing = inner.intersection(box(45, 30, 200, 380) if side > 0 else box(-200, 30, -45, 400)).buffer(-12, join_style=1)

@@ -7,23 +7,23 @@ A T-style solid body on the C-75 outline, keeping the C-75's bevelled edges, wit
 | File | What it is |
 |---|---|
 | `body/body.step`, `body/body.stl` | The body in machining position: XY centred, Z0 at the top surface. |
-| `body/body_setup.dxf` | Stock outline, pin holes and origin, plus layers for the profile, bevel lines, neck pocket, both pickup routes, control cavity, bridge plate and control plate outlines, string-through holes and neck screws. |
+| `body/body_setup.dxf` | Stock outline, pin holes and origin, plus layers for the profile, inner bevel lines, neck pocket, both pickup routes, control cavity, bridge plate and control plate outlines, string-through holes and neck screws. |
 | `neck/neck.step`, `neck/neck.stl`, `neck/neck_setup.dxf` | Custom bolt-on neck: X along the neck, Z0 at the fingerboard gluing plane. Setup A: gluing plane, truss rod channel, the 13° headstock face and the rod access slot. Setup B, flipped: back carve, volute, heel and headstock back. |
-| `fingerboard/fingerboard.step`, `.stl`, `_setup.dxf` | 9.5" radius board, 21 fret slots, flat side down. |
+| `fingerboard/fingerboard.step`, `.stl`, `_setup.dxf` | 12" radius board, 21 fret slots, flat side down. |
 | `headstock_face_template.dxf` | Headstock outline and 11/32" tuner holes, measured along the angled face from the nut line. |
 | `../model/juris_c75t.glb`, `report.json` | The full 3D model and its numbers. |
 
 ## Body
 
 - **Stock:** swamp ash, alder or roasted pine, two-piece glued up to about 14¾ × 19¼ × 1⅞ in, finished 1¾ in (44.45 mm).
-- **Bevels:** traced from the C-75 body drawing. One flat facet for each straight run of the inner bevel line, the same on the top and the back. Each facet falls 11 mm by the outline (`bevel_drop`), read off the C-75 side elevation; change it if your C-75 differs. As drawn, the bass bevel is wider through the lower bout and wraps onto the tail, and the treble tail edge and the cutaway are left square. Both horns' bevels stop short of the neck end, so the pocket walls stay full height.
-- **Setup A, from the top:** bevel facets (1/4" ball-nose, fine stepover), then:
+- **Bevels:** built the way the C-75 body is: one continuous band that follows the outline all the way round, top and back, rather than separate flat facets. Its width at each point comes from the inner bevel line on the C-75 drawing: wide through the bass lower bout and onto the tail, narrower up the treble side, and it carries on round both horns and into the cutaway, tapering to about 3.5 mm where it meets the neck so the pocket walls stay near full height. Where the band is at least 15 mm wide it falls 11 mm at the outline (`bevel_drop`); narrower stretches fall proportionally less, so the slope stays even. The drop is read off the C-75 side elevation; change it if your C-75 differs.
+- **Setup A, from the top:** bevel band (1/4" ball-nose, fine stepover), then:
   - neck pocket
   - bridge pickup route
   - neck pickup route
   - control cavity
   - outside profile
-- **Setup B, flipped about X on the pin line:** back bevel facets, then the six 8.2 mm ferrule counterbores, 6 mm deep.
+- **Setup B, flipped about X on the pin line:** back bevel band, then the six 8.2 mm ferrule counterbores, 6 mm deep.
 - **Drilled through (vertical, so they can be done on the machine or a drill press):** the six 1/8" string holes and the four neck screw holes.
 - **Drilled by hand after machining:**
   - wire channels: neck pickup to bridge pickup, bridge pickup to control cavity, control cavity to jack
@@ -41,10 +41,10 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 
 | Item | Notes |
 |---|---|
-| Neck | **Made to the files, not bought:** stock T necks have flat headstocks. It's a maple blank about 26 × 3.75 × 2½ in, so the 13° headstock can be cut from one piece (or scarf-jointed). It has a standard Fender heel, 2.2 × 3 in, so the pocket stays standard. Board: 1/4 in dark wood or Richlite. Add a 15 in dual-action truss rod, 1/4 × 3/8 in channel, adjusted at the headstock. Drill the tuner holes 11/32 in, square to the angled face, as a separate operation. The neck undercut check reads 2.5 mm², all where rays graze the angled headstock edges. |
+| Neck | **Made to the files, not bought:** stock T necks have flat headstocks. It's a maple blank about 26 × 3.75 × 2½ in, so the 13° headstock can be cut from one piece (or scarf-jointed). It has a standard Fender heel, 2.2 × 3 in, so the pocket stays standard. Board: 1/4 in dark wood or Richlite, 12 in radius. Add a 15 in dual-action truss rod, 1/4 × 3/8 in channel, adjusted at the headstock. Drill the tuner holes 11/32 in, square to the angled face, as a separate operation. The neck undercut check reads 2.5 mm², all where rays graze the angled headstock edges. |
 | Tuners | Grover 133N, 3+3 (same as your other builds). |
 | Bridge | Vintage 3-saddle T plate with string-through ferrules. The model uses about 82.5 × 92 mm with the back edge 25 mm behind the saddles. Lay your plate on the body before routing the bridge pickup. |
-| Pickups | T bridge and neck set. The neck pickup screws to the body on springs, since there's no pickguard. |
+| Pickups | Standard T bridge and neck set (the model shows a vintage bridge pickup on its brass baseplate and a chrome-covered neck pickup). The bridge pickup hangs from the bridge plate as usual; the neck pickup screws to the body on springs through its tabs, since there's no pickguard. |
 | Controls | 5½ × 1¼ in T control plate, 3-way switch, 250k volume and tone pots. |
 | Jack | Electrosocket-style cup jack (7/8" bore) |
 | Neck plate | Neck plate, four screws, and ferrules |
@@ -53,8 +53,8 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 
 | Part | Assumed | Parameter in `tstyle.py` |
 |---|---|---|
-| Bridge pickup route | 82.5 × 38 mm, 19 mm deep, slanted 8° | `BRIDGE_PU` |
-| Neck pickup route | 70 × 31 mm, 19 mm deep | `NECK_PU` |
+| Bridge pickup route | 76 × 41 mm, 19 mm deep, slanted 8° (fits a vintage T bridge pickup with its flatwork and baseplate) | `BRIDGE_PU` |
+| Neck pickup route | 76 × 22 mm, 19 mm deep, round ends (T neck pickup in its chrome cover, 65 × 16 mm, plus mounting tabs) | `NECK_PU` |
 | Control cavity | 118 × 28 mm, 36 mm deep, under a 139.7 × 31.75 mm plate | `CTRL` |
 | Bridge plate | 82.5 × 92 mm, string holes 20 mm behind the saddles, 2⅛" spacing | `BRIDGE`, `FERRULE_Y`, `string_spacing_bridge` |
 | Neck heel | 2.2 × 3 in, 25.4 mm thick including the board | `pocket_w`, `pocket_L`, `heel_t` |
