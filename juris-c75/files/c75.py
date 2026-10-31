@@ -7,6 +7,7 @@ import json, math, os
 import numpy as np
 import manifold3d as m3
 import build as B
+import head_c75 as H
 import outline as O
 import tstyle as TS                     # bevel chains + cutter
 
@@ -38,7 +39,7 @@ PX = _px_map()
 
 NECK_PU = PX(386, 323); BRIDGE_PU = PX(386, 513); BRIDGE_C = PX(386, 587)
 Y_SADDLE = float(BRIDGE_C[1])
-KNOBS = [(PX(557, 621), 'vol'), (PX(586, 710), 'vol'), (PX(515, 727), 'tone'), (PX(543, 783), 'tone')]
+KNOBS = [(PX(557, 621), 'vol'), (PX(586, 710), 'tone')]     # the built body has these two (the drawing's other two are not drilled)
 TOGGLE = PX(246, 225)
 GUARD = np.array([PX(446, 268), PX(493, 300), PX(578, 548), PX(467, 532), PX(446, 470)])
 TP_BAR_Y = float(PX(386, 675)[1])
@@ -97,7 +98,7 @@ def build_body():
         geoms = getattr(wing, 'geoms', [wing])
         for g in geoms:
             if g.area > 500: ch.append(B.prism(B.ccw(np.array(g.exterior.coords)[:-1]), 6.0, T - P['cap']))
-    body = body - B.union(ch)
+    body = body - B.union(ch) - pickup_route(NECK_PU) - pickup_route(BRIDGE_PU)
     cap = body ^ B.prism(OUTL, T - P['cap'], T + 1)
     return body - B.prism(OUTL, T - P['cap'], T + 1), cap
 
@@ -116,20 +117,21 @@ def build_neck():
     shaft = B.union([B.hull(list(a) + list(b)) for a, b in zip(rings[:-1], rings[1:])])
     heel = B.hull([(sx * 27.0, y, z) for sx in (-1, 1) for y in (Y_END - 70, Y_END + 6) for z in (zgp, T - 30)])   # tenon/heel inside the body
     HT = 14.0; HA = math.radians(P['head_angle']); hpiv = np.array([0, Y_N, zgp])
-    hp = np.array([(x, Y_N + 4 + s) for x, s in B.HEAD_POLY])
+    hp = np.array([(x, Y_N + s) for x, s in H.HEAD_OUTLINE])
     head = rot_man(B.prism(B.ccw(hp), zgp - HT, zgp), -HA, hpiv)
     volute = B.hull([(x, y, z) for x in (-21, 21) for y, z in ((Y_N - 30, zgp - depth(Y_N - 30)), (Y_N - 30, zgp))] +
                     [tuple(rot_pts([x, Y_N + 30, z], -HA, hpiv)) for x in (-27, 27) for z in (zgp - HT, zgp)])
     neck = shaft + heel + head + volute
+    neck = neck - rot_man(B.prism(H.TRUSS_SLOT + np.array([0, Y_N]), zgp - 6, zgp + 1), -HA, hpiv)     # truss rod access
     tun = []
-    for v, s, sv in B.TUNER_LIST:
-        p = np.array([v, Y_N + 4 + s, zgp])
-        hole = rot_man(m3.Manifold.cylinder(40, 4.4, 4.4, 24).translate([v, Y_N + 4 + s, zgp - 30]), -HA, hpiv)
+    for v, s, sv in H.TUNER_LIST:
+        p = np.array([v, Y_N + s, zgp])
+        hole = rot_man(m3.Manifold.cylinder(40, 4.4, 4.4, 24).translate([v, Y_N + s, zgp - 30]), -HA, hpiv)
         neck = neck - hole
-        post = rot_man(m3.Manifold.cylinder(16, 3.0, 3.0, 20).translate([v, Y_N + 4 + s, zgp]), -HA, hpiv)
-        btn = rot_man(B.hull([(v + sv * dx, Y_N + 4 + s + dy, zgp - HT - dz) for dx in (2, 26) for dy in (-7, 7) for dz in (0, 13)]), -HA, hpiv)
+        post = rot_man(m3.Manifold.cylinder(16, 3.0, 3.0, 20).translate([v, Y_N + s, zgp]), -HA, hpiv)
+        btn = rot_man(B.hull([(v + sv * dx, Y_N + s + dy, zgp - HT - dz) for dx in (2, 26) for dy in (-7, 7) for dz in (0, 13)]), -HA, hpiv)
         tun += [post, btn]
-    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 4 + 160]), zgp, zgp + 0.8), -HA, hpiv)
+    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 160]), zgp, zgp + 0.8), -HA, hpiv)
     # fingerboard + frets
     R = P['fb_radius']; pts = []
     for y in (Y_N, y_fb_end):
@@ -143,16 +145,24 @@ def build_neck():
         frets.append(B.hull([(x, y + dy, Z_J - (R - math.sqrt(R * R - x * x)) + dz) for x in (-hw, 0, hw) for dy in (-1.2, 1.2) for dz in (-0.2, P['fret_h'] * (1 if abs(dy) < 1 else .4))]))
     nut = B.hull([(x, y, z) for x in (-21.4, 21.4) for y in (Y_N, Y_N + 4) for z in (zgp, Z_J + P['fret_h'] + 0.5)])
     tilt = lambda m: rot_man(m, -TH, PIV)
-    tuner_posts = [rot_pts(rot_pts([v, Y_N + 4 + s, zgp + 8], -HA, hpiv), -TH, PIV) for v, s, _ in B.TUNER_LIST]
+    tuner_posts = [rot_pts(rot_pts([v, Y_N + s, zgp + 8], -HA, hpiv), -TH, PIV) for v, s, _ in H.TUNER_LIST]
     return dict(neck=tilt(neck), fingerboard=tilt(fb), frets=tilt(B.union(frets)), nut=tilt(nut), tuners=tilt(B.union(tun)), badge=tilt(badge)), tuner_posts
 
 # ---- hardware
+HB_ROUTE = dict(L=73.0, W=38.0, ear_L=89.0, ear_W=10.0, d=19.0)       # as routed on the built body
+
+def pickup_route(c):
+    y = float(c[1]); r = HB_ROUTE
+    return B.prism(B.rrect(r['L'], r['W'], 3.2) + np.array([0, y]), T - r['d'], T + 5) + \
+           B.prism(B.rrect(r['ear_L'], r['ear_W'], 3.0) + np.array([0, y]), T - r['d'], T + 5)
+
 def build_pickup(c):
+    """surface-mount T-Armond style: flange on the top over the humbucker route, cover with six poles"""
     y = float(c[1]); zt = string_z_body(y) - 3.5
-    ring = B.prism(B.rrect(92, 46, 4.0) + np.array([0, y]), T, T + 3.0) - B.prism(B.rrect(72, 40, 3.0) + np.array([0, y]), T - 1, T + 4)
+    flange = B.prism(B.rrect(95, 44, 6.0) + np.array([0, y]), T, T + 1.5)
     cover = B.prism(B.rrect(70, 38, 4.0) + np.array([0, y]), T + 1, zt)
     poles = B.union([m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).translate([x, y, zt]) for x in np.linspace(-26.25, 26.25, 6)])
-    return ring, cover, poles
+    return flange, cover, poles
 
 def build_bridge():
     y = Y_SADDLE; L, W, H = 135.0, 14.95, 11.75
@@ -193,8 +203,8 @@ def build_strings(anchor, posts):
         a = np.array([xs_b[i] * 0.86, anchor[1] + 4, anchor[2]]); s = np.array([xs_b[i], Y_SADDLE, sad_z])
         nut = rot_pts([xs_n[i], Y_N, Z_J + P['fret_h'] + 0.5], -TH, PIV)
         side = -1 if i < 3 else 1; k = i if i < 3 else 5 - i
-        idx = [j for j, (v, s_, sv) in enumerate(B.TUNER_LIST) if sv == side][k] if False else None
-        post = [p for (v, s_, sv), p in zip(B.TUNER_LIST, posts) if sv == side and abs(abs(v) - B.TUNER_POS[k][0]) < 1e-6 and abs(s_ - B.TUNER_POS[k][1]) < 1e-6][0]
+        idx = [j for j, (v, s_, sv) in enumerate(H.TUNER_LIST) if sv == side][k] if False else None
+        post = [p for (v, s_, sv), p in zip(H.TUNER_LIST, posts) if sv == side and abs(abs(v) - H.TUNER_POS[k][0]) < 1e-6 and abs(s_ - H.TUNER_POS[k][1]) < 1e-6][0]
         pts = [a, s, nut, post]
         for p, q in zip(pts[:-1], pts[1:]):
             out.append(B.hull([p + d for d in B.sphere_pts(0.3)] + [q + d for d in B.sphere_pts(0.3)]))
@@ -211,8 +221,8 @@ def main():
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     parts['controls'] = build_controls(); parts['pickguard'] = build_guard()
     parts['strings'] = build_strings(anchor, posts)
-    MAT = dict(body='mahogany', cap='maple', neck='mahogany', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
-               neck_pickup_ring='black', neck_pickup='nickel', neck_pickup_poles='nickel', bridge_pickup_ring='black', bridge_pickup='nickel',
+    MAT = dict(body='mahogany', cap='maple', neck='maple', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
+               neck_pickup_ring='nickel', neck_pickup='nickel', neck_pickup_poles='nickel', bridge_pickup_ring='nickel', bridge_pickup='nickel',
                bridge_pickup_poles='nickel', bridge='ebony', thumbwheels='nickel', tailpiece='nickel', controls='black', pickguard='black', strings='steel')
     GROUP = {k: ('Body' if k in ('body', 'cap') else 'Neck' if k in ('neck', 'fingerboard', 'frets', 'nut', 'badge') else
                  'Pickups' if 'pickup' in k else 'Strings' if k == 'strings' else 'Hardware') for k in parts}
