@@ -665,12 +665,14 @@ def h2b(v, s, n):
     return n2b(u, v, w)
 
 # Juris headstock: straight sides flaring from the nut, gabled top, bevelled face edge (reference render)
-HEAD_POLY = np.array([(-21.43, 0.0), (21.43, 0.0), (44, 150), (0, 198), (-44, 150)], float)
+import head_c75 as _H   # the built C-75's headstock: waisted sides, gabled top (shared by all three models)
+HEAD_POLY = _H.HEAD_OUTLINE.copy()
 HEAD_T = 14.0
 HEAD_PLATE_S0 = 55.0     # plate solid starts here; the volute loft forms the headstock below this
 HEAD_BEVEL = 0.0   # flat face, square edges: takes standard tuners
-def _head_edge_v(s): return 21.43 + s * (44 - 21.43) / 150
-TUNER_POS = [(_head_edge_v(s) - 9.5, s) for s in (62.0, 101.0, 140.0)]   # posts follow the flare
+_HR = np.array(_H._RIGHT[:-1])
+def _head_edge_v(s): return float(np.interp(s, _HR[:, 1], _HR[:, 0]))
+TUNER_POS = list(_H.TUNER_POS)
 TUNER_LIST = [(sv * v, s, sv) for v, s in TUNER_POS for sv in (-1, 1)]
 
 def head_slab(poly, n0, n1):
@@ -752,10 +754,10 @@ TRUSS_COVER = np.array([(-8.0, 1.0), (8.0, 1.0), (8.0, 31.0), (0.0, 47.0), (-8.0
 
 def build_badge():
     """riveted asset tag: brushed plate with a QR-style field (pattern is decorative)"""
-    plate = _face_part([(-13.5, 146), (13.5, 146), (13.5, 184.5), (-13.5, 184.5)], 1.5, 2.3)
+    plate = _face_part([(-13.5, 140), (13.5, 140), (13.5, 178.5), (-13.5, 178.5)], 1.5, 2.3)
     rivets = union([m3.Manifold.cylinder(0.6, 1.1, 1.1, 12).transform(head_mat(v, s)).translate([0, 0, 0])
-                    .translate((h2b(v, s, 2.3) - h2b(v, s, 0)).tolist()) for v in (-11.5, 11.5) for s in (148, 182.5)])
-    rng = np.random.default_rng(75); N = 21; m = 1.05; v0, s0 = -N * m / 2, 149.0
+                    .translate((h2b(v, s, 2.3) - h2b(v, s, 0)).tolist()) for v in (-11.5, 11.5) for s in (142, 176.5)])
+    rng = np.random.default_rng(75); N = 21; m = 1.05; v0, s0 = -N * m / 2, 143.0
     grid = rng.random((N, N)) < 0.5
     for (r0, c0) in [(0, 0), (0, N - 7), (N - 7, 0)]:
         grid[r0:r0 + 7, c0:c0 + 7] = False

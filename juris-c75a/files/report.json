@@ -44,16 +44,16 @@
   }
  },
  "soundhole_area_each": 517.8656588680747,
- "air_volume_l": 6.0154125159084195,
- "helmholtz_hz_est": 126.18247905742544,
+ "air_volume_l": 6.015412515908458,
+ "helmholtz_hz_est": 126.18247905742504,
  "masses_g": {
   "top": 149.4,
   "top_binding": 8.4,
   "back": 186.2,
   "rim": 570.3,
-  "neck": 310.7,
+  "neck": 329.6,
   "fingerboard": 218.0,
-  "faceplate": 9.9,
+  "faceplate": 11.8,
   "truss_cover": 3,
   "frets": 22,
   "nut": 3.6,
@@ -78,8 +78,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 2078,
- "total_mass_lb": 4.58,
+ "total_mass_g": 2099,
+ "total_mass_lb": 4.63,
  "manifold_ok": {
   "top": true,
   "top_binding": true,

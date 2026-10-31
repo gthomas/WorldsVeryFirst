@@ -110,28 +110,22 @@ def build_neck():
         t = (Y_N - y) / (Y_N - y_fb_end); return P['nut_w'] + (P['fb_end_w'] - P['nut_w']) * min(1, max(0, t))
     def depth(y):
         s = Y_N - y; return P['neck_d1'] + (P['neck_d12'] - P['neck_d1']) * (s - FX(1)) / (FX(12) - FX(1)) - fbt
-    rings = []
-    for y in np.linspace(Y_N - 2, Y_END + 2, 40):
-        W, D = width(y) / 2, depth(y)
-        rings.append(np.array([(W * math.cos(a), y, zgp - D * math.sin(a) ** 0.8) for a in np.linspace(0, math.pi, 25)]))
-    shaft = B.union([B.hull(list(a) + list(b)) for a, b in zip(rings[:-1], rings[1:])])
-    heel = B.hull([(sx * 27.0, y, z) for sx in (-1, 1) for y in (Y_END - 70, Y_END + 6) for z in (zgp, T - 30)])   # tenon/heel inside the body
     HT = 14.0; HA = math.radians(P['head_angle']); hpiv = np.array([0, Y_N, zgp])
-    hp = np.array([(x, Y_N + s) for x, s in H.HEAD_OUTLINE])
-    head = rot_man(B.prism(B.ccw(hp), zgp - HT, zgp), -HA, hpiv)
-    volute = B.hull([(x, y, z) for x in (-21, 21) for y, z in ((Y_N - 30, zgp - depth(Y_N - 30)), (Y_N - 30, zgp))] +
-                    [tuple(rot_pts([x, Y_N + 30, z], -HA, hpiv)) for x in (-27, 27) for z in (zgp - HT, zgp)])
-    neck = shaft + heel + head + volute
-    neck = neck - rot_man(B.prism(H.TRUSS_SLOT + np.array([0, Y_N]), zgp - 6, zgp + 1), -HA, hpiv)     # truss rod access
+    import neck_smooth as NS
+    # heel flares deeper toward the body end so it meets the end face about 6 mm above the back
+    heel_extra = max(0.0, (zgp - 8.0) - depth(Y_END))
+    neck, face, _ = NS.build(Y_N, Y_END, zgp, width, depth, head_angle_deg=P['head_angle'], head_T=HT, volute=4.0,
+                             heel_extra=heel_extra, heel_w=P['fb_end_w'], heel_len=48.0, heel_p=0.45)
+    tenon = B.hull([(sx * 26.0, y, z) for sx in (-1, 1) for y in (Y_END - 70, Y_END - 0.5) for z in (zgp, T - 32)])   # glued in, hidden in the body
+    neck = neck + tenon
+    neck_face = face
     tun = []
     for v, s, sv in H.TUNER_LIST:
         p = np.array([v, Y_N + s, zgp])
-        hole = rot_man(m3.Manifold.cylinder(40, 4.4, 4.4, 24).translate([v, Y_N + s, zgp - 30]), -HA, hpiv)
-        neck = neck - hole
         post = rot_man(m3.Manifold.cylinder(16, 3.0, 3.0, 20).translate([v, Y_N + s, zgp]), -HA, hpiv)
         btn = rot_man(B.hull([(v + sv * dx, Y_N + s + dy, zgp - HT - dz) for dx in (2, 26) for dy in (-7, 7) for dz in (0, 13)]), -HA, hpiv)
         tun += [post, btn]
-    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 160]), zgp, zgp + 0.8), -HA, hpiv)
+    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 160]), zgp + 0.5, zgp + 1.3), -HA, hpiv)
     # fingerboard + frets
     R = P['fb_radius']; pts = []
     for y in (Y_N, y_fb_end):
@@ -146,7 +140,7 @@ def build_neck():
     nut = B.hull([(x, y, z) for x in (-21.4, 21.4) for y in (Y_N, Y_N + 4) for z in (zgp, Z_J + P['fret_h'] + 0.5)])
     tilt = lambda m: rot_man(m, -TH, PIV)
     tuner_posts = [rot_pts(rot_pts([v, Y_N + s, zgp + 8], -HA, hpiv), -TH, PIV) for v, s, _ in H.TUNER_LIST]
-    return dict(neck=tilt(neck), fingerboard=tilt(fb), frets=tilt(B.union(frets)), nut=tilt(nut), tuners=tilt(B.union(tun)), badge=tilt(badge)), tuner_posts
+    return dict(neck=tilt(neck), faceplate=tilt(neck_face), fingerboard=tilt(fb), frets=tilt(B.union(frets)), nut=tilt(nut), tuners=tilt(B.union(tun)), badge=tilt(badge)), tuner_posts
 
 # ---- hardware
 HB_ROUTE = dict(L=73.0, W=38.0, ear_L=89.0, ear_W=10.0, d=19.0)       # as routed on the built body
@@ -221,10 +215,10 @@ def main():
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     parts['controls'] = build_controls(); parts['pickguard'] = build_guard()
     parts['strings'] = build_strings(anchor, posts)
-    MAT = dict(body='mahogany', cap='maple', neck='maple', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
+    MAT = dict(faceplate='maple', body='mahogany', cap='maple', neck='maple', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
                neck_pickup_ring='nickel', neck_pickup='nickel', neck_pickup_poles='nickel', bridge_pickup_ring='nickel', bridge_pickup='nickel',
                bridge_pickup_poles='nickel', bridge='ebony', thumbwheels='nickel', tailpiece='nickel', controls='black', pickguard='black', strings='steel')
-    GROUP = {k: ('Body' if k in ('body', 'cap') else 'Neck' if k in ('neck', 'fingerboard', 'frets', 'nut', 'badge') else
+    GROUP = {k: ('Body' if k in ('body', 'cap') else 'Neck' if k in ('neck', 'faceplate', 'fingerboard', 'frets', 'nut', 'badge') else
                  'Pickups' if 'pickup' in k else 'Strings' if k == 'strings' else 'Hardware') for k in parts}
     EXPLODE = dict(Body=(0, 0, 0), Neck=(0, 60, 40), Pickups=(0, 0, 50), Hardware=(0, 0, 80), Strings=(0, 0, 110))
     import trimesh
