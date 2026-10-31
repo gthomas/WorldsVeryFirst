@@ -248,7 +248,7 @@ function studioEnv(){
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({color:new THREE.Color(tint).multiplyScalar(inten), side:THREE.DoubleSide}));
     m.position.set(...pos); m.lookAt(...look); s.add(m);
   };
-  box(60, 34, 9.0, [0, 70, 10], [0, 0, 0]);                       // overhead softbox
+  box(56, 30, 8.0, [-38, 62, 26], [0, 0, 0]);                     // overhead softbox, off-axis so a straight-down view isn't one big reflection
   box(90, 7, 7.0, [-10, 30, 62], [0, 0, 0]);                        // long strip, front
   box(90, 7, 5.0, [10, 34, -62], [0, 0, 0]);                        // long strip, back
   box(30, 40, 2.2, [-75, 20, 0], [0, 0, 0], 0xffe2c0);              // warm fill card
@@ -360,6 +360,8 @@ const MATS = {
 };
 const FLAT = new Set(['battery_door','battery_sleeve','control_plate','pickup_bracket','top_binding','badge','badge_qr','truss_cover','top','back','rim','bridge','tailpiece','pickguard','pickup','pickup_plate','pickguard_bracket','faceplate','nut']);
 const edgeMat = new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:.55});
+// bodies: shallow bevels must stay creased against the flat; the roundover is cut in fine enough steps to stay smooth
+const CREASE = {body:0.17, cap:0.17, cap_edge:0.17, top:0.17};
 const EDGE_ANGLE = {top_binding:3, top:3, back:3, rim:28, bridge:20, tailpiece:20, pickguard:20};
 const clip = new THREE.Plane(new THREE.Vector3(0,0,-1), 1e5);
 applyTheme();
@@ -405,7 +407,7 @@ new GLTFLoader().parse(glbBytes, '', gltf => {
     const meta = META.meta[name]; if (!meta) continue;
     let g = o.geometry;
     if (FLAT.has(name)) { g = g.toNonIndexed(); g.deleteAttribute('normal'); g.computeVertexNormals(); }
-    else { g = toCreasedNormals(g, Math.PI/7); }
+    else { g = toCreasedNormals(g, CREASE[name] ?? Math.PI/7); }
     if (g.index) g = g.toNonIndexed();
     const spec = {...MATS[meta.material]};
     if (spec.map === '@amber') { addGrainUV(g, 'ebony'); spec.map = TEX.amber || (TEX.amber = speckTexture()); }
@@ -514,7 +516,7 @@ const FINISHES = {
   white:  () => ({color:0xddd2ae, roughness:.55, clearcoat:.25, clearcoatRoughness:.45, envMapIntensity:.4}),
   primer: () => ({color:0x8e908c, roughness:.92, envMapIntensity:.25}),
   burst:  () => ({map: TEX.spruce || (TEX.spruce = woodTexture('spruce')), ...SHELLAC, clearcoat:.55, clearcoatRoughness:.22, envMapIntensity:.4}),
-  walnut: () => ({map: TEX.walnut || (TEX.walnut = woodTexture('walnut')), roughness:.45, clearcoat:.3, clearcoatRoughness:.35, envMapIntensity:.6}),
+  walnut: () => ({map: TEX.walnut || (TEX.walnut = woodTexture('walnut')), roughness:.55, clearcoat:.14, clearcoatRoughness:.45, envMapIntensity:.45}),
 };
 let finish = 'black';
 try { const f = localStorage.getItem('juris-finish'); if (f && FINISHES[f]) finish = f; } catch (e) {}

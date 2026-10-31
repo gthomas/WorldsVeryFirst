@@ -85,7 +85,7 @@ def bevel_chains(outl_pts, sharp, nm):
 
 TAIL_BEVEL = 12.0
 
-def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5, round_r=0.0, round_k=5):
+def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5, round_r=0.0, round_k=8):
     """The C-75 bevel as one band that follows the outline all the way round. Its width at each point is the
     distance to the traced inner bevel line (wide on the bass side, narrower on the treble, wrapping onto the
     tail as drawn); round the horns, the cutaway and into the neck it follows the edge and narrows, as on the
