@@ -106,6 +106,13 @@ dl.spec dd{margin:0;font-family:var(--f-mono);font-size:12.5px;text-align:right;
   </section>
 
   <aside class="rail">
+    <style>a.chip{display:inline-block;font:500 12px/1 var(--f-mono);letter-spacing:.03em;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:3px;padding:7px 9px}
+a.chip:hover{border-color:var(--ink-2)} a.chip[aria-pressed="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}</style>
+    <div class="blk" id="model-switch">
+      <div class="lbl">Model</div>
+      <div class="toggles" role="navigation" aria-label="Switch model"><a class="chip" href="../juris-c75a/" aria-pressed="false" style="text-decoration:none">C-75A archtop</a><a class="chip" href="../juris-c75t/" aria-current="page" aria-pressed="true" style="text-decoration:none">C-75T T-style</a></div>
+    </div>
+
     <div class="blk">
       <div class="lbl">Parts</div>
       <div class="parts" id="parts"></div>
