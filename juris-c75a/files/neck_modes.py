@@ -39,7 +39,8 @@ ib = Basis(m, e, intorder=1)   # dof bookkeeping only
 print(f'mesh: {m.nelements} hexes at {PITCH} mm, {ib.N} dofs', flush=True)
 cent = m.p[:, m.t].mean(axis=1).T
 fb_tm, face_tm = B.to_trimesh(fb), B.to_trimesh(face)
-is_eb = fb_tm.contains(cent) | face_tm.contains(cent)
+is_eb = fb_tm.contains(cent)                       # Richlite fingerboard
+is_fp = face_tm.contains(cent) & ~is_eb            # maple headstock face
 is_cf = B.to_trimesh(rods).contains(cent) if rods.volume() > 0 else np.zeros(len(cent), bool)
 print('carbon elements', int(is_cf.sum()), flush=True)
 
@@ -71,6 +72,9 @@ def rotate_C(C, Q):
 C_mah = rotate_C(ortho_C(10100, 1080, 660, 880, 630, 210, 0.31, 0.39, 0.60), Q)
 C_ebo = rotate_C(ortho_C(17000, 2500, 1600, 1500, 1300, 500, 0.35, 0.40, 0.55), Q)
 RHO_MAH, RHO_EBO = 590e-12, 1150e-12
+# Richlite (paper-phenolic): close to isotropic, roughly 9 GPa in bending, density about 1.4
+E_R = 9000.0; C_ric = rotate_C(ortho_C(E_R, E_R, E_R, E_R / 2.6, E_R / 2.6, E_R / 2.6, 0.3, 0.3, 0.3), Q); RHO_RIC = 1400e-12
+C_map = rotate_C(ortho_C(12600, 1650, 820, 1350, 1000, 300, 0.42, 0.42, 0.65), Q); RHO_MAP = 640e-12   # hard maple
 C_cf = rotate_C(ortho_C(130000, 8000, 8000, 4500, 4500, 3000, 0.30, 0.30, 0.40), Q)   # pultruded carbon rod
 RHO_CF = 1550e-12
 
@@ -96,8 +100,9 @@ def make_forms(C, rho):
     return stiffness, mass
 
 # assemble each material on its own elements, in chunks to keep memory down
-mat_of = np.where(is_eb, 1, np.where(is_cf, 2, 0))
-MATS_ = [(C_mah, RHO_MAH), (C_ebo, RHO_EBO), (C_cf, RHO_CF)]
+mat_of = np.where(is_eb, 1, np.where(is_fp, 3, np.where(is_cf, 2, 0)))
+FB_MAT = os.environ.get('FB_MAT', 'richlite')
+MATS_ = [(C_mah, RHO_MAH), (C_ric, RHO_RIC) if FB_MAT == 'richlite' else (C_ebo, RHO_EBO), (C_cf, RHO_CF), (C_map, RHO_MAP)]
 t0 = time.time()
 K = None; M = None
 for k_, (C_, r_) in enumerate(MATS_):

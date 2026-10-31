@@ -20,8 +20,8 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Mahogany neck blank | 30 × 3 × 1 in | Neck | Needs three glue-ups before machining: a 13° scarf-jointed headstock, a stacked heel (two 1 in layers glued under the heel end, about 3 in of total depth there), and headstock ears to reach 3.5 in width. Or buy a one-piece blank of at least 26 × 3.5 × 3 in and skip the glue-ups. |
 | 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.75 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
 | 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 3/4 in thick | Back | Finished 0.6 in at most. Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
-| 1 | Ebony fingerboard blank | 20½ × 2¾ × 3/8 in | Fingerboard | Finished 18 × 2.22 × 0.29 in. |
-| 1 | Ebony or black fibre headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. |
+| 1 | Richlite guitar fingerboard blank (Black Diamond), unslotted | 20½ × 2¾ × 3/8 in or larger | Fingerboard | Finished 18 × 2.22 × 0.29 in. Barely moves with humidity, so fret ends stay put in dry weather. Machines like a hard hardwood; cut fret slots with a sharp saw or slotting cutter and press the frets in (a drop of thin glue in each slot is a good idea). |
+| 1 | Maple headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.8 × 3.5 in. Finished to match the top (dye and shellac along with it). |
 | 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the stacked pot, the stereo jack and the battery door. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
 | 1 | Stacked (concentric) pot, 25k, with a concentric knob | 3/8 in bushing | Volume and tone | EMG actives use 25k pots. |
@@ -56,7 +56,7 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 90° V-bit | Edge chamfer on the assembled body |
 | 6 mm drill / end mill | Rim alignment dowels |
 
-Feeds and speeds depend on your machine; use the CAM program's defaults for hardwood (mahogany, maple, ebony) and softwood (spruce) as a starting point. Run the grain lengthwise on the top and back, use compression or downcut end mills for profiles and a fresh ball-nose for the facets, and finish the spruce facets with a light 0.1–0.2 mm pass cutting with the grain where your CAM allows.
+Feeds and speeds depend on your machine; use the CAM program's defaults for hardwood (mahogany, maple, Richlite) and softwood (spruce) as a starting point. Run the grain lengthwise on the top and back, use compression or downcut end mills for profiles and a fresh ball-nose for the facets, and finish the spruce facets with a light 0.1–0.2 mm pass cutting with the grain where your CAM allows.
 
 ## Parts
 
@@ -67,10 +67,10 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 | Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
 | Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
-| Fingerboard | `fingerboard/` | Ebony, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
+| Fingerboard | `fingerboard/` | Richlite, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
 
 The `flat/` folder has 2D cut files:
-- `faceplate_and_truss_cover.dxf`: 1.6 mm ebony or black fibre headstock overlay with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
+- `faceplate_and_truss_cover.dxf`: 1.6 mm maple headstock overlay (finished to match the top) with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
 - `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the stereo jack and the stacked pot, the 32 × 22 mm battery door opening, four screw holes, and the outline of the window it covers.
 
 ## Build order
@@ -82,7 +82,7 @@ The `flat/` folder has 2D cut files:
 5. **Neck:** set the neck from above, after the body is closed. The tenon drops through the notch in the top into the mortise, and the tongue lands on the top over the neck block; glue all three faces (tenon, tongue on top, heel on the end face). The tenon floor sets the height, so you can still check the neck angle with the body closed.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
 7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Fix the battery sleeve to the back of the control plate around the door opening, with the battery clip at its inner end. Mount the stacked pot and the stereo jack on the plate, wire everything through the window (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, open the door and slide the 9 V out; the plate stays put.
-8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding.
+8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding. Finish the maple headstock face the same way (dye, then shellac), so the top and headstock match; mask the truss rod cover recess and tuner holes.
 9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
 10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
 11. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 11/32 in (8.73 mm) for the Grover 133's press-in bushings; check the fit in scrap first. Each tuner also takes one small screw on the back of the headstock; mark it from the tuner itself.

@@ -36,8 +36,8 @@
   "back": 186.2,
   "rim": 570.3,
   "neck": 310.7,
-  "fingerboard": 179.0,
-  "faceplate": 20.7,
+  "fingerboard": 218.0,
+  "faceplate": 9.9,
   "truss_cover": 3,
   "frets": 22,
   "nut": 3.6,
@@ -59,8 +59,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 2050,
- "total_mass_lb": 4.52,
+ "total_mass_g": 2078,
+ "total_mass_lb": 4.58,
  "manifold_ok": {
   "top": true,
   "top_binding": true,

@@ -1,80 +1,80 @@
 {
  "tuner_g": 33.0,
+ "carbon": false,
  "modes": [
   {
-   "hz": 31.973264278151014,
+   "hz": 31.424247511022436,
    "kind": "up-and-down bend",
+   "note": "B0",
+   "cents": 30.93589535856438,
+   "where": []
+  },
+  {
+   "hz": 32.458512986993476,
+   "kind": "side-to-side bend",
    "note": "C1",
-   "cents": -39.078691806354016,
+   "cents": -13.001653238504218,
    "where": []
   },
   {
-   "hz": 34.06550241698205,
-   "kind": "side-to-side bend",
-   "note": "C#1",
-   "cents": -29.34416085438727,
-   "where": []
-  },
-  {
-   "hz": 108.63258246584053,
+   "hz": 118.542555418397,
    "kind": "twist",
-   "note": "A2",
-   "cents": -21.655973107311866,
+   "note": "A#2",
+   "cents": 29.481847205850187,
    "where": [
-    "E2 fret 5",
-    "A2 fret 0"
+    "E2 fret 6",
+    "A2 fret 1"
    ]
   },
   {
-   "hz": 192.09216483765115,
+   "hz": 187.55381792582855,
    "kind": "up-and-down bend",
-   "note": "G3",
-   "cents": -34.845818795599826,
+   "note": "F#3",
+   "cents": 23.761329199660253,
    "where": [
-    "E2 fret 15",
-    "A2 fret 10",
-    "D3 fret 5",
-    "G3 fret 0"
+    "E2 fret 14",
+    "A2 fret 9",
+    "D3 fret 4"
    ]
   },
   {
-   "hz": 286.24979455773445,
+   "hz": 280.3372951548547,
    "kind": "side-to-side bend",
-   "note": "D4",
-   "cents": -44.27463915942127,
+   "note": "C#4",
+   "cents": 19.592197769510733,
    "where": [
-    "D3 fret 12",
-    "G3 fret 7",
-    "B3 fret 3"
+    "D3 fret 11",
+    "G3 fret 6",
+    "B3 fret 2"
    ]
   },
   {
-   "hz": 502.96648233768036,
-   "kind": "side-to-side bend",
+   "hz": 502.2165602074022,
+   "kind": "up-and-down bend",
    "note": "B4",
-   "cents": 31.550486026772262,
+   "cents": 28.967292892764362,
    "where": [
     "B3 fret 12",
     "E4 fret 7"
    ]
   },
   {
-   "hz": 522.1585931859911,
-   "kind": "up-and-down bend",
+   "hz": 523.4106279102597,
+   "kind": "side-to-side bend",
    "note": "C5",
-   "cents": -3.6185595344150556,
+   "cents": 0.5276340175328187,
    "where": [
     "B3 fret 13",
     "E4 fret 8"
    ]
   },
   {
-   "hz": 673.5529737414581,
+   "hz": 679.4457401764386,
    "kind": "twist",
-   "note": "E5",
-   "cents": 37.14547015354981,
+   "note": "F5",
+   "cents": -47.77421632237804,
    "where": [
-    "E4 fret 12"
+    "E4 fret 13"
    ]
   }
  ],

@@ -1106,7 +1106,7 @@ def main():
     for k, v in parts.items():
         if v.is_empty(): print('EMPTY', k)
 
-    MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='ebony', faceplate='ebony',
+    MAT = dict(top_binding='spruce', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple', rim='mahogany', neck='mahogany', fingerboard='richlite', faceplate='maple',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
                pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_door='black', battery_sleeve='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
@@ -1116,7 +1116,7 @@ def main():
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
-    DENS = dict(gold=8400, brass=8500, spruce=430, spruce_black=430, spruce_back=430, maple=550, mahogany=590, ebony=1150, bone=1900, nickel=8400, steel=7850, black=1400)
+    DENS = dict(gold=8400, brass=8500, spruce=430, spruce_black=430, spruce_back=430, maple=550, mahogany=590, ebony=1150, richlite=1400, bone=1900, nickel=8400, steel=7850, black=1400)
 
     scene = trimesh.Scene()
     vols = {}
