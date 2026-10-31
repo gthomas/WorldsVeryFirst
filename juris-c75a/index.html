@@ -164,6 +164,7 @@ a.chip:hover{border-color:var(--ink-2)} a.chip[aria-pressed="true"]{background:v
       <div class="lbl">Files</div>
       <ul class="note" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px"><li><a href="files/juris_c75a_cnc.zip">juris_c75a_cnc.zip — machine-ready package (STEP, STL, setup DXFs)</a></li><li><a href="files/MACHINING.md">MACHINING.md — machining guide</a></li><li><a href="files/juris_c75a.glb">juris_c75a.glb</a></li><li><a href="files/top.stl">top.stl</a></li><li><a href="files/back.stl">back.stl</a></li><li><a href="files/rim.stl">rim.stl</a></li><li><a href="files/neck.stl">neck.stl</a></li><li><a href="files/fingerboard.stl">fingerboard.stl</a></li><li><a href="files/bridge.stl">bridge.stl</a></li><li><a href="files/juris_c75a_templates.dxf">juris_c75a_templates.dxf</a></li><li><a href="files/report.json">report.json</a></li><li><a href="files/fea.json">fea.json</a></li><li><a href="files/build.py">build.py</a></li><li><a href="files/outline.py">outline.py</a></li><li><a href="files/cnc.py">cnc.py</a></li><li><a href="files/fea.py">fea.py</a></li><li><a href="files/README.md">README.md</a></li></ul>
     </div>
+  
   </aside>
 </div>
 
@@ -231,18 +232,45 @@ const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawin
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.localClippingEnabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+// photo-studio environment: soft grey sweep, one big overhead softbox, two long strip lights and a warm fill card,
+// so lacquer and chrome pick up the long, soft highlights you see in product photography
+function studioEnv(){
+  const s = new THREE.Scene();
+  const sweep = new THREE.Mesh(new THREE.SphereGeometry(100, 48, 24), new THREE.ShaderMaterial({side:THREE.BackSide, depthWrite:false,
+    vertexShader:'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader:'varying vec3 vP; void main(){ float h = normalize(vP).y; vec3 c = mix(vec3(0.10,0.10,0.11), vec3(0.62,0.63,0.65), smoothstep(-0.35, 0.55, h)); gl_FragColor = vec4(c, 1.0); }'}));
+  s.add(sweep);
+  const box = (w, h, inten, pos, look, tint = 0xffffff) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({color:new THREE.Color(tint).multiplyScalar(inten), side:THREE.DoubleSide}));
+    m.position.set(...pos); m.lookAt(...look); s.add(m);
+  };
+  box(60, 34, 9.0, [0, 70, 10], [0, 0, 0]);                       // overhead softbox
+  box(90, 7, 7.0, [-10, 30, 62], [0, 0, 0]);                        // long strip, front
+  box(90, 7, 5.0, [10, 34, -62], [0, 0, 0]);                        // long strip, back
+  box(30, 40, 2.2, [-75, 20, 0], [0, 0, 0], 0xffe2c0);              // warm fill card
+  box(24, 30, 3.0, [75, 25, 20], [0, 0, 0], 0xdfe8ff);              // cool kicker
+  return pmrem.fromScene(s, 0.015).texture;
+}
+scene.environment = studioEnv();
 const camera = new THREE.PerspectiveCamera(30, 1, 5, 20000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
-const key = new THREE.DirectionalLight(0xfff4e6, 1.6); key.position.set(-400, 900, 600); scene.add(key);
-const rimL = new THREE.DirectionalLight(0xdfe8ff, 0.6); rimL.position.set(700, 300, -600); scene.add(rimL);
-const under = new THREE.DirectionalLight(0xfff0e0, 1.1); under.position.set(300, -900, 400); scene.add(under);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 0.35));
+const key = new THREE.DirectionalLight(0xfff4e6, 1.5); key.position.set(250, 1400, 350); key.target.position.set(470, 0, 0);
+key.castShadow = true; key.shadow.mapSize.set(4096, 4096); key.shadow.radius = 7; key.shadow.blurSamples = 20;
+key.shadow.bias = -0.00025; key.shadow.normalBias = 0.6;
+Object.assign(key.shadow.camera, {left:-760, right:760, top:400, bottom:-400, near:200, far:2600}); key.shadow.camera.updateProjectionMatrix();
+scene.add(key, key.target);
+const rimL = new THREE.DirectionalLight(0xdfe8ff, 0.45); rimL.position.set(700, 300, -600); scene.add(rimL);
+const under = new THREE.DirectionalLight(0xfff0e0, 0.6); under.position.set(300, -900, 400); scene.add(under);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 0.2));
+// shadow catcher under the guitar (only drawn when the camera is above it)
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.ShadowMaterial({opacity:0.32}));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; floor.visible = false; scene.add(floor);
 
 function cssColor(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 function applyTheme(){
@@ -261,6 +289,11 @@ function woodTexture(kind){
     maple:    {base:'#8a4316', line:'rgba(60,20,5,', lines:150, lw:[0.6,1.6], la:[.18,.35], wob:2.5, flame:true},
     mahogany: {base:'#4f1d0e', line:'rgba(28,8,2,',   lines:90,  lw:[1.0,3.0], la:[.25,.5], wob:4, ribbon:true},
     ebony:    {base:'#1c1512', line:'rgba(0,0,0,',     lines:60,  lw:[1,4],     la:[.25,.45], wob:3},
+    mahogany_nat:{base:'#8f4a24', line:'rgba(52,18,4,', lines:110, lw:[0.8,2.6], la:[.18,.40], wob:3, ribbon:true, pores:9000, poreA:.35},
+    maple_nat:{base:'#e2c08a', line:'rgba(150,100,45,', lines:150, lw:[0.5,1.4], la:[.10,.22], wob:2, flame:true, flameA:.10},
+    walnut:   {base:'#3a2010', line:'rgba(12,5,1,',    lines:150, lw:[0.7,2.2], la:[.22,.45], wob:2.5, flame:true, flameA:.07, flameC:'150,95,50', pores:2500, poreA:.25},
+    ebony_brown:{base:'#2a1a12', line:'rgba(8,4,2,',   lines:70,  lw:[1.5,6],   la:[.30,.55], wob:5, streaks:'95,58,32'},
+    rosewood: {base:'#3d1f14', line:'rgba(12,4,2,',    lines:90,  lw:[1.0,4.0], la:[.30,.55], wob:5, streaks:'110,50,30', pores:7000, poreA:.45},
   }[kind];
   x.fillStyle = P.base; x.fillRect(0, 0, N, N);
   if (P.ribbon) for (let i = 0; i < 9; i++) {          // mahogany ribbon stripe
@@ -276,15 +309,30 @@ function woodTexture(kind){
   if (P.sheenLines) for (let i = 0; i < 260; i++) {     // earlywood takes the dye a little lighter
     const gx = (i + .5) / 260 * N; x.fillStyle = `rgba(70,46,32,${.10 + r() * .10})`; x.fillRect(gx - 1, 0, 1.6, N);
   }
+  if (P.streaks) for (let i = 0; i < 14; i++) {        // lighter colour streaks (Macassar / rosewood)
+    const x0 = r() * N, w = 6 + r() * 40; x.fillStyle = `rgba(${P.streaks},${.12 + r() * .22})`;
+    x.beginPath(); for (let y = 0; y <= N; y += 32) { const dx = Math.sin(y / N * 6.28 * (1 + r() * .2) + i) * 8; y ? x.lineTo(x0 + dx, y) : x.moveTo(x0 + dx, y); }
+    for (let y = N; y >= 0; y -= 32) x.lineTo(x0 + w + Math.sin(y / N * 6.28 + i) * 8, y); x.fill();
+  }
   if (P.flame) for (let y = 0; y < N; y += 6) {        // maple flame: soft cross bands
-    const a = Math.max(0, Math.sin(y / 14 + Math.sin(y / 90) * 2)) * .14;
-    x.fillStyle = `rgba(255,190,110,${a})`; x.fillRect(0, y, N, 4);
+    const a = Math.max(0, Math.sin(y / 14 + Math.sin(y / 90) * 2)) * (P.flameA ?? .14);
+    x.fillStyle = `rgba(${P.flameC || '255,190,110'},${a})`; x.fillRect(0, y, N, 4);
+  }
+  if (P.pores) for (let i = 0; i < P.pores; i++) {     // open pores: short dark dashes along the grain
+    x.fillStyle = `rgba(0,0,0,${P.poreA * (.4 + r() * .6)})`; x.fillRect(r() * N, r() * N, .9 + r() * .8, 3 + r() * 9);
   }
   const img = x.getImageData(0, 0, N, N), d = img.data;    // pores / fine noise
   for (let i = 0; i < d.length; i += 4) { const n = (r() - .5) * (kind === 'mahogany' ? 26 : 12); d[i] += n; d[i + 1] += n * .8; d[i + 2] += n * .6; }
   x.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   return t;
+}
+function speckTexture(){
+  const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d'), r = rng(5);
+  x.fillStyle = '#ff7400'; x.fillRect(0, 0, N, N);
+  for (let i = 0; i < 900; i++) { x.fillStyle = r() < .7 ? `rgba(120,40,0,${.25 + r() * .5})` : `rgba(255,220,150,${.3 + r() * .5})`;
+    x.beginPath(); x.ellipse(r() * N, r() * N, 1 + r() * 4, 1 + r() * 2.5, r() * 3.14, 0, 6.28); x.fill(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 const SHELLAC = {clearcoat:.45, clearcoatRoughness:.28, roughness:.5, envMapIntensity:.45};
 const MATS = {
@@ -300,7 +348,15 @@ const MATS = {
   steel:       {color:0xa9abad, roughness:.35, metalness:1},
   black:       {color:0x111111, roughness:.18, clearcoat:.8, clearcoatRoughness:.1},
   gold:        {color:0xd9b25a, roughness:.32, metalness:1},
-  brass:       {color:0xb8924a, roughness:.4, metalness:1},
+  brass:       {color:0xd2a650, roughness:.24, metalness:1},
+  chrome:      {color:0xf4f4f4, roughness:.05, metalness:1},
+  fretgold:    {color:0xe6c98e, roughness:.16, metalness:1},
+  black_plastic:{color:0x060606, roughness:.5, envMapIntensity:.22},
+  amber:       {color:0xffffff, map:'@amber', roughness:.08, transmission:.45, thickness:16, ior:1.5, attenuationColor:0xff4d00, attenuationDistance:6, clearcoat:1, clearcoatRoughness:.04, envMapIntensity:.8},
+  mahogany_nat:{map:'mahogany_nat', roughness:.55, clearcoat:.18, clearcoatRoughness:.5, envMapIntensity:.55},
+  maple_nat:   {map:'maple_nat', roughness:.5, clearcoat:.25, clearcoatRoughness:.4, envMapIntensity:.55},
+  ebony_brown: {map:'ebony_brown', roughness:.42, envMapIntensity:.4},
+  rosewood:    {map:'rosewood', roughness:.5, clearcoat:.15, clearcoatRoughness:.5, envMapIntensity:.4},
 };
 const FLAT = new Set(['battery_door','battery_sleeve','control_plate','pickup_bracket','top_binding','badge','badge_qr','truss_cover','top','back','rim','bridge','tailpiece','pickguard','pickup','pickup_plate','pickguard_bracket','faceplate','nut']);
 const edgeMat = new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:.55});
@@ -352,9 +408,11 @@ new GLTFLoader().parse(glbBytes, '', gltf => {
     else { g = toCreasedNormals(g, Math.PI/7); }
     if (g.index) g = g.toNonIndexed();
     const spec = {...MATS[meta.material]};
-    if (spec.map) { addGrainUV(g, spec.map); spec.map = TEX[spec.map] || (TEX[spec.map] = woodTexture(spec.map)); }
+    if (spec.map === '@amber') { addGrainUV(g, 'ebony'); spec.map = TEX.amber || (TEX.amber = speckTexture()); }
+    else if (spec.map) { addGrainUV(g, spec.map); spec.map = TEX[spec.map] || (TEX[spec.map] = woodTexture(spec.map)); }
     const mat = new THREE.MeshPhysicalMaterial({...spec, side:THREE.DoubleSide, clippingPlanes:[clip], flatShading:FLAT.has(name)});
     const mesh = new THREE.Mesh(g, mat);
+    mesh.castShadow = name !== 'strings' || true; mesh.receiveShadow = true;
     root.add(mesh);
     let edges = null;
     if (EDGE_ANGLE[name] !== undefined){
@@ -365,6 +423,7 @@ new GLTFLoader().parse(glbBytes, '', gltf => {
     if (edges) edges.visible = false;
     parts[name] = {mesh, edges, group: meta.group, explode: new THREE.Vector3(...meta.explode), mat};
   }
+  { const bb = new THREE.Box3().setFromObject(root); floor.position.y = bb.min.y - 0.5; }
   buildPartToggles(); applyTheme(); setFinish(finish); setPickup('emg'); setView('persp', false);
   document.getElementById('status').textContent = 'Model: ' + Object.keys(parts).length + ' parts, mm';
 }, err => { document.getElementById('status').textContent = 'The model file did not load. Reload the page to try again.'; console.error(err); });
@@ -455,6 +514,7 @@ const FINISHES = {
   white:  () => ({color:0xddd2ae, roughness:.55, clearcoat:.25, clearcoatRoughness:.45, envMapIntensity:.4}),
   primer: () => ({color:0x8e908c, roughness:.92, envMapIntensity:.25}),
   burst:  () => ({map: TEX.spruce || (TEX.spruce = woodTexture('spruce')), ...SHELLAC, clearcoat:.55, clearcoatRoughness:.22, envMapIntensity:.4}),
+  walnut: () => ({map: TEX.walnut || (TEX.walnut = woodTexture('walnut')), roughness:.45, clearcoat:.3, clearcoatRoughness:.35, envMapIntensity:.6}),
 };
 let finish = 'black';
 try { const f = localStorage.getItem('juris-finish'); if (f && FINISHES[f]) finish = f; } catch (e) {}
@@ -468,7 +528,7 @@ function setFinish(kind){
     const mat = new THREE.MeshPhysicalMaterial({...FINISHES[kind](), side:THREE.DoubleSide, clippingPlanes:[clip], flatShading:FLAT.has(name)});
     if (kind === 'burst') burstify(mat, g);
     if (kind === 'white') burstify(mat, g, {key:'yellowed', tint:true, mid:[0.70, 0.60, 0.33], edge:[0.58, 0.44, 0.18], bands:[0.25, 0.75, 0.70, 1.05]});
-    p.mesh.material.dispose(); p.mesh.material = mat; p.mat = mat;
+    p.mesh.material.dispose(); p.mesh.material = mat; p.mat = mat; p.mesh.castShadow = p.mesh.receiveShadow = true;
   }
   applyGhost();
   try { localStorage.setItem('juris-finish', kind); } catch (e) {}
@@ -522,9 +582,8 @@ renderer.setAnimationLoop(() => {
     if (tween.t >= 1) tween = null;
     controls.enableDamping = !tween;
   }
-  controls.update(); renderer.render(scene, camera);
+  controls.update();
+  floor.visible = camera.position.y > floor.position.y + 20;
+  renderer.render(scene, camera);
 });
 </script>
-
-</body>
-</html>

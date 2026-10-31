@@ -27,8 +27,8 @@
  "fb_above_body_at_joint": 1.2449500181790256,
  "neck_joint_fret": 15.605097639896146,
  "y_saddle": 191.93684104495915,
- "total_mass_g": 3727,
- "total_mass_lb": 8.22,
+ "total_mass_g": 3702,
+ "total_mass_lb": 8.16,
  "manifold": {
   "body": true,
   "cap": true,
@@ -39,6 +39,8 @@
   "nut": true,
   "tuners": true,
   "badge": true,
+  "truss_cover": true,
+  "truss_screws": true,
   "neck_pickup_ring": true,
   "neck_pickup": true,
   "neck_pickup_poles": true,
@@ -47,9 +49,12 @@
   "bridge_pickup_poles": true,
   "bridge": true,
   "thumbwheels": true,
+  "compton": true,
   "tailpiece": true,
-  "controls": true,
-  "pickguard": true,
-  "strings": true
+  "knobs": true,
+  "switches": true,
+  "jack": true,
+  "strings": true,
+  "cap_edge": true
  }
 }

@@ -83,7 +83,9 @@ def bevel_chains(outl_pts, sharp, nm):
     bv[-1] = _to_edge(bv[-2], bv[-1] - bv[-2], outl); tv[-1] = _to_edge(tv[-2], tv[-1] - tv[-2], outl)
     return bv, tv
 
-def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5):
+TAIL_BEVEL = 12.0
+
+def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5, round_r=0.0, round_k=5):
     """The C-75 bevel as one band that follows the outline all the way round. Its width at each point is the
     distance to the traced inner bevel line (wide on the bass side, narrower on the treble, wrapping onto the
     tail as drawn); round the horns, the cutaway and into the neck it follows the edge and narrows, as on the
@@ -100,14 +102,31 @@ def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5):
     s_nB, s_bC, s_bH, s_bT = sp('neckB'), sp('bCut'), sp('bHorn'), ring.project(Point(bch[0]))
     pt = lambda sv: np.array(ring.interpolate(sv % L).coords[0])
     w_tH = tL.distance(Point(pt(s_tH))); w_bH = bL.distance(Point(pt(s_bH)))
-    def width(sv):
+    w_tT = tL.distance(Point(pt(s_tT + 0.5))); w_bT = bL.distance(Point(pt(s_bT - 0.5)))
+    def width0(sv):
+        w = _width(sv); y = pt(sv)[1]
+        u = float(np.clip((40.0 - y) / 25.0, 0, 1)); u = u * u * (3 - 2 * u)      # round the tail, as on the built guitar
+        return max(w, TAIL_BEVEL * u)
+    def _width(sv):
         p = Point(pt(sv))
         if s_tT <= sv <= s_tH: return tL.distance(p)
         if s_tH < sv <= s_nT: return float(np.interp(sv, [s_tH, s_tC, s_nT], [w_tH, 10.0, 3.5]))
         if s_nB <= sv < s_bH: return float(np.interp(sv, [s_nB, s_bC, s_bH], [3.5, 7.0, w_bH]))
         if s_bH <= sv <= s_bT: return bL.distance(p)
-        return 0.0
+        # across the tail: carry on from the bass line's end to the treble line's start (the built guitar's
+        # bevel runs continuously round the tail; leaving it square here left a step at each end)
+        s0, s1 = s_bT, s_tT + (L if s_tT < s_bT else 0.0); x = sv + (L if sv < s_bT else 0.0)
+        u = float(np.clip((x - s0) / max(s1 - s0, 1e-6), 0, 1)); u = u * u * (3 - 2 * u)
+        return w_bT + (w_tT - w_bT) * u
+    # ease the width changes across the tail corners over a longer run, so the band doesn't twist sharply there
+    _sg = np.arange(0.0, L, 1.0); _w0 = np.array([width0(v) for v in _sg]); _y = np.array([pt(v)[1] for v in _sg])
+    _k = np.exp(-0.5 * (np.arange(-45, 46) / 15.0) ** 2); _k /= _k.sum()
+    _ws = np.convolve(np.r_[_w0[-45:], _w0, _w0[:45]], _k, 'same')[45:-45]
+    _b = np.clip((110.0 - _y) / 40.0, 0, 1); _b = _b * _b * (3 - 2 * _b)
+    _wf = _w0 * (1 - _b) + _ws * _b
+    def width(sv): return float(np.interp(sv % L, _sg, _wf))
     st = np.arange(0.0, L, step)
+    bevel_band.dbg = dict(L=L, s=dict(tT=s_tT, tH=s_tH, tC=s_tC, nT=s_nT, nB=s_nB, bC=s_bC, bH=s_bH, bT=s_bT), w=[(sv, width(sv), tuple(pt(sv).round(1))) for sv in st[::8]])
     pts = []; _jit = np.random.default_rng(7 if down > 0 else 11)
     for sv in st:
         p = pt(sv); a = pt(sv - 0.8); b = pt(sv + 0.8)
@@ -118,7 +137,37 @@ def bevel_band(outl_pts, sharp, nm, z_top, down, drop=None, step=1.5):
         d = min(D, w * D / 15.0)
         A = p + n_in * w + _jit.normal(0, 0.004, 2); Bo = p - n_in * 3.0; zl = z_top - down * (d + 3.0 * d / w)   # tiny jitter: stations that fan to one inner corner must not share an edge
         pts.append([(A[0], A[1], z_top + down * 0.001), (Bo[0], Bo[1], zl), (A[0], A[1], z_top + down * 60), (Bo[0], Bo[1], z_top + down * 60)])
+    if round_r > 0:
+        return _roundover(st, pt, width, D, z_top, down, round_r, round_k)
     pieces = [B.hull(pts[i] + pts[(i + 1) % len(pts)]) for i in range(len(pts)) if pts[i] is not None and pts[(i + 1) % len(pts)] is not None]
+    return B.union(pieces)
+
+def _roundover(st, pt, width, D, z_top, down, r, K):
+    """Display-only roundover of the edge where the bevel (or the flat, where there is no bevel) meets the side:
+    at each station the fillet profile is a fan of small triangles between the sharp edge and the arc, swept to
+    the next station. Real guitars are sanded to roughly this; the sharp CSG edge is what reads as 'CAD'."""
+    prof = []
+    for sv in st:
+        p = pt(sv); a = pt(sv - 0.8); b = pt(sv + 0.8)
+        t = (b - a) / np.linalg.norm(b - a); n_in = np.array([-t[1], t[0], 0.0])
+        w = width(sv); d = min(D, w * D / 15.0) if w >= 0.3 else 0.0
+        E = np.array([p[0], p[1], z_top - down * d])
+        u1 = n_in * max(w, 1.0) + np.array([0, 0, down * d]); u1 /= np.linalg.norm(u1)
+        u2 = np.array([0, 0, -down * 1.0])
+        al = math.acos(float(np.clip(u1 @ u2, -1, 1)))
+        tl = r / math.tan(al / 2); m = (u1 + u2) / np.linalg.norm(u1 + u2); C = E + m * r / math.sin(al / 2)
+        v1 = E + u1 * tl - C; v2 = E + u2 * tl - C
+        arc = []
+        for k in range(K + 1):
+            f = k / K; v = v1 * (1 - f) + v2 * f; arc.append(C + v / np.linalg.norm(v) * r)
+        arc[0] = arc[0] - (C - arc[0]) * 0.004; arc[-1] = arc[-1] - (C - arc[-1]) * 0.004   # ends just proud of the faces
+        prof.append((E - m * 0.4, arc))
+    pieces = []
+    n = len(prof)
+    for i in range(n):
+        (e0, a0), (e1, a1) = prof[i], prof[(i + 1) % n]
+        for k in range(K):
+            pieces.append(B.hull([tuple(e0), tuple(a0[k]), tuple(a0[k + 1]), tuple(e1), tuple(a1[k]), tuple(a1[k + 1])]))
     return B.union(pieces)
 
 BASS_V, TREB_V = bevel_chains(OUTL, SHARP, names)
@@ -218,10 +267,12 @@ def routes():
     return B.union(r)
 
 # ----------------------------------------------------------------------------- BODY
-def build_body(bevel=True):
+def build_body(bevel=True, round_r=0.0):
     body = body_blank()
     if bevel:
         body = body - bevel_band(OUTL, SHARP, names, T, +1) - bevel_band(OUTL, SHARP, names, 0.0, -1)
+    if round_r > 0:                     # display only: sanded edge where the bevel meets the side
+        body = body - bevel_band(OUTL, SHARP, names, T, +1, round_r=round_r) - bevel_band(OUTL, SHARP, names, 0.0, -1, round_r=round_r)
     # keep the pocket walls full height: bevels stop short of the neck end (the chains end before x = +-40)
     return body - routes()
 
@@ -366,7 +417,7 @@ def build_jack():
 def main():
     import trimesh
     parts = {}
-    body = build_body()
+    body = build_body(round_r=1.6)
     cup, bore, jm, jn = build_jack()
     parts['body'] = body - bore
     parts['bridge'] = build_bridge()
