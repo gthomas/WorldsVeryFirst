@@ -379,7 +379,7 @@ def main():
     parts['tuners'] = build_tuners()
     st, lines = build_strings(); parts['strings'] = st
     MAT = dict(bridge_pickup_base='brass', faceplate='maple', body='ash', bridge='nickel', bridge_pickup='black', pickup_poles='nickel', neck_pickup='nickel',  control_plate='nickel',
-               knobs='nickel', jack='nickel', neck='maple', fingerboard='maple_fb', frets='nickel', tuners='nickel', strings='steel')
+               knobs='nickel', jack='nickel', neck='maple', fingerboard='ebony', frets='nickel', tuners='nickel', strings='steel')
     GROUP = dict(bridge_pickup_base='Pickups', faceplate='Neck', body='Body', bridge='Hardware', bridge_pickup='Pickups', pickup_poles='Pickups', neck_pickup='Pickups', control_plate='Hardware',
                  knobs='Hardware', jack='Hardware', neck='Neck', fingerboard='Neck', frets='Neck', tuners='Hardware', strings='Strings')
     EXPLODE = dict(Body=(0, 0, 0), Neck=(0, 60, 40), Pickups=(0, 0, 50), Hardware=(0, 0, 80), Strings=(0, 0, 110))
@@ -390,7 +390,7 @@ def main():
         if k in ('body', 'neck'): tm.export(os.path.join(OUT, f'{k}.stl'))
     scene.export(os.path.join(OUT, 'juris_c75t.glb'))
     DENS = dict(ash=480, maple=700)
-    mass = dict(body=vols['body'] * 480e-6, neck=(vols['neck'] + vols['fingerboard']) * 700e-6)
+    mass = dict(body=vols['body'] * 480e-6, neck=vols['neck'] * 700e-6 + vols['fingerboard'] * 1150e-6)
     hw = dict(bridge=130, pickups=150, control=110, tuners=198, strings=10, frets=20, jack=10, neckplate=40)
     total = sum(mass.values()) + sum(hw.values())
     report = dict(units='mm', params=P, body_length=float(SHARP[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),

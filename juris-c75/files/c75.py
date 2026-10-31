@@ -41,6 +41,7 @@ NECK_PU = PX(386, 323); BRIDGE_PU = PX(386, 513); BRIDGE_C = PX(386, 587)
 Y_SADDLE = float(BRIDGE_C[1])
 KNOBS = [(PX(557, 621), 'vol'), (PX(586, 710), 'tone')]     # the built body has these two (the drawing's other two are not drilled)
 TOGGLE = PX(246, 225)
+TONE_SW = PX(515.3, 730.2)     # Gretsch-style 3-way tone switch, left of the knobs (one of the drawing's small holes)
 GUARD = np.array([PX(446, 268), PX(493, 300), PX(578, 548), PX(467, 532), PX(446, 470)])
 TP_BAR_Y = float(PX(386, 675)[1])
 
@@ -92,7 +93,7 @@ def build_body():
     ch = []
     for side in (-1, 1):
         wing = inner.intersection(box(45, 30, 200, 380) if side > 0 else box(-200, 30, -45, 400)).buffer(-12, join_style=1)
-        for kp, _ in KNOBS:
+        for kp, _ in KNOBS + [(TONE_SW, 'sw')]:
             wing = wing.difference(Polygon(B.rrect(70, 70, 10)).buffer(0).__class__([(kp[0] - 25, kp[1] - 25), (kp[0] + 25, kp[1] - 25), (kp[0] + 25, kp[1] + 25), (kp[0] - 25, kp[1] + 25)]))
         geoms = getattr(wing, 'geoms', [wing])
         for g in geoms:
@@ -183,6 +184,14 @@ def build_controls():
         out.append(m3.Manifold.cylinder(17, r, r * 0.92, 40).translate([p[0], p[1], T]))
     out.append(m3.Manifold.cylinder(2.0, 7.0, 7.0, 24).translate([TOGGLE[0], TOGGLE[1], T]) + m3.Manifold.cylinder(18, 1.4, 1.4, 12).translate([TOGGLE[0], TOGGLE[1], T]) +
                m3.Manifold.sphere(3.2, 16).translate([TOGGLE[0], TOGGLE[1], T + 19]))
+    # Gretsch-style tone switch: knurled nut on a threaded bushing, short lever with a round tip, thrown slightly
+    sx, sy = TONE_SW
+    nut = m3.Manifold.cylinder(2.2, 6.4, 6.4, 6).translate([sx, sy, T])
+    bush = m3.Manifold.cylinder(6.0, 3.0, 3.0, 24).translate([sx, sy, T])
+    lever = B.hull([(sx + dx, sy + dy, T + 5.5) for dx in (-0.9, 0.9) for dy in (-0.9, 0.9)] +
+                   [(sx + dx, sy + 3.0 + dy, T + 15.5) for dx in (-0.6, 0.6) for dy in (-0.6, 0.6)])
+    tip = m3.Manifold.sphere(2.4, 16).translate([sx, sy + 3.2, T + 16.5])
+    out.append(nut + bush + lever + tip)
     return B.union(out)
 
 def build_guard():
@@ -214,7 +223,7 @@ def main():
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     parts['controls'] = build_controls(); parts['pickguard'] = build_guard()
     parts['strings'] = build_strings(anchor, posts)
-    MAT = dict(faceplate='maple', body='mahogany', cap='maple', neck='maple', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
+    MAT = dict(faceplate='maple', body='mahogany', cap='maple', neck='mahogany', fingerboard='ebony', frets='nickel', nut='bone', tuners='nickel', badge='nickel',
                neck_pickup_ring='nickel', neck_pickup='nickel', neck_pickup_poles='nickel', bridge_pickup_ring='nickel', bridge_pickup='nickel',
                bridge_pickup_poles='nickel', bridge='ebony', thumbwheels='nickel', tailpiece='nickel', controls='black', pickguard='black', strings='steel')
     GROUP = {k: ('Body' if k in ('body', 'cap') else 'Neck' if k in ('neck', 'faceplate', 'fingerboard', 'frets', 'nut', 'badge') else
