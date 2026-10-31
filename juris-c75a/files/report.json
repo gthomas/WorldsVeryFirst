@@ -21,17 +21,17 @@
   "z_top": 88.14043773714639,
   "z_bottom": 77.24043773714638,
   "height": 10.9,
-  "max_height_for_3mm_clearance": 18.835270323983167,
-  "clearance_to_top": 11.982134458016155,
-  "string_to_top": 25.835270323983167,
+  "max_height_for_3mm_clearance": 15.886489546796824,
+  "clearance_to_top": 9.549402563671336,
+  "string_to_top": 22.886489546796824,
   "length": 86.3,
   "width": 38.1
  },
  "soundhole_area_each": 517.8656588680747,
- "air_volume_l": 5.960295899151014,
- "helmholtz_hz_est": 126.76455981398345,
+ "air_volume_l": 6.0154125159084195,
+ "helmholtz_hz_est": 126.18247905742544,
  "masses_g": {
-  "top": 148.3,
+  "top": 149.4,
   "top_binding": 8.4,
   "back": 186.2,
   "rim": 570.3,
@@ -59,7 +59,7 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 2049,
+ "total_mass_g": 2050,
  "total_mass_lb": 4.52,
  "manifold_ok": {
   "top": true,
@@ -118,6 +118,25 @@
   "bar_taper": 35.0,
   "bar_end_inset": 14.0,
   "back_arch": 12.0,
+  "arch_upper": "follow",
+  "arch_upper_pts": [
+   [
+    102.0,
+    359.0
+   ],
+   [
+    4.0,
+    330.0
+   ],
+   [
+    -52.0,
+    386.0
+   ],
+   [
+    -90.0,
+    380.0
+   ]
+  ],
   "ridge_y": [
    90.0,
    280.0

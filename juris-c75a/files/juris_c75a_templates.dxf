@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461344.670902778
+2461344.9433449074
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461344.670902778
+2461344.9433449074
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-6B
+71
   9
 $SURFTAB1
  70
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{2C668116-09C2-41F5-998E-AEE0C40DCA92}
+{DA47831D-31AE-4F1C-835D-E932AC29C266}
   9
 $VERSIONGUID
   2
-{6EE041A8-4D85-4B2B-BD4E-2A3EA2CD3720}
+{67538900-DEC9-41BD-B2F0-34AD0D6403EC}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -2061,7 +2061,7 @@ ACAD
   0
 APPID
   5
-68
+6E
 330
 3
 100
@@ -2075,7 +2075,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-69
+6F
 330
 3
 100
@@ -7819,7 +7819,7 @@ BACK_FOLDS
 100
 AcDbPolyline
  90
-8
+11
  70
 1
  10
@@ -7839,9 +7839,21 @@ AcDbPolyline
  20
 288.315321209715
  10
-0.0
+102.0
  20
-340.0
+359.0
+ 10
+4.0
+ 20
+330.0
+ 10
+-52.0
+ 20
+386.0
+ 10
+-90.0
+ 20
+380.0
  10
 -75.89015450285945
  20
@@ -7867,7 +7879,7 @@ TOP_FOLDS
 100
 AcDbPolyline
  90
-8
+11
  70
 1
  10
@@ -7887,9 +7899,21 @@ AcDbPolyline
  20
 288.315321209715
  10
-0.0
+102.0
  20
-340.0
+359.0
+ 10
+4.0
+ 20
+330.0
+ 10
+-52.0
+ 20
+386.0
+ 10
+-90.0
+ 20
+380.0
  10
 -75.89015450285945
  20
@@ -8083,9 +8107,9 @@ TOP_FOLDS
 100
 AcDbLine
  10
-0.0
+102.0
  20
-340.0
+359.0
  30
 0.0
  11
@@ -8098,6 +8122,78 @@ AcDbLine
 LINE
   5
 4E
+330
+17
+100
+AcDbEntity
+  8
+TOP_FOLDS
+100
+AcDbLine
+ 10
+4.0
+ 20
+330.0
+ 30
+0.0
+ 11
+0.0
+ 21
+260.5
+ 31
+0.0
+  0
+LINE
+  5
+4F
+330
+17
+100
+AcDbEntity
+  8
+TOP_FOLDS
+100
+AcDbLine
+ 10
+-52.0
+ 20
+386.0
+ 30
+0.0
+ 11
+0.0
+ 21
+260.5
+ 31
+0.0
+  0
+LINE
+  5
+50
+330
+17
+100
+AcDbEntity
+  8
+TOP_FOLDS
+100
+AcDbLine
+ 10
+-90.0
+ 20
+380.0
+ 30
+0.0
+ 11
+0.0
+ 21
+260.5
+ 31
+0.0
+  0
+LINE
+  5
+51
 330
 17
 100
@@ -8121,7 +8217,7 @@ AcDbLine
   0
 LINE
   5
-4F
+52
 330
 17
 100
@@ -8145,7 +8241,7 @@ AcDbLine
   0
 LINE
   5
-50
+53
 330
 17
 100
@@ -8169,7 +8265,7 @@ AcDbLine
   0
 LINE
   5
-51
+54
 330
 17
 100
@@ -8193,7 +8289,7 @@ AcDbLine
   0
 LINE
   5
-52
+55
 330
 17
 100
@@ -8217,7 +8313,7 @@ AcDbLine
   0
 LINE
   5
-53
+56
 330
 17
 100
@@ -8241,7 +8337,7 @@ AcDbLine
   0
 LINE
   5
-54
+57
 330
 17
 100
@@ -8265,7 +8361,7 @@ AcDbLine
   0
 LINE
   5
-55
+58
 330
 17
 100
@@ -8289,7 +8385,7 @@ AcDbLine
   0
 LINE
   5
-56
+59
 330
 17
 100
@@ -8313,7 +8409,7 @@ AcDbLine
   0
 LINE
   5
-57
+5A
 330
 17
 100
@@ -8337,7 +8433,7 @@ AcDbLine
   0
 LINE
   5
-58
+5B
 330
 17
 100
@@ -8361,7 +8457,7 @@ AcDbLine
   0
 LINE
   5
-59
+5C
 330
 17
 100
@@ -8371,9 +8467,9 @@ BACK_FOLDS
 100
 AcDbLine
  10
-0.0
+102.0
  20
-340.0
+359.0
  30
 0.0
  11
@@ -8385,7 +8481,31 @@ AcDbLine
   0
 LINE
   5
-5A
+5D
+330
+17
+100
+AcDbEntity
+  8
+BACK_FOLDS
+100
+AcDbLine
+ 10
+4.0
+ 20
+330.0
+ 30
+0.0
+ 11
+0.0
+ 21
+280.0
+ 31
+0.0
+  0
+LINE
+  5
+5E
 330
 17
 100
@@ -8409,7 +8529,7 @@ AcDbLine
   0
 LINE
   5
-5B
+5F
 330
 17
 100
@@ -8433,7 +8553,7 @@ AcDbLine
   0
 LINE
   5
-5C
+60
 330
 17
 100
@@ -8457,7 +8577,7 @@ AcDbLine
   0
 LINE
   5
-5D
+61
 330
 17
 100
@@ -8479,9 +8599,57 @@ AcDbLine
  31
 0.0
   0
+LINE
+  5
+62
+330
+17
+100
+AcDbEntity
+  8
+BACK_FOLDS
+100
+AcDbLine
+ 10
+0.0
+ 20
+280.0
+ 30
+0.0
+ 11
+-90.0
+ 21
+380.0
+ 31
+0.0
+  0
+LINE
+  5
+63
+330
+17
+100
+AcDbEntity
+  8
+BACK_FOLDS
+100
+AcDbLine
+ 10
+0.0
+ 20
+280.0
+ 30
+0.0
+ 11
+-52.0
+ 21
+386.0
+ 31
+0.0
+  0
 LWPOLYLINE
   5
-5E
+64
 330
 17
 100
@@ -8901,7 +9069,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-5F
+65
 330
 17
 100
@@ -9321,7 +9489,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-60
+66
 330
 17
 100
@@ -10961,7 +11129,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-61
+67
 330
 17
 100
@@ -12597,7 +12765,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-62
+68
 330
 17
 100
@@ -14925,7 +15093,7 @@ AcDbPolyline
   0
 LINE
   5
-63
+69
 330
 17
 100
@@ -14943,13 +15111,13 @@ AcDbLine
  11
 -46.0
  21
-291.7334880055272
+360.2010101267766
  31
 0.0
   0
 LINE
   5
-64
+6A
 330
 17
 100
@@ -14967,13 +15135,13 @@ AcDbLine
  11
 46.0
  21
-291.7334880055272
+327.8284596034475
  31
 0.0
   0
 LINE
   5
-65
+6B
 330
 17
 100
@@ -14997,7 +15165,7 @@ AcDbLine
   0
 LINE
   5
-66
+6C
 330
 17
 100
@@ -15021,7 +15189,7 @@ AcDbLine
   0
 LINE
   5
-67
+6D
 330
 17
 100
@@ -16033,7 +16201,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-6A
+70
   0
 DICTIONARYVAR
   5
@@ -16045,11 +16213,11 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-30T23:06:06.856981+00:00
+1.4.5 @ 2026-10-31T05:38:25.667250+00:00
   0
 DICTIONARYVAR
   5
-6A
+70
 330
 2D
 100
@@ -16057,7 +16225,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-30T23:06:06.883012+00:00
+1.4.5 @ 2026-10-31T05:38:25.692192+00:00
   0
 ENDSEC
   0

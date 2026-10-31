@@ -31,6 +31,7 @@ P = dict(
     bar_x=46.0, bar_w=6.0, bar_h=5.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
     back_arch=12.0,          # ridge depth below the back edge
+    arch_upper='follow', arch_upper_pts=((102.0, 359.0), (4.0, 330.0), (-52.0, 386.0), (-90.0, 380.0)),   # upper-bout arch corners: treble shoulder, cutaway, bass by the neck block, bass shoulder
     ridge_y=(90.0, 280.0),   # centre ridge; the back arch uses the same eight-sided footprint as the top's arch
     chamfer=3.5,
     # neck
@@ -142,12 +143,23 @@ def _arch_polygon():
     C = np.array(ins.exterior.coords)[:-1]
     near = lambda nm: C[np.argmin(np.linalg.norm(C - SHARP[names.index(nm)], axis=1))]
     pts = {}
-    for k in ('Tail', 'Lower', 'Waist'):
+    for k in ('Tail', 'Lower', 'Waist', 'Upper'):
         t, b = near('t' + k), near('b' + k)
         x, y = (abs(t[0]) + abs(b[0])) / 2, (t[1] + b[1]) / 2
         pts['t' + k] = (x, y); pts['b' + k] = (-x, y)
     ys = [p[1] for p in C if abs(p[0]) < 1.0] or [min(C[:, 1])]
     y_tail = min(y for y in np.linspace(0, 60, 601) if ins.contains(Point(0, y + 0.5)))
+    if P.get('arch_upper') == 'follow':      # carry the arch into the upper bout, following the outline (asymmetric there)
+        (tu, tc, bn, bu) = [tuple(map(float, q)) for q in P['arch_upper_pts']]
+        an = ['aTail', 'tTail', 'tLower', 'tWaist', 'tUpper', 'tCut', 'bNeck', 'bUpper', 'bWaist', 'bLower', 'bTail']
+        A = np.array([(0.0, y_tail), pts['tTail'], pts['tLower'], pts['tWaist'], tu, tc, bn, bu,
+                      pts['bWaist'], pts['bLower'], pts['bTail']], float)
+        return an, A
+    if P.get('arch_upper'):      # carry the arch on into the upper bout: ten sides
+        an = ['aTail', 'tTail', 'tLower', 'tWaist', 'tUpper', 'aNeck', 'bUpper', 'bWaist', 'bLower', 'bTail']
+        A = np.array([(0.0, y_tail)] + [pts['tTail'], pts['tLower'], pts['tWaist'], pts['tUpper']] + [(0.0, P['arch_neck_y'])]
+                     + [pts['bUpper'], pts['bWaist'], pts['bLower'], pts['bTail']], float)
+        return an, A
     an = ['aTail', 'tTail', 'tLower', 'tWaist', 'aNeck', 'bWaist', 'bLower', 'bTail']
     A = np.array([(0.0, y_tail)] + [pts['tTail'], pts['tLower'], pts['tWaist']] + [(0.0, P['arch_neck_y'])]
                  + [pts['bWaist'], pts['bLower'], pts['bTail']], float)
@@ -156,6 +168,12 @@ def _arch_polygon():
 ARCH_NAMES, ARCH = _arch_polygon()
 ARCH_ASSIGN = dict(aTail=[0], tTail=[0, 1], tLower=[1, 2], tWaist=[2, 3], aNeck=[3], bWaist=[3, 4],
                    bLower=[4, 5], bTail=[5, 0])
+if P.get('arch_upper') == 'follow':
+    ARCH_ASSIGN = dict(aTail=[0], tTail=[0, 1], tLower=[1, 2], tWaist=[2, 3], tUpper=[3], tCut=[3], bNeck=[3], bUpper=[3],
+                       bWaist=[3, 4], bLower=[4, 5], bTail=[5, 0])
+elif P.get('arch_upper'):
+    ARCH_ASSIGN = dict(aTail=[0], tTail=[0, 1], tLower=[1, 2], tWaist=[2, 3], tUpper=[3], aNeck=[3], bUpper=[3],
+                       bWaist=[3, 4], bLower=[4, 5], bTail=[5, 0])     # the waist is concave, so the upper bout fans from the plateau's neck tip
 
 TOP_HEX = hexagon(0, P['bridge_y'], P['plat_half_w'], P['plat_tip'], P['plat_side'], P['plat_tip_neck'])
 # back: single centre ridge. Footprint hexagon (flat skirt outside it), ridge line along the centreline.
@@ -163,11 +181,16 @@ _y1, _y2 = P['ridge_y']
 BACK_FOOT = ARCH.copy()          # same footprint as the top's arch zone: broad, and it reads as one shape
 BACK_HEX = np.array([(0, _y1), (0, _y2)], float)          # the ridge (degenerate plateau)
 TOP_TRIS = facet_triangles(TOP_HEX, ARCH_NAMES, ARCH_ASSIGN)
-# ARCH order: 0 tail, 1 tTail, 2 tLower, 3 tWaist, 4 neck, 5 bWaist, 6 bLower, 7 bTail
-BACK_TRIS = [[('o', 0), ('o', 1), ('p', 0)], [('o', 1), ('o', 2), ('p', 0)], [('o', 2), ('p', 1), ('p', 0)],   # treble
-             [('o', 2), ('o', 3), ('p', 1)], [('o', 3), ('o', 4), ('p', 1)],
-             [('o', 7), ('o', 0), ('p', 0)], [('o', 6), ('o', 7), ('p', 0)], [('o', 6), ('p', 0), ('p', 1)],   # bass
-             [('o', 5), ('o', 6), ('p', 1)], [('o', 4), ('o', 5), ('p', 1)]]
+def _back_tris(n):
+    """ten- or eight-sided footprint, ridge p0 (tail end) to p1 (neck end). Tail and lower-bout corners
+    fan to p0, the rest to p1; one long facet each side joins the lower bout to the far ridge end."""
+    h = n // 2                       # index of the neck point
+    T = [[('o', 0), ('o', 1), ('p', 0)], [('o', 1), ('o', 2), ('p', 0)], [('o', 2), ('p', 1), ('p', 0)]]
+    T += [[('o', i), ('o', i + 1), ('p', 1)] for i in range(2, h)]
+    T += [[('o', n - 1), ('o', 0), ('p', 0)], [('o', n - 2), ('o', n - 1), ('p', 0)], [('o', n - 2), ('p', 0), ('p', 1)]]
+    T += [[('o', i - 1), ('o', i), ('p', 1)] for i in range(n - 2, h, -1)]
+    return T
+BACK_TRIS = _back_tris(len(ARCH))
 
 def tri_pts(tri, hexa, z_outline, z_plat, outer=None):
     outer = SHARP if outer is None else outer
@@ -383,10 +406,15 @@ def build_cross_bar():
     a, b = cross_bar_segment()
     L = np.linalg.norm(b - a); d = (b - a) / L; n = np.array([-d[1], d[0]])
     h, w, T = P['xbar_h'], P['bar_w'], P['bar_taper']
-    zt = Z_RIM_TOP + 0.5
+    zt = Z_PLAT + 5.0
     prof = np.array([(0, zt), (0, Z_RIM_TOP - h), (L - T, Z_RIM_TOP - h), (L, Z_RIM_TOP - 0.01), (L, zt)])
     to3 = lambda t: np.array([(*(a + d * s_ + n * t), z) for s_, z in prof])
-    return loft([to3(-w / 2), to3(w / 2)], [prof, prof])
+    env = loft([to3(-w / 2), to3(w / 2)], [prof, prof])
+    # follow the underside of the top: h deep below it (where the arch reaches the upper bout it rises with it)
+    up = 0.5
+    raised = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP + up, FALL_IN_AT_PLAT + up, Z_PLAT_IN + up, Z_RIM_TOP + up)
+    deeper = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP - h, FALL_IN_AT_PLAT - h, Z_PLAT_IN - h, Z_RIM_TOP - h)
+    return env ^ (raised - deeper)
 
 def build_bars():
     return union([_scalloped_bar(a, b) for a, b in bar_segments()] + [build_cross_bar()])
