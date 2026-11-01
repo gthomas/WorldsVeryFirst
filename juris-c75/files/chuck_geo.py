@@ -147,9 +147,15 @@ class Body:
         if si > Lf / 2: si -= Lf
         f = ((s - a[0]) % Lo) / so if so > 1e-9 else 0.0
         return np.array(F.interpolate((a[1] + f * si) % Lf).coords[0])
-    def _stations(self, side, step):
+    def _stations(self, side, step, corners=False):
         flat = self.TOP if side > 0 else self.BACK; R, Lb = self.RING, self.L; out = []
-        for s in np.arange(0.0, Lb, step):
+        # stations every `step`, plus one exactly on every corner of the outline (and either side of it), so the
+        # cutters meet at the corners instead of leaving a sliver of uncut edge there
+        O = self.OUTL; v1 = O - np.roll(O, 1, 0); v2 = np.roll(O, -1, 0) - O
+        turn = np.abs(np.arctan2(v1[:, 0] * v2[:, 1] - v1[:, 1] * v2[:, 0], (v1 * v2).sum(1)))
+        cs = [R.project(Point(q)) for q in O[turn > math.radians(2.0)]] if corners else []
+        ss = np.unique(np.round(np.r_[np.arange(0.0, Lb, step), cs, np.array(cs) - 0.05, np.array(cs) + 0.05] % Lb, 4))
+        for s in ss:
             p = np.array(R.interpolate(s).coords[0]); a = np.array(R.interpolate((s - 0.8) % Lb).coords[0]); b = np.array(R.interpolate((s + 0.8) % Lb).coords[0])
             t = (b - a) / np.linalg.norm(b - a); n_in = np.array([-t[1], t[0]])
             q = self._inner(s, side, flat, p); w = float(np.linalg.norm(q - p))
@@ -158,11 +164,11 @@ class Body:
             if self.max_slope: d = min(d, w * self.max_slope)
             out.append((s, p, n_in, q, w, d))
         return out
-    def bevel(self, z_top, side, step=1.5):
+    def bevel(self, z_top, side, step=1.5, cut=1.0):
         """cutter for the top (side = +1, z_top = T) or back (side = -1, z_top = 0) bevel"""
         pts = []; jit = np.random.default_rng(7 if side > 0 else 11)
         for s, p, n_in, q, w, d in self._stations(side, step):
-            if w < 1.0 or d < 1.0: pts.append(None); continue          # stop just short of zero width: no knife-edge contacts
+            if w < cut or d < cut: pts.append(None); continue          # stop just short of zero width: no knife-edge contacts
             r = (p - q) / w                                              # ruling direction, outward
             A = q + jit.normal(0, 0.004, 2) - r * 0.05; Bo = p + r * 3.0; zl = z_top - side * d * (w + 3.0) / w
             pts.append([(A[0], A[1], z_top + side * 0.001), (Bo[0], Bo[1], zl), (A[0], A[1], z_top + side * 60), (Bo[0], Bo[1], z_top + side * 60)])
@@ -171,8 +177,8 @@ class Body:
     def roundover(self, z_top, side, r=1.6, K=8, step=0.75):
         """display-only sanded edge where the bevel (or the flat, across the square tail) meets the side"""
         prof = []
-        for s, p, n_in, q, w, d in self._stations(side, step):
-            if w < 0.3 or d < 0.3: d = 0.0; u1 = np.array([n_in[0], n_in[1], 0.0])
+        for s, p, n_in, q, w, d in self._stations(side, step, corners=True):
+            if w < 0.25 or d < 0.25: d = 0.0; u1 = np.array([n_in[0], n_in[1], 0.0])     # same cut-off as the bevel cutter
             else:
                 rr = (q - p) / w; u1 = np.array([rr[0] * w, rr[1] * w, side * d]); u1 /= np.linalg.norm(u1)
             E = np.array([p[0], p[1], z_top - side * d]); u2 = np.array([0, 0, -side * 1.0])
@@ -190,7 +196,10 @@ class Body:
         return B.union(pieces)
     def blank(self, round_r=0.0):
         """the bevelled body blank (no routes); round_r > 0 adds the display roundover"""
-        body = B.prism(self.OUTL, 0.0, self.T) - self.bevel(self.T, +1) - self.bevel(0.0, -1)
+        # the display model runs the bevels out to 0.25 mm so they fade cleanly into the square tail; the machining model
+        # stops them at 1 mm (no knife edges for the STEP export; the cutter blends that last millimetre anyway)
+        c = 0.25 if round_r > 0 else 1.0
+        body = B.prism(self.OUTL, 0.0, self.T) - self.bevel(self.T, +1, cut=c) - self.bevel(0.0, -1, cut=c)
         if round_r > 0: body = body - self.roundover(self.T, +1, round_r) - self.roundover(0.0, -1, round_r)
         return body
     def spot_face(self):
