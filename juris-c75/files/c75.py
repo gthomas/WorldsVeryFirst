@@ -1,7 +1,6 @@
-"""Juris C-75 "The Plaintiff" — the original chambered set-neck guitar, modelled from its technical diagram and the
-2D body drawing (Juris_C_75_Body_2D.pdf): 2" chambered mahogany body with a maple cap and the bevelled edges,
-24.75" set neck at 4 degrees, '59 roundback, two surface-mount T-Armond style pickups, a floating bridge on a
-flat-bottom base, and the geometric trapeze tailpiece. Display model (chambers are representative).
+"""Juris C-75 "The Proxy" — the original chambered set-neck guitar, fitted to Chuck's model (WyreCustomGuitars,
+Juris.dxf, via chuck_geo / head_c75): outline, 5/8" bevels, 0.2" maple cap, chambers, pickup routes, control
+cavity, mortise, neck angle (4 deg) and head angle, headstock, tuners and truss rod cover; hardware as built.
 Run: python c75.py -> out_c/"""
 import json, math, os
 import numpy as np
@@ -9,20 +8,21 @@ import manifold3d as m3
 import build as B
 import head_c75 as H
 import outline as O
-import tstyle as TS                     # bevel chains + cutter
+import tstyle as TS                     # shared helpers
+import chuck_geo as CG                  # Chuck's body geometry
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out_c'); os.makedirs(OUT, exist_ok=True)
 IN = 25.4
-P = dict(T=50.8, cap=6.35, bevel_drop=11.4, scale=628.65, comp=2.5, frets=22, neck_angle=4.0, head_angle=13.0,
-         fb_t=6.35, fb_radius=304.8, nut_w=42.86, fb_end_w=56.4, neck_d1=21.8, neck_d12=24.4, fret_h=1.2, action12=2.0,
+P = dict(T=50.8, cap=5.08, bevel_drop=15.875, scale=628.65, comp=2.5, frets=22, neck_angle=4.0, head_angle=11.2,
+         fb_t=6.0, fb_radius=304.8, nut_w=42.86, fb_end_w=54.0, neck_d1=21.8, neck_d12=24.4, fret_h=1.2, action12=2.0,
          bridge_target=24.0, tail_half=16.0, neck_half=28.0)
 
 # ---- outline (original C-75: narrow tail flat, neck-width tongue)
 O.TAIL_HALF = P['tail_half']; O.NECK_HALF = P['neck_half']
 names, SHARP = O.sharp_outline()
 RAD = dict(O.RADII); RAD.update(neckT=0, neckB=0)
-OUTL = B.ccw(O.fillet(names, SHARP, RAD))
-Y_END = SHARP[names.index('neckT')][1]
+OUTL = CG.OUTL
+Y_END = CG.Y_END
 T = P['T']
 
 # drawing pixel (pdf.png, 720 x 1080 preview) -> body mm, same calibration as the bevel trace
@@ -37,13 +37,14 @@ def _px_map():
     return lambda px, py: np.array([(px * k - cx) / sx * IN, ((ybot - py * k) / sy + ymin_in) * IN - ytail])
 PX = _px_map()
 
-NECK_PU = PX(386, 323); BRIDGE_PU = PX(386, 513); BRIDGE_C = PX(386, 587)
-Y_SADDLE = float(BRIDGE_C[1])
-KNOBS = [(PX(557, 621), 'vol'), (PX(586, 710), 'tone')]     # the built body has these two (the drawing's other two are not drilled)
-TOGGLE = PX(246, 225)
-TONE_SW = np.array([85.9, 142.9])   # Gretsch-style 3-way tone switch, between the knobs and in toward the centre (as in the photo)
+NECK_PU = CG.PU_NECK; BRIDGE_PU = CG.PU_BRIDGE
+Y_SADDLE = CG.Y_SADDLE
+KNOBS = [(CG.POTS[0], 'vol'), (CG.POTS[1], 'tone')]
+TOGGLE = CG.TOGGLE
+TONE_SW = (CG.POTS[0] + CG.POTS[1]) / 2 + np.array([-17.1, -5.6])   # Gretsch-style 3-way tone switch added since: between the knobs, in toward the centre (photo)
 GUARD = np.array([PX(446, 268), PX(493, 300), PX(578, 548), PX(467, 532), PX(446, 470)])
-TP_BAR_Y = float(PX(386, 675)[1])
+TP_BAR_Y = -68.7 + CG.DY + 8.0          # string bar: back edge where Chuck draws it
+TP_WIRE = (30.5, -155.8 + CG.DY)         # wire leg spacing at the bar, hinge knuckle y
 
 # ---- neck geometry: built straight (fb top at Z_J over the body end), then tilted back about the joint
 TH = math.radians(P['neck_angle'])
@@ -60,7 +61,7 @@ def rot_pts(pts, ang, pivot):
 def rot_man(man, ang, pivot):
     return man.translate([-pivot[0], -pivot[1], -pivot[2]]).rotate([math.degrees(ang), 0, 0]).translate(list(pivot))
 
-def solve_joint():
+def solve_joint(fixed=None):
     """height of the fingerboard over the body at the joint that gives the target bridge height"""
     def bridge_h(zj):
         piv = np.array([0, Y_END, zj])
@@ -68,13 +69,14 @@ def solve_joint():
         f12 = rot_pts([0, Y_END + U_NUT - FX(12), zj + P['fret_h'] + P['action12']], -TH, piv)
         z = nut[2] + (f12[2] - nut[2]) * (Y_SADDLE - nut[1]) / (f12[1] - nut[1])
         return z - T
+    if fixed is not None: return fixed, bridge_h(fixed)
     lo, hi = T - 20, T + 40
     for _ in range(60):
         mid = (lo + hi) / 2
         if bridge_h(mid) < P['bridge_target']: lo = mid
         else: hi = mid
     return (lo + hi) / 2, bridge_h((lo + hi) / 2)
-Z_J, BRIDGE_H = solve_joint()
+Z_J, BRIDGE_H = solve_joint(T + 6.0)         # Chuck: fingerboard top 6 mm over the body where the neck enters
 PIV = np.array([0.0, Y_END, Z_J])
 Y_N = Y_END + U_NUT                                           # nut, straight frame
 
@@ -84,24 +86,20 @@ def string_z_body(y):
 
 # ---- body
 def build_body():
-    TS.P['bevel_drop'] = P['bevel_drop']
-    body = B.prism(OUTL, 0.0, T)
-    body = body - TS.bevel_band(OUTL, SHARP, names, T, +1) - TS.bevel_band(OUTL, SHARP, names, 0.0, -1)
-    body = body - TS.bevel_band(OUTL, SHARP, names, T, +1, round_r=1.6) - TS.bevel_band(OUTL, SHARP, names, 0.0, -1, round_r=1.6)
-    # chambers in both wings under the cap, leaving a solid centre block under the pickups and bridge
-    from shapely.geometry import Polygon, box
-    inner = Polygon(np.r_[TS.bevel_chains(OUTL, SHARP, names)[0], TS.bevel_chains(OUTL, SHARP, names)[1][::-1]]).buffer(0)
-    ch = []
-    for side in (-1, 1):
-        wing = inner.intersection(box(45, 30, 200, 380) if side > 0 else box(-200, 30, -45, 400)).buffer(-12, join_style=1)
-        for kp, _ in KNOBS + [(TONE_SW, 'sw')]:
-            wing = wing.difference(Polygon(B.rrect(70, 70, 10)).buffer(0).__class__([(kp[0] - 25, kp[1] - 25), (kp[0] + 25, kp[1] - 25), (kp[0] + 25, kp[1] + 25), (kp[0] - 25, kp[1] + 25)]))
-        geoms = getattr(wing, 'geoms', [wing])
-        for g in geoms:
-            if g.area > 500: ch.append(B.prism(B.ccw(np.array(g.exterior.coords)[:-1]), 6.0, T - P['cap']))
-    body = body - B.union(ch) - pickup_route(NECK_PU) - pickup_route(BRIDGE_PU)
-    cap = body ^ B.prism(OUTL, T - P['cap'], T + 1)
-    return body - B.prism(OUTL, T - P['cap'], T + 1), cap
+    """Chuck's body: bevelled blank, one U-shaped chamber under the cap (both wings and across the lower bout,
+    leaving a centre block under the pickups and bridge), pickup routes, neck mortise, the control cavity from the
+    back under its cover recess, and the jack bore; split into the mahogany body and the maple cap"""
+    def pr(poly, z0, z1): return B.prism(B.ccw(np.asarray(poly, float)[:-1] if np.allclose(poly[0], poly[-1]) else np.asarray(poly, float)), z0, z1)
+    body = CG.blank(round_r=1.6)
+    body = body - pr(CG.CHAMBER, CG.CHAMBER_FLOOR, T - CG.CAP)
+    body = body - pr(CG.ROUTE_NECK, T - CG.ROUTE_D, T + 1) - pr(CG.ROUTE_BRIDGE, T - CG.ROUTE_D, T + 1)
+    body = body - pr(CG.MORTISE, CG.MORTISE_Z, T + 1)
+    from shapely.geometry import Polygon
+    cov = Polygon(CG.COVER).buffer(0); cav = np.array(cov.buffer(-4.0, join_style=1).exterior.coords)
+    body = body - pr(CG.COVER, -1.0, 3.18) - pr(cav, -1.0, CG.CHAMBER_FLOOR + 0.5)
+    body = body - build_jack()[1]
+    slab = B.prism(OUTL, T - CG.CAP, T + 1)
+    return body - slab, body ^ slab
 
 # ---- neck (straight frame, then tilted)
 def build_neck():
@@ -117,7 +115,7 @@ def build_neck():
     heel_extra = max(0.0, (zgp - 8.0) - depth(Y_END))
     neck, face, _ = NS.build(Y_N, Y_END, zgp, width, depth, head_angle_deg=P['head_angle'], head_T=HT, volute=4.0,
                              heel_extra=heel_extra, heel_w=P['fb_end_w'], heel_len=48.0, heel_p=0.45)
-    tenon = B.hull([(sx * 26.0, y, z) for sx in (-1, 1) for y in (Y_END - 70, Y_END - 0.5) for z in (zgp, T - 32)])   # glued in, hidden in the body
+    tenon = B.hull([(sx * 27.4, y, z) for sx in (-1, 1) for y in (CG.MORTISE[0][1] + 0.1, Y_END - 0.5) for z in (zgp, CG.MORTISE_Z + 0.1)])   # Chuck's long tenon, back to the neck pickup
     neck = neck + tenon
     neck_face = face
     tun = []
@@ -126,7 +124,7 @@ def build_neck():
         post = rot_man(m3.Manifold.cylinder(16, 3.0, 3.0, 20).translate([v, Y_N + s, zgp]), -HA, hpiv)
         btn = rot_man(B.hull([(v + sv * dx, Y_N + s + dy, zgp - HT - dz) for dx in (2, 26) for dy in (-7, 7) for dz in (0, 13)]), -HA, hpiv)
         tun += [post, btn]
-    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 160]), zgp + 0.5, zgp + 1.3), -HA, hpiv)
+    badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 131]), zgp + 0.5, zgp + 1.3), -HA, hpiv)
     tcov, tscr = build_truss_cover(hpiv, zgp, HA)
     # fingerboard + frets
     R = P['fb_radius']; pts = []
@@ -175,14 +173,14 @@ def build_pickup(c):
 def build_bridge():
     """rosewood base on the top; brass Compton one-piece compensated bridge (dog-bone ends over the posts) sitting
     on brass thumbwheels"""
-    y = Y_SADDLE; L, W, H = 135.0, 14.95, 11.75
+    y = Y_SADDLE; L, W, H = 152.4, 15.2, 11.75; PX_ = abs(float(CG.BRIDGE_POSTS[0][0]))
     base = B.hull([(x * L / 2, y + yy * W / 2, T + z) for x in (-1, 1) for yy in (-1, 1) for z in (0, 3)] +
-                  [(x * 30, y + yy * W / 2, T + H) for x in (-1, 1) for yy in (-1, 1)])
+                  [(x * 57.6, y + yy * W / 2, T + 5.0) for x in (-1, 1) for yy in (-1, 1)] + [(x * 30, y + yy * W / 2, T + H) for x in (-1, 1) for yy in (-1, 1)])
     zw = T + H + 1.0
-    wheels = B.union([m3.Manifold.cylinder(3.2, 7.4, 7.4, 40).translate([sx * 37, y, zw]) for sx in (-1, 1)])
-    posts = B.union([m3.Manifold.cylinder(BRIDGE_H - H - 2.5, 2.0, 2.0, 16).translate([sx * 37, y, T + H]) for sx in (-1, 1)])
+    wheels = B.union([m3.Manifold.cylinder(3.2, 7.4, 7.4, 40).translate([sx * PX_, y, zw]) for sx in (-1, 1)])
+    posts = B.union([m3.Manifold.cylinder(BRIDGE_H - H - 2.5, 2.0, 2.0, 16).translate([sx * PX_, y, T + H]) for sx in (-1, 1)])
     zb = zw + 3.2; ztop = T + BRIDGE_H
-    lobes = B.union([m3.Manifold.cylinder(ztop - 2.2 - zb, 7.2, 7.2, 48).translate([sx * 37, y, zb]) for sx in (-1, 1)])
+    lobes = B.union([m3.Manifold.cylinder(ztop - 2.2 - zb, 7.2, 7.2, 48).translate([sx * PX_, y, zb]) for sx in (-1, 1)])
     bar = B.hull([(sx * 36, y + dy, zb + 0.3) for sx in (-1, 1) for dy in (-4.2, 4.2)] + [(sx * 36, y + dy, ztop - 3.2) for sx in (-1, 1) for dy in (-3.2, 3.2)])
     # compensated crown: set back toward the tail for the wound strings, the B set back from the plain G and E
     xs = np.linspace(-26.2, 26.2, 6); off = np.array([2.4, 1.8, 1.2, 0.2, 1.5, 0.0]) - 1.0
@@ -195,7 +193,7 @@ def build_bridge():
         crown.append(B.hull(pts))
     ends = B.union([B.hull([(sx * 26.2, y + o - 0.6, ztop - 0.6), (sx * 26.2, y + o + 0.6, ztop - 0.6), (sx * 32, y - 2.6, ztop - 3.2), (sx * 32, y + 2.6, ztop - 3.2),
                             (sx * 26.2, y - 3.0, ztop - 3.4), (sx * 26.2, y + 3.0, ztop - 3.4)]) for sx, o in ((-1, off[0]), (1, off[5]))])
-    holes = B.union([m3.Manifold.cylinder(30, 2.1, 2.1, 16).translate([sx * 37, y, zb - 1]) for sx in (-1, 1)])
+    holes = B.union([m3.Manifold.cylinder(30, 2.1, 2.1, 16).translate([sx * PX_, y, zb - 1]) for sx in (-1, 1)])
     compton = (lobes + bar + B.union(crown) + ends) - holes
     return base, wheels + posts, compton
 
@@ -207,21 +205,20 @@ def build_tailpiece():
                   if (r == 0) != (z == zbar1)] + [(sx * 37.5, yb + sy * 6.5, zbar1) for sx in (-1, 1) for sy in (-1, 1)])
     sl = B.union([B.prism(B.rrect(1.6, 7, 0.7) + np.array([x, yb + 5.0]), zbar1 - 3, zbar1 + 1) for x in np.linspace(-22.5, 22.5, 6)])
     bar = bar - sl
-    d = TS.P['bevel_drop'] if False else min(P['bevel_drop'], 12.0 * P['bevel_drop'] / 15.0)
+    wx, yk = TP_WIRE; hx = 20.3
     rod = lambda a, b: B.hull([tuple(np.array(a) + q) for q in _sp(2.3, 8)] + [tuple(np.array(b) + q) for q in _sp(2.3, 8)])
     hz = T + 3.2
-    wire = B.union([rod((-15, 20, hz), (15, 20, hz))] + [rod((sx * 15, 20, hz), (sx * 33, yb - 2, zbar0 + 2)) for sx in (-1, 1)] +
-                   [rod((sx * 33, yb - 2, zbar0 + 2), (sx * 33, yb + 2, zbar0 + 2)) for sx in (-1, 1)])
-    nuts = B.union([m3.Manifold.cylinder(4.5, 4.4, 4.4, 6).translate([sx * 33, yb - 2, zbar1 - 0.3]) +
-                    m3.Manifold.cylinder(6.5, 1.9, 1.9, 16).translate([sx * 33, yb - 2, zbar1]) for sx in (-1, 1)])
-    # hinge plate: flat on the top, down the tail bevel, then down the tail edge
-    W1, W0 = 36.0, 44.0
-    flat = B.hull([(sx * W1 / 2, yy, T + z) for sx in (-1, 1) for yy in (12.0, 26.0) for z in (0.02, 1.6)])
-    knuckle = B.hull([tuple(np.array((x, 22.0, hz)) + q) for x in (-17, 17) for q in _sp(3.0, 8)])
-    slope = B.hull([(sx * W0 / 2, 0.4, T - d + z) for sx in (-1, 1) for z in (0.02, 1.6)] + [(sx * W1 / 2, 12.0, T + z) for sx in (-1, 1) for z in (0.02, 1.6)])
-    side = B.hull([(sx * W0 / 2, yy, z) for sx in (-1, 1) for yy in (-1.4, 0.2) for z in (T - d - 26, T - d + 1.6)])
-    screws = B.union([m3.Manifold.cylinder(1.6, 2.6, 2.4, 16).rotate([90, 0, 0]).translate([sx * 13, -1.3, T - d - 14 + dz]) for sx in (-1, 1) for dz in (0, -8)])
-    return bar + wire + nuts + flat + knuckle + slope + side + screws, np.array([0, yb + 5.0, zbar1 - 0.5])
+    wire = B.union([rod((-hx, yk, hz), (hx, yk, hz))] + [rod((sx * hx, yk, hz), (sx * wx, yb - 2, zbar0 + 2)) for sx in (-1, 1)] +
+                   [rod((sx * wx, yb - 2, zbar0 + 2), (sx * wx, yb + 2, zbar0 + 2)) for sx in (-1, 1)])
+    nuts = B.union([m3.Manifold.cylinder(4.5, 4.4, 4.4, 6).translate([sx * wx, yb - 2, zbar1 - 0.3]) +
+                    m3.Manifold.cylinder(6.5, 1.9, 1.9, 16).translate([sx * wx, yb - 2, zbar1]) for sx in (-1, 1)])
+    # hinge plate (Chuck: 35.4 mm wide, round-cornered) flat on the top of the square tail, then down the tail edge
+    W = 35.4; ptl = B.rrect(W, yk + 1.0, 3.0) + np.array([0, (yk + 1.0) / 2])
+    flat = B.prism(B.ccw(ptl), T + 0.02, T + 1.6)
+    knuckle = B.hull([tuple(np.array((x, yk, hz)) + q) for x in (-hx + 2, hx - 2) for q in _sp(3.0, 8)])
+    side = B.hull([(sx * W / 2, yy, z) for sx in (-1, 1) for yy in (-1.4, 0.2) for z in (T - 26, T + 1.6)])
+    screws = B.union([m3.Manifold.cylinder(1.6, 2.6, 2.4, 16).rotate([90, 0, 0]).translate([sx * 11, -1.3, T - 12 + dz]) for sx in (-1, 1) for dz in (0, -8)])
+    return bar + wire + nuts + flat + knuckle + side + screws, np.array([0, yb + 5.0, zbar1 - 0.5])
 
 def _knob(p, h=15.0, r=9.6):
     """amber speckled ribbed knob: straight fluted skirt, softened top edge, set-screw boss"""
@@ -249,10 +246,9 @@ def build_controls():
 
 def build_jack():
     """Electrosocket on the treble side of the lower bout: round plate with two screws, plug socket in the middle"""
-    a, b = SHARP[names.index('tailR')], SHARP[names.index('tTail')]
-    m = a + (b - a) * 0.55; dd = (b - a) / np.linalg.norm(b - a); n = np.array([dd[1], -dd[0]])
+    m = CG.JACK; n = CG.JACK_N / np.linalg.norm(CG.JACK_N)            # Chuck's jack: on the flat he leaves in the bevels there
     ang = math.degrees(math.atan2(n[1], n[0]))
-    place = lambda man, out: man.rotate([0, 90, 0]).rotate([0, 0, ang]).translate([m[0] + n[0] * out, m[1] + n[1] * out, T / 2])
+    place = lambda man, out: man.rotate([0, 90, 0]).rotate([0, 0, ang]).translate([m[0] + n[0] * out, m[1] + n[1] * out, CG.JACK_Z])
     plate = place(m3.Manifold.cylinder(1.5, 13.5, 13.0, 64), 0.0)
     rim = place(m3.Manifold.cylinder(2.6, 6.0, 6.0, 40), 0.0) - place(m3.Manifold.cylinder(4, 4.4, 4.4, 32), -0.5)
     screws = B.union([place(m3.Manifold.cylinder(0.9, 1.7, 1.4, 16).translate([0, 0, 9.5 * s]), 1.5) for s in (-1, 1)])
@@ -260,12 +256,10 @@ def build_jack():
     return plate + rim + screws, bore
 
 def build_truss_cover(hpiv, zgp, HA):
-    """rosewood bell over the truss rod access slot, two screws"""
-    bell = [(-6.0, 2.0), (6.0, 2.0)] + [(13.0 * math.sin(t) * (0.55 + 0.45 * t / (math.pi / 2)), 30.0 + 6.0 * math.cos(t)) for t in np.linspace(math.pi / 2, -math.pi / 2, 15)][::-1]
-    bell = [(-6.0, 2.0), (6.0, 2.0), (12.0, 26.0), (13.0, 31.0), (11.5, 35.0), (6.0, 37.5), (0.0, 38.2), (-6.0, 37.5), (-11.5, 35.0), (-13.0, 31.0), (-12.0, 26.0)]
-    pp = B.ccw(np.array(bell) + np.array([0, Y_N]))
-    cov = B.prism(pp, zgp + 0.6, zgp + 3.0)
-    scr = B.union([B.hull([(0 + dx, Y_N + s + dy, zgp + 3.0 + dz) for dx in (-1.5, 1.5) for dy in (-1.5, 1.5) for dz in (0, 0.6)]) for s in (5.0, 33.0)])
+    """rosewood truss rod cover as Chuck draws it: pointed, three screws"""
+    pp = B.ccw(np.array(H.TRUSS_COVER) + np.array([0, Y_N]))
+    cov = B.prism(pp, zgp + 0.6, zgp + 2.8)
+    scr = B.union([B.hull([(x + dx, Y_N + s + dy, zgp + 2.8 + dz) for dx in (-1.3, 1.3) for dy in (-1.3, 1.3) for dz in (0, 0.5)]) for x, s in H.TRUSS_SCREWS])
     return rot_man(cov, -HA, hpiv), rot_man(scr, -HA, hpiv)
 
 def build_strings(anchor, posts):
@@ -294,11 +288,17 @@ def main():
     tp, anchor = build_tailpiece(); parts['tailpiece'] = tp
     parts['knobs'], parts['switches'] = build_controls()
     parts['jack'] = build_jack()[0]
+    # control cavity cover on the back, flush in Chuck's recess, with its screws
+    from shapely.geometry import Polygon as _P
+    cv = _P(CG.COVER).buffer(-0.4); cpts = B.ccw(np.array(cv.exterior.coords)[:-1])
+    plate = B.prism(cpts, 0.05, 3.1)
+    ring = cv.buffer(-4.5).exterior; scr = [np.array(ring.interpolate(t, normalized=True).coords[0]) for t in np.linspace(0, 1, 6, endpoint=False)]
+    parts['ctrl_cover'] = plate + B.union([m3.Manifold.cylinder(0.6, 2.2, 1.6, 20).translate([p[0], p[1], -0.55]) for p in scr])
     parts['strings'] = build_strings(anchor, posts)
     MAT = dict(faceplate='maple', body='mahogany_nat', cap='maple', cap_edge='maple_nat', neck='mahogany', fingerboard='ebony_brown', frets='fretgold', nut='bone', tuners='nickel',
                badge='nickel', truss_cover='rosewood', truss_screws='nickel', neck_pickup_ring='black_plastic', neck_pickup='chrome', neck_pickup_poles='chrome',
                bridge_pickup_ring='black_plastic', bridge_pickup='chrome', bridge_pickup_poles='chrome', bridge='rosewood', thumbwheels='brass', compton='brass',
-               tailpiece='chrome', knobs='amber', switches='chrome', jack='chrome', strings='steel')
+               tailpiece='chrome', ctrl_cover='black_plastic', knobs='amber', switches='chrome', jack='chrome', strings='steel')
     GROUP = {k: ('Body' if k in ('body', 'cap') else 'Neck' if k in ('neck', 'faceplate', 'fingerboard', 'frets', 'nut', 'badge', 'truss_cover', 'truss_screws') else
                  'Pickups' if 'pickup' in k else 'Strings' if k == 'strings' else 'Hardware') for k in parts}
     EXPLODE = dict(Body=(0, 0, 0), Neck=(0, 60, 40), Pickups=(0, 0, 50), Hardware=(0, 0, 80), Strings=(0, 0, 110))
@@ -317,7 +317,7 @@ def main():
     mass = vols['body'] * 560e-6 + vols['cap'] * 700e-6 + vols['neck'] * 560e-6 + vols['fingerboard'] * 1150e-6 + 6 * 33 + 300 + 95 + 150
     nut_y = rot_pts([0, Y_N, Z_J], -TH, PIV)[1]
     joint_fret = 12 * math.log2(P['scale'] / (P['scale'] - (nut_y - Y_END)))
-    report = dict(units='mm', params=P, body_length=float(SHARP[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),
+    report = dict(units='mm', params=P, body_length=float(OUTL[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),
                   bridge_height=float(BRIDGE_H), fb_above_body_at_joint=float(Z_J - T), neck_joint_fret=float(joint_fret), y_saddle=Y_SADDLE,
                   total_mass_g=round(mass), total_mass_lb=round(mass / 453.6, 2), manifold=ok)
     json.dump(report, open(os.path.join(OUT, 'report.json'), 'w'), indent=1)

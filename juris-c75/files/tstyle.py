@@ -15,7 +15,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out_t'); os.make
 
 P = dict(
     T=44.45,                 # body thickness, 1-3/4"
-    bevel_drop=11.0,         # how far each bevel falls at the outline, top and back (C-75 side elevation: ~0.45")
+    bevel_drop=15.875,       # Chuck's C-75 bevels: 5/8" from the flat to the edge, top and back
     scale=647.7,             # 25.5"
     comp=2.5,                # average saddle compensation
     frets=21, fret_body=16,  # body edge at the 16th fret (Tele)
@@ -23,7 +23,7 @@ P = dict(
     heel_t=25.4,             # neck thickness at the heel including the fingerboard
     fb_t=6.35, fb_radius=304.8, nut_w=42.0, heel_w=55.9,           # 12" radius, 1.65" nut
     neck_d1=21.0, neck_d12=22.5,
-    head_angle=13.0,         # tilt-back headstock with a volute, as on the C-75 (so the neck is custom, not a stock paddle neck)
+    head_angle=11.2,         # tilt-back headstock with a volute, as on the C-75 (Chuck's model; so the neck is custom, not a stock paddle neck)
     action12=2.0, fret_h=1.2,
     string_spacing_bridge=54.0,  # 2-1/8"
     neck_half=35.0,          # body half-width at the neck end: pocket walls ~7 mm
@@ -34,8 +34,10 @@ P = dict(
 O.TAIL_HALF = P['tail_half']; O.NECK_HALF = P['neck_half']
 names, SHARP = O.sharp_outline()
 RADII = dict(O.RADII); RADII.update(neckT=0, neckB=0)
-OUTL = B.ccw(O.fillet(names, SHARP, RADII))
-Y_END = SHARP[names.index('neckT')][1]
+import chuck_geo as CG
+TB = CG.widened(7.5, P['T'])            # Chuck's C-75 body, treble tongue eased out 7.5 mm for the bolt-on pocket
+OUTL = TB.OUTL
+Y_END = CG.Y_END
 T = P['T']
 
 # ----------------------------------------------------------------------------- BEVELS
@@ -268,12 +270,7 @@ def routes():
 
 # ----------------------------------------------------------------------------- BODY
 def build_body(bevel=True, round_r=0.0):
-    body = body_blank()
-    if bevel:
-        body = body - bevel_band(OUTL, SHARP, names, T, +1) - bevel_band(OUTL, SHARP, names, 0.0, -1)
-    if round_r > 0:                     # display only: sanded edge where the bevel meets the side
-        body = body - bevel_band(OUTL, SHARP, names, T, +1, round_r=round_r) - bevel_band(OUTL, SHARP, names, 0.0, -1, round_r=round_r)
-    # keep the pocket walls full height: bevels stop short of the neck end (the chains end before x = +-40)
+    body = TB.blank(round_r) if bevel else body_blank()      # Chuck's bevels; round_r: display-only sanded edge
     return body - routes()
 
 # ----------------------------------------------------------------------------- HARDWARE STAND-INS
@@ -405,9 +402,8 @@ def build_strings():
     return B.union(out), lines
 
 def build_jack():
-    """Tele cup jack on the treble tail edge (drilled by hand, 7/8")"""
-    a, b = SHARP[names.index('tailR')], SHARP[names.index('tTail')]
-    m = a + (b - a) * 0.55; d = (b - a) / np.linalg.norm(b - a); n = np.array([d[1], -d[0]])
+    """Tele cup jack where Chuck puts the C-75's jack: on the flat he leaves in the treble lower bevels (7/8" bore)"""
+    n = CG.JACK_N / np.linalg.norm(CG.JACK_N); m = TB.shift(np.array([CG.JACK]))[0] if hasattr(TB, 'shift') else CG.JACK
     ang = math.degrees(math.atan2(n[1], n[0]))
     cup = m3.Manifold.cylinder(3, 11.1, 11.1, 32).rotate([0, 90, 0]).rotate([0, 0, ang]).translate([m[0], m[1], T / 2])
     bore = m3.Manifold.cylinder(30, 11.1, 11.1, 32).rotate([0, 90, 0]).rotate([0, 0, ang]).translate([*(m - n * 27), T / 2])
@@ -444,7 +440,7 @@ def main():
     mass = dict(body=vols['body'] * 480e-6, neck=vols['neck'] * 700e-6 + vols['fingerboard'] * 1150e-6)
     hw = dict(bridge=130, pickups=150, control=110, tuners=198, strings=10, frets=20, jack=10, neckplate=40)
     total = sum(mass.values()) + sum(hw.values())
-    report = dict(units='mm', params=P, body_length=float(SHARP[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),
+    report = dict(units='mm', params=P, body_length=float(OUTL[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),
                   y_end=float(Y_END), y_nut=float(Y_NUT), y_saddle=float(Y_SADDLE), fb_top_above_body=float(FB_TOP_Z - T),
                   string_above_body_at_saddle=float(Z_SADDLE - T), saddle_z=float(Z_SADDLE),
                   masses_g={k: round(v, 1) for k, v in mass.items()}, hardware_g=hw, total_mass_g=round(total), total_mass_lb=round(total / 453.6, 2),
