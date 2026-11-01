@@ -21,14 +21,14 @@
   "tail_half": 16.0,
   "neck_half": 28.0
  },
- "body_length": 457.32659386254124,
+ "body_length": 457.32618244168606,
  "lower_bout": 342.60842003314144,
  "bridge_height": 28.423871786323048,
  "fb_above_body_at_joint": 6.0,
  "neck_joint_fret": 15.929357025230455,
  "y_saddle": 189.55364636815204,
- "total_mass_g": 2964,
- "total_mass_lb": 6.53,
+ "total_mass_g": 2972,
+ "total_mass_lb": 6.55,
  "manifold": {
   "body": false,
   "cap": true,
