@@ -48,7 +48,9 @@ def _fill(a):
 _SS = np.asarray(_D['ss'], float)
 DROP_TOP = np.clip(_fill(-np.asarray(_D['zt'])), 0, 15.875)
 DROP_BACK = np.clip(_fill(np.asarray(_D['zb']) + T), 0, 15.875)
-def drop(s, side): return float(np.interp(s % L, _SS, DROP_TOP if side > 0 else DROP_BACK))
+def drop(s, side, jack_flat=False):
+    a = (DROP_TOP_CHUCK_JACK if side > 0 else DROP_BACK_CHUCK_JACK) if jack_flat else (DROP_TOP if side > 0 else DROP_BACK)
+    return float(np.interp(s % L, _SS, a))
 
 # Smooth tail (Grant): Chuck's treble bevel stops dead at the tail corner in a small vertical end face. Here it tapers
 # to nothing along the tail instead, mirroring the bass side (which already narrows to zero 52 mm off centre), so
@@ -72,10 +74,30 @@ _smooth_treble_tail()
 
 # The jack: Chuck eases the bevels around it so the Electrosocket plate can sit flat. Here the bevels keep their full
 # depth past the jack (the plate sits on the side band), so the bevels run unbroken.
+# Chuck's edge heights are read off his DXF a point at a time, so where the bevels fade out toward the square tail the
+# edge wobbles by a few tenths of a mm from one sample to the next. Over that run the drop should fall steadily, so
+# smooth it there (only where it is changing; the full-depth runs are left exactly at 5/8").
+def _smooth_transitions(a, win=15):
+    n = len(a); k = np.ones(win) / win
+    sm = np.convolve(np.r_[a[-win:], a, a[:win]], k, mode='same')[win:-win]
+    ch = (a > 0.02) & (a < 15.85)
+    ch = np.convolve(ch.astype(float), np.ones(5), mode='same') > 0          # and a couple of samples either side
+    out = a.copy(); out[ch] = np.clip(sm[ch], 0, 15.875); out[a <= 0.0] = 0.0
+    return out
+DROP_TOP = _smooth_transitions(DROP_TOP); DROP_BACK = _smooth_transitions(DROP_BACK)
+# The T's Tele cup jack (22.2 mm cup) needs a flat: ease both bevels around the jack so the side band there is 26 mm
+# tall, holding that over the cup and blending back to full depth with a smooth ramp either side.
+def _jack_flat(a, band=26.0, T_body=44.45, hold=14.0, ramp=32.0):
+    sj = RING.project(Point(_D['jack'][0])); ds = np.abs(((_SS - sj + L / 2) % L) - L / 2)
+    t = np.clip((ds - hold) / ramp, 0, 1); bump = 0.5 * (1 + np.cos(np.pi * t))
+    dj = (T_body - band) / 2
+    return np.minimum(a, 15.875 - (15.875 - dj) * bump)
+
 def _full_drop_at_jack():
     sj = RING.project(Point(_D['jack'][0])); m = np.abs(((_SS - sj + L / 2) % L) - L / 2) < 30
     DROP_TOP[m] = 15.875; DROP_BACK[m] = 15.875
 _full_drop_at_jack()
+DROP_TOP_CHUCK_JACK, DROP_BACK_CHUCK_JACK = _jack_flat(DROP_TOP), _jack_flat(DROP_BACK)
 SPOT_R = 15.2                                       # spot face for the 1-1/8" Electrosocket plate
 
 CHAMBER = np.asarray(_D['chamber'], float)
@@ -94,7 +116,8 @@ class Body:
     """A bevelled body on `outl` with the flats `top`/`back` (shapely polygons). The drop at each station comes
     from the nearest point of Chuck's edge, scaled by how this body's bevel width compares with Chuck's there, so
     the slope carries over to an outline that differs (the C-75T's wider neck tongue)."""
-    def __init__(self, outl, top, back, T_body, max_slope=None, rul_top=None, rul_back=None):
+    def __init__(self, outl, top, back, T_body, max_slope=None, rul_top=None, rul_back=None, jack_flat=False):
+        self.jack_flat = jack_flat
         self.OUTL = np.asarray(outl, float); self.RING = LinearRing(self.OUTL); self.L = self.RING.length
         self.TOP, self.BACK, self.T, self.max_slope = top, back, T_body, max_slope
         self.RUL = {+1: self._prep(rul_top, top), -1: self._prep(rul_back, back)}
@@ -130,7 +153,7 @@ class Body:
             p = np.array(R.interpolate(s).coords[0]); a = np.array(R.interpolate((s - 0.8) % Lb).coords[0]); b = np.array(R.interpolate((s + 0.8) % Lb).coords[0])
             t = (b - a) / np.linalg.norm(b - a); n_in = np.array([-t[1], t[0]])
             q = self._inner(s, side, flat, p); w = float(np.linalg.norm(q - p))
-            sc = RING.project(Point(p)); wc = float(np.interp(sc, _SS, W_TOP if side > 0 else W_BACK)); dc = drop(sc, side)
+            sc = RING.project(Point(p)); wc = float(np.interp(sc, _SS, W_TOP if side > 0 else W_BACK)); dc = drop(sc, side, self.jack_flat)
             d = 0.0 if wc < 0.3 else dc * min(1.0, w / wc)
             if self.max_slope: d = min(d, w * self.max_slope)
             out.append((s, p, n_in, q, w, d))
@@ -145,7 +168,7 @@ class Body:
             pts.append([(A[0], A[1], z_top + side * 0.001), (Bo[0], Bo[1], zl), (A[0], A[1], z_top + side * 60), (Bo[0], Bo[1], z_top + side * 60)])
         n = len(pts)
         return B.union([B.hull(pts[i] + pts[(i + 1) % n]) for i in range(n) if pts[i] is not None and pts[(i + 1) % n] is not None])
-    def roundover(self, z_top, side, r=1.6, K=8, step=1.5):
+    def roundover(self, z_top, side, r=1.6, K=8, step=0.75):
         """display-only sanded edge where the bevel (or the flat, across the square tail) meets the side"""
         prof = []
         for s, p, n_in, q, w, d in self._stations(side, step):
@@ -157,7 +180,7 @@ class Body:
             m = (u1 + u2) / np.linalg.norm(u1 + u2); C = E + m * r / math.sin(al / 2)
             v1 = E + u1 * tl - C; v2 = E + u2 * tl - C
             arc = [C + (v1 * (1 - k / K) + v2 * (k / K)) / np.linalg.norm(v1 * (1 - k / K) + v2 * (k / K)) * r for k in range(K + 1)]
-            arc[0] = arc[0] - (C - arc[0]) * 0.004; arc[-1] = arc[-1] - (C - arc[-1]) * 0.004
+            arc[0] = arc[0] - (C - arc[0]) * 0.03; arc[-1] = arc[-1] - (C - arc[-1]) * 0.03
             prof.append((E - m * 0.4, arc))
         pieces = []; n = len(prof)
         for i in range(n):
@@ -200,5 +223,5 @@ def widened(dx=7.5, T_body=44.45):
     P = np.array(o.exterior.coords)[:-1]
     if not LinearRing(P).is_ccw: P = P[::-1]
     sr = lambda Rr: np.c_[f(Rr[:, :2]), f(Rr[:, 2:])]
-    b = Body(P, top, back, T_body, rul_top=sr(RUL_TOP), rul_back=sr(RUL_BACK)); b.shift = f
+    b = Body(P, top, back, T_body, rul_top=sr(RUL_TOP), rul_back=sr(RUL_BACK), jack_flat=True); b.shift = f
     return b

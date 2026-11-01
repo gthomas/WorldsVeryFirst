@@ -1285,6 +1285,10 @@ def to_trimesh(man):
         if parts: t = trimesh.util.concatenate(parts) if len(parts) > 1 else parts[0]
     if not t.is_watertight:          # needle triangles from the crease blends: weld and collapse them
         import meshfix; t = meshfix.clean(t)
+    parts = t.split(only_watertight=False)
+    if len(parts) > 1:               # stray specks (a few faces each) that show as dots in the viewer
+        big = [p for p in parts if len(p.faces) > 20 or abs(p.volume) > 5.0]
+        if big: t = trimesh.util.concatenate(big) if len(big) > 1 else big[0]
     return t
 
 def main():

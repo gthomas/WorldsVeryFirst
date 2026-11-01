@@ -27,7 +27,7 @@ A T-style solid body on the C-75 body as Chuck (WyreCustomGuitars) modelled it, 
 - **Drilled through (vertical, so they can be done on the machine or a drill press):** the six 1/8" string holes and the four neck screw holes.
 - **Drilled by hand after machining:**
   - wire channels: neck pickup to bridge pickup, bridge pickup to control cavity, control cavity to jack
-  - the 7/8" cup jack bore, square to the flat Chuck leaves in the treble lower bevels (where the C-75's Electrosocket is)
+  - the 7/8" cup jack bore, square to the side at the C-75's jack position. Both bevels ease around it so the side band is 26 mm (just over 1") tall across the cup, then blend back to full depth over about 1-1/4" either side, so the cup sits flat
   - strap button holes
 - **Undercut check (body):** clean. Every vertical line crosses the body surface at most twice.
 

@@ -30,7 +30,7 @@
  "total_mass_g": 2972,
  "total_mass_lb": 6.55,
  "manifold": {
-  "body": false,
+  "body": true,
   "cap": true,
   "neck": true,
   "faceplate": true,
