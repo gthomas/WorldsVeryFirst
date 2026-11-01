@@ -18,8 +18,21 @@ _D = np.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chuck_bod
 T = float(_D['T']); DY = float(_D['DY'])
 _O = np.asarray(_D['outl'], float)
 if np.allclose(_O[0], _O[-1]): _O = _O[:-1]
-OUTL = _O                                          # CCW, same start as the profile samples
-RING = LinearRing(OUTL); L = RING.length
+def _despike(P, tol=0.8):
+    """drop stray points that stick out of the outline (picked up from interior curves when it was traced)"""
+    P = np.asarray(P, float)
+    for _ in range(5):
+        keep = np.ones(len(P), bool)
+        for i in range(len(P)):
+            a, b, c = P[i - 1], P[i], P[(i + 1) % len(P)]
+            ac = c - a; n = np.linalg.norm(ac)
+            if n > 1e-9 and abs(ac[0] * (b - a)[1] - ac[1] * (b - a)[0]) / n > tol and np.linalg.norm(b - a) < 12 and np.linalg.norm(b - c) < 12: keep[i] = False
+        if keep.all(): break
+        P = P[keep]
+    return P
+OUTL_RAW = _O                                      # CCW, same start as the profile samples (edge heights are looked up on it)
+RING = LinearRing(OUTL_RAW); L = RING.length
+OUTL = _despike(OUTL_RAW)                          # the outline the bodies are built on
 TOP_FLAT = Polygon(_D['top']).buffer(0); BACK_FLAT = Polygon(_D['back']).buffer(0)
 # Chuck's flats are notched where his mortise is; fill that (the mortise or pocket is cut there anyway) so the bevel
 # beside the neck end runs to the real edge rather than to the notch
@@ -36,6 +49,26 @@ _SS = np.asarray(_D['ss'], float)
 DROP_TOP = np.clip(_fill(-np.asarray(_D['zt'])), 0, 15.875)
 DROP_BACK = np.clip(_fill(np.asarray(_D['zb']) + T), 0, 15.875)
 def drop(s, side): return float(np.interp(s % L, _SS, DROP_TOP if side > 0 else DROP_BACK))
+
+# Smooth tail (Grant): Chuck's treble bevel stops dead at the tail corner in a small vertical end face. Here it tapers
+# to nothing along the tail instead, mirroring the bass side (which already narrows to zero 52 mm off centre), so
+# both bevels fade into the square middle of the tail with no end faces.
+def _smooth_treble_tail():
+    global TOP_FLAT, BACK_FLAT
+    from shapely.geometry import LineString
+    ty = float(OUTL[:, 1].min())
+    hit = RING.intersection(LineString([(52.2, ty - 5), (52.2, ty + 40)]))
+    pts = [hit] if hit.geom_type == 'Point' else list(getattr(hit, 'geoms', []))
+    Pt = min((np.array(p.coords[0]) for p in pts), key=lambda q: q[1])         # zero point on the tail edge
+    inner = np.array([101.3, -161.2 + DY]); outer = np.array([113.3, -167.3 + DY]); end = np.array([93.9, -176.0 + DY])
+    out = (end - inner) / np.linalg.norm(end - inner)
+    cut = Polygon([inner, end + out * 3.0, Pt + np.array([0, -3.0]), Pt]).buffer(0)
+    TOP_FLAT = TOP_FLAT.difference(cut).buffer(0); BACK_FLAT = BACK_FLAT.difference(cut).buffer(0)
+    st, sc = RING.project(Point(Pt)), RING.project(Point(outer))
+    m = (_SS >= st) & (_SS <= sc)
+    for arr in (DROP_TOP, DROP_BACK):
+        arr[m] = arr[np.searchsorted(_SS, sc)] * (_SS[m] - st) / (sc - st)
+_smooth_treble_tail()
 
 CHAMBER = np.asarray(_D['chamber'], float)
 ROUTE_NECK = np.asarray(_D['route_neck'], float); ROUTE_BRIDGE = np.asarray(_D['route_bridge'], float)

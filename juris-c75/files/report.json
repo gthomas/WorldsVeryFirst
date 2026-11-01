@@ -27,8 +27,8 @@
  "fb_above_body_at_joint": 6.0,
  "neck_joint_fret": 15.929357025230455,
  "y_saddle": 189.55364636815204,
- "total_mass_g": 2965,
- "total_mass_lb": 6.54,
+ "total_mass_g": 2964,
+ "total_mass_lb": 6.53,
  "manifold": {
   "body": false,
   "cap": true,
