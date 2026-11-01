@@ -98,7 +98,9 @@ def build_body():
     cov = Polygon(CG.COVER).buffer(0); cav = np.array(cov.buffer(-4.0, join_style=1).exterior.coords)
     body = body - pr(CG.COVER, -1.0, 3.18) - pr(cav, -1.0, CG.CHAMBER_FLOOR + 0.5)
     body = body - build_jack()[1]
-    slab = B.prism(OUTL, T - CG.CAP, T + 1)
+    from shapely.geometry import Polygon as _Pg
+    BIG = B.ccw(np.array(_Pg(OUTL).buffer(3.0, join_style=2).exterior.coords)[:-1])     # larger than the body: no coincident side faces
+    slab = B.prism(BIG, T - CG.CAP, T + 5)
     return body - slab, body ^ slab
 
 # ---- neck (straight frame, then tilted)
@@ -307,8 +309,10 @@ def main():
     meshes = {k: B.to_trimesh(m) for k, m in parts.items()}
     # the stain only takes on the flat of the cap; where the bevels cut through it the maple shows as a light
     # line round the edge (the built guitar's faux binding)
-    z0 = T - P['cap']; stripe = parts['cap'] ^ B.prism(OUTL, z0 - 1.0, z0 + 2.6)
-    meshes['cap'] = B.to_trimesh(parts['cap'] - B.prism(OUTL, z0 - 1.0, z0 + 2.6)); meshes['cap_edge'] = B.to_trimesh(stripe)
+    from shapely.geometry import Polygon as _Pg
+    BIG = B.ccw(np.array(_Pg(OUTL).buffer(3.0, join_style=2).exterior.coords)[:-1])
+    z0 = T - P['cap']; stripe = parts['cap'] ^ B.prism(BIG, z0 - 1.0, z0 + 2.6)
+    meshes['cap'] = B.to_trimesh(parts['cap'] - B.prism(BIG, z0 - 1.0, z0 + 2.6)); meshes['cap_edge'] = B.to_trimesh(stripe)
     GROUP['cap_edge'] = 'Body'
     for k, tm in meshes.items():
         ok[k] = bool(tm.is_watertight) if k not in ('cap', 'cap_edge') else True; vols[k] = parts[k].volume() if k in parts else 0
