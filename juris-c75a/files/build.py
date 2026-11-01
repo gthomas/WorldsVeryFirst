@@ -16,10 +16,12 @@ P = dict(
     head_angle=13.0,
     # machining assumptions: 3-axis router, 1/4" (6.35) end mill smallest for pockets/profiles
     tool_r=3.5,              # minimum inside-corner radius on any pocket or cut-out
-    # rim: two routed halves from 6/4 mahogany, glued at mid-height, dowel-registered
+    # rim: one ring from a standard 1-3/4" mahogany body blank, all cut from the top face in one setup
+    # (pocket inside the wall down to the back's glue ledge, cut through inside the ledge, profile)
+    rim_single=True,
     plate_edge=3.2,          # top & back thickness at the edge
-    rim_h=57.1,              # rim height -> 63.5 (2.500") edge depth
-    rim_wall=7.0,
+    rim_h=44.45,             # 1-3/4" blank -> 50.85 (2.0") edge depth, the same as the C-75
+    rim_wall=8.0,            # also the top's glue land
     lining_w=12.0, lining_h=8.0,   # integral glue ledges, routed in
     # top (spruce): faceted arch
     top_arch=11.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
@@ -27,10 +29,10 @@ P = dict(
     top_plateau_t=3.5, top_fall_t_at_plateau=2.8,   # lightened (study/run.py v4)
     beam_w=5.0, beam_h=6.0,
     arch_inset=22.0, arch_neck_y=340.0,   # faceted arch zone, flat skirt outside it (sits on the linings)
-    slot_area=545.0, collar_h=7.5, collar_w=4.0, xbar_h=5.0,
+    slot_area=545.0, collar_h=12.0, collar_w=4.0, xbar_h=5.0,   # deeper collars (was 7.5) keep the air resonance ~127 Hz in the 1-3/4" box
     bar_x=46.0, bar_w=6.0, bar_h=5.0, bar_taper=35.0, bar_end_inset=14.0,   # two parallel tone bars
     # back: shallower faceted arch, uniform thickness
-    back_arch=12.0,          # ridge depth below the back edge
+    back_arch=22.0,          # ridge depth below the back edge (raised from 12 to win back air with the 1-3/4" rim)
     arch_upper='follow', arch_upper_pts=((102.0, 359.0), (4.0, 330.0), (-52.0, 386.0), (-90.0, 380.0)),   # upper-bout arch corners: treble shoulder, cutaway, bass by the neck block, bass shoulder
     ridge_y=(90.0, 280.0),   # centre ridge; the back arch uses the same eight-sided footprint as the top's arch
     chamfer=3.5,
@@ -513,7 +515,24 @@ def build_rim_halves(machining=True):
     lower = lower - win; upper = upper - win          # plate screw pilots are drilled by hand into the rim face
     return lower, upper
 
+def build_rim_single():
+    """one ring from a standard 1-3/4" blank, machined entirely from the top face: pocket the wall recess down to
+    the back's glue ledge (open at the top, so the top glues to the full wall), cut through inside the ledge, cut
+    the open-top neck mortise, profile. The control-plate window is routed through the wall from outside with a
+    template after machining."""
+    through, recess = rim_regions()
+    lh = P['lining_h']; z0 = Z_BACK_IN; h = P['rim_h']
+    ring = m3.Manifold.extrude(OUTL_CS - through, h).translate([0, 0, z0])
+    pocket = m3.Manifold.extrude(recess, h - lh + 1.0).translate([0, 0, z0 + lh])
+    wh = CTRL_WIN[1] / 2
+    win = prism(ctrl_box(CTRL_WIN[0], -40.0, 6.0), Z_SPLIT - wh, Z_SPLIT + wh)
+    return ring - pocket - MORTISE - win
+
 def build_rim():
+    if P.get('rim_single'):
+        rim = build_rim_single()
+        rim = rim - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + P['rim_h'] / 2 - 4])
+        return rim ^ KEEP_TOP ^ KEEP_BOT
     lower, upper = build_rim_halves()
     rim = lower + upper
     # endpin bore: drilled by hand after glue-up (the jack lives on the control plate)
@@ -1144,7 +1163,11 @@ def build_strap_buttons():
 def to_trimesh(man):
     import trimesh
     mh = man.simplify(0.02).to_mesh(); v = np.array(mh.vert_properties)[:, :3]; f = np.array(mh.tri_verts)
-    return trimesh.Trimesh(v, f, process=True)
+    t = trimesh.Trimesh(v, f, process=True)
+    if t.body_count > 1:            # drop zero-volume slivers that coplanar CSG faces leave behind
+        parts = [p for p in t.split(only_watertight=False) if abs(p.volume) > 5.0]
+        if parts: t = trimesh.util.concatenate(parts) if len(parts) > 1 else parts[0]
+    return t
 
 def main():
     global MORTISE

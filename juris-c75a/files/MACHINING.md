@@ -16,17 +16,16 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 
 | Qty | Item | Typical size | Used for | Notes |
 |---|---|---|---|---|
-| 2 | Mahogany body blank, 2-piece | 21 × 14 × 1¾–2 in | One rim half each | The half is 18.05 × 13.6 × 1.12 in finished. A 14 in blank leaves only about 0.2 in per side, so hold it by the ends (the pin holes in the setup DXF are at the ends), or buy oversized 15 in blanks. The centre seam is fine: it runs through the neck and tail blocks. |
+| 1 | Mahogany body blank, 2-piece, standard thickness | 21 × 14 × 1¾ in (milled from 8/4) | Rim | One ring, cut whole from a standard blank: no stacking, glue-up or dowels. Finished 18.05 × 13.6 × 1.75 in, so a 14 in blank leaves about 0.2 in per side; hold it by the ends (the pin holes in the setup DXF are at the ends), or buy an oversized 15 in blank. The centre seam is fine: it runs through the neck and tail blocks. |
 | 1 | Mahogany neck blank | 30 × 3 × 1 in | Neck | Needs three glue-ups before machining: a 13° scarf-jointed headstock, a stacked heel (two 1 in layers glued under the heel end, about 3 in of total depth there), and headstock ears to reach 3.5 in width. Or buy a one-piece blank of at least 26 × 3.5 × 3 in and skip the glue-ups. |
 | 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.75 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
-| 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 3/4 in thick | Back | Finished 0.6 in at most. Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
+| 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 1-1/8 in thick (5/4) | Back | Finished 1.0 in at most (the 22 mm arch). Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
 | 1 | Richlite guitar fingerboard blank (Black Diamond), unslotted | 20½ × 2¾ × 3/8 in or larger | Fingerboard | Finished 18 × 2.22 × 0.29 in. Barely moves with humidity, so fret ends stay put in dry weather. Machines like a hard hardwood; cut fret slots with a sharp saw or slotting cutter and press the frets in (a drop of thin glue in each slot is a good idea). |
 | 1 | Maple headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.5 × 3.6 in (the built C-75's headstock shape). Finished to match the top (dye and shellac along with it). |
 | 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the stacked pot, the stereo jack and the battery door. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
 | 1 | Stacked (concentric) pot, 25k, with a concentric knob | 3/8 in bushing | Volume and tone | EMG actives use 25k pots. |
 | 1 | End-loading 9 V sleeve | 32 × 22 mm, 54 mm deep | Battery | Fold from 1.5 mm ABS or aluminium, or 3D-print it; it fixes to the back of the plate around the door opening. The door is cut from the plate offcut and held by a quarter-turn latch. |
-| 4 | Hardwood dowels | 6 × 20 mm | Rim halves | |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
 ## Hardware to buy
@@ -54,7 +53,6 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1/8 in ball-nose | Finishing the volute and the heel-to-shaft blend |
 | 0.6 mm (0.023 in) end mill or a fret-slot saw | Fret slots |
 | 90° V-bit | Edge chamfer on the assembled body |
-| 6 mm drill / end mill | Rim alignment dowels |
 
 Feeds and speeds depend on your machine; use the CAM program's defaults for hardwood (mahogany, maple, Richlite) and softwood (spruce) as a starting point. Run the grain lengthwise on the top and back, use compression or downcut end mills for profiles and a fresh ball-nose for the facets, and finish the spruce facets with a light 0.1–0.2 mm pass cutting with the grain where your CAM allows.
 
@@ -63,9 +61,8 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
 | Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 8 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
-| Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 3/4 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside facets, ridge and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
-| Rim, lower half | `rim_lower/` | Mahogany body blank, 21 × 14 × 1¾ in, planed to 1.12 in | 1 | From the split face: pocket the recess 20.55 mm deep, cut through inside the glue ledge, cut the control window notch 15 mm deep through the treble lower-bout wall, drill 4 dowel holes 10 mm deep, profile the outside. |
-| Rim, upper half | `rim_upper/` | Same | 2 | Same as the lower half (including the control window notch), then flip and cut the open-top neck mortise 26 mm deep from the outer face. You can also cut the mortise after the two halves are glued. |
+| Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1-1/8 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside facets, ridge and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
+| Rim | `rim/` | Mahogany body blank, 21 × 14 × 1¾ in (standard) | 1 | Everything from the top face: pocket the recess inside the 8 mm wall down to the back's glue ledge (12 × 8 mm), cut through inside the ledge, cut the open-top neck mortise 26 mm deep, profile the outside. The top glues to the full 8 mm wall. Afterwards, rout the control-plate window through the treble lower-bout wall from outside with a template (see `positions.json`), and drill the endpin. |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
 | Fingerboard | `fingerboard/` | Richlite, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
 
@@ -76,10 +73,10 @@ The `flat/` folder has 2D cut files:
 
 ## Build order
 
-1. **Rim:** glue the two halves on four 6 × 20 mm dowels. Check that the faces are flat and the ledges line up.
-2. **Back:** glue the back onto the lower ledge.
+1. **Rim:** one piece, so there is nothing to glue. Rout the control-plate window through the treble lower-bout wall from outside with a template, centred at the height in `positions.json`.
+2. **Back:** glue the back onto the ledge at the bottom of the rim.
 3. **Truss rod:** fit a 15 in dual-action rod into the neck channel. It adjusts at the headstock, under the cover.
-4. **Top:** glue the top onto the upper ledge and neck block. It has a notch at the neck end, open to the end face, directly over the mortise.
+4. **Top:** glue the top onto the top of the rim wall (an 8 mm glue land) and the neck block. It has a notch at the neck end, open to the end face, directly over the mortise.
 5. **Neck:** set the neck from above, after the body is closed. The tenon drops through the notch in the top into the mortise, and the tongue lands on the top over the neck block; glue all three faces (tenon, tongue on top, heel on the end face). The tenon floor sets the height, so you can still check the neck angle with the body closed.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
 7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Fix the battery sleeve to the back of the control plate around the door opening, with the battery clip at its inner end. Mount the stacked pot and the stereo jack on the plate, wire everything through the window (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, open the door and slide the 9 V out; the plate stays put.

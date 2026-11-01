@@ -20,6 +20,9 @@ SKIP_STEP = '--no-step' in sys.argv
 def tm_of(man):
     mh = man.simplify(0.005).to_mesh()
     tm = trimesh.Trimesh(np.array(mh.vert_properties)[:, :3].astype(float), np.array(mh.tri_verts), process=True)
+    if tm.body_count > 1:                       # drop zero-volume slivers left by coplanar CSG faces
+        parts = [p for p in tm.split(only_watertight=False) if abs(p.volume) > 5.0]
+        tm = trimesh.util.concatenate(parts) if len(parts) > 1 else parts[0]
     return tm
 
 
@@ -72,7 +75,7 @@ def reach_check(tm, step=0.5):
 
 
 # ----------------------------------------------------------------------------- STEP
-def write_step(tm, path, unify=True):
+def write_step(tm, path, unify=True, sew_tol=1e-3):
     """triangle mesh -> sewn B-rep solid with coplanar triangles merged into true planar faces"""
     from OCP.BRepBuilderAPI import BRepBuilderAPI_MakePolygon, BRepBuilderAPI_MakeFace, BRepBuilderAPI_Sewing, BRepBuilderAPI_MakeSolid
     from OCP.gp import gp_Pnt
@@ -85,7 +88,7 @@ def write_step(tm, path, unify=True):
     from OCP.Interface import Interface_Static
     tm = tm.copy(); tm.merge_vertices(digits_vertex=4)
     tm.update_faces(tm.nondegenerate_faces(height=1e-5)); tm.remove_unreferenced_vertices()
-    sew = BRepBuilderAPI_Sewing(1e-3)
+    sew = BRepBuilderAPI_Sewing(sew_tol)
     V = tm.vertices
     for f in tm.faces:
         poly = BRepBuilderAPI_MakePolygon(gp_Pnt(*V[f[0]]), gp_Pnt(*V[f[1]]), gp_Pnt(*V[f[2]]), True)
@@ -95,6 +98,8 @@ def write_step(tm, path, unify=True):
     ex = TopExp_Explorer(sew.SewedShape(), TopAbs_SHELL)
     shells = []
     while ex.More(): shells.append(ex.Current()); ex.Next()
+    if not (len(shells) == 1 and sew.NbFreeEdges() == 0) and sew_tol < 0.05:
+        return write_step(tm, path, unify, sew_tol * 5)          # close sliver gaps left by dropped degenerate faces
     assert len(shells) == 1 and sew.NbFreeEdges() == 0, (len(shells), sew.NbFreeEdges())
     solid = BRepBuilderAPI_MakeSolid(TopoDS.Shell(shells[0])).Solid()
     fx = ShapeFix_Shape(solid); fx.Perform()
@@ -161,7 +166,7 @@ def setup_dxf(path, tm, title, extra=None):
 # ----------------------------------------------------------------------------- parts
 def main():
     B.MORTISE = B.mortise()
-    lower, upper = B.build_rim_halves()
+    lower, upper = (None, None) if B.P.get('rim_single') else B.build_rim_halves()
     TN = neck_to_machine()
     parts = {}
     # name: (manifold, transform body->machine before placing, z0, two_sided, notes)
@@ -169,10 +174,14 @@ def main():
                     'Setup A outside (facets, skirt) from the top; setup B: flip about X (pin line), inside (beam, bars, plate) from the top. Soundholes through.')
     parts['back'] = (B.build_back(chamfer=False), flip_x(), 'top', True,
                      'Exported inside-up. Setup A inside (flat glue skirt and arch underside); setup B: flip about X, outside facets.')
-    parts['rim_lower'] = (lower, None, 'top', False,
-                          'One setup from the split face: pocket the recess to the ledge, cut through inside the ledge, drill dowels, profile.')
-    parts['rim_upper'] = (upper, flip_x(), 'top', True,
-                          'Exported split-face-up. Setup A same as the lower half. Setup B: flip about X and cut the open-top neck mortise from the outer face (or cut it after the halves are glued).')
+    if B.P.get('rim_single'):
+        parts['rim'] = (B.build_rim_single(), None, 'top', False,
+                        'One setup from the top face of a standard 1-3/4" blank: pocket the wall recess down to the back\'s glue ledge, cut through inside the ledge, cut the open-top neck mortise, profile. Then rout the control-plate window through the wall from outside with a template, and drill the endpin.')
+    else:
+        parts['rim_lower'] = (lower, None, 'top', False,
+                              'One setup from the split face: pocket the recess to the ledge, cut through inside the ledge, drill dowels, profile.')
+        parts['rim_upper'] = (upper, flip_x(), 'top', True,
+                              'Exported split-face-up. Setup A same as the lower half. Setup B: flip about X and cut the open-top neck mortise from the outer face (or cut it after the halves are glued).')
     parts['neck'] = (B.build_neck(), TN, 'top', True,
                      'Neck frame: X along the neck, Z=0 at the fingerboard gluing plane. Setup A fingerboard face, truss channel, headstock face; setup B: flip about X, back carve, heel, volute, headstock back. Tuner holes: separate op with the headstock face held flat.')
     parts['fingerboard'] = (B.build_fingerboard(), TN, 'bottom', False,
@@ -203,10 +212,15 @@ def main():
             fy = -1 if name == 'rim_upper' else 1
             tr = lambda pts: [(x + off[0], fy * y + off[1]) for x, y in pts]
             circ = lambda c, r: [(c[0] + r * math.cos(t), c[1] + r * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 64)[:-1]]
+            single = name == 'rim'
+            pd = B.P['rim_h'] - B.P['lining_h'] if single else B.P['rim_h'] / 2 - B.P['lining_h']
             extra = {'CUT_THROUGH_inside_ledge': [tr(p) for p in through.to_polygons()],
-                     f'POCKET_recess_{B.P["rim_h"] / 2 - B.P["lining_h"]:.2f}mm_deep': [tr(p) for p in recess.to_polygons()],
-                     'OUTER_PROFILE': [tr(B.OUTL)],
-                     f'DOWEL_{B.P["dowel_d"]}mm_x{B.P["dowel_depth"]}mm_deep': [tr(circ(c, B.P['dowel_d'] / 2)) for c in B.DOWELS]}
+                     f'POCKET_recess_{pd:.2f}mm_deep': [tr(p) for p in recess.to_polygons()],
+                     'OUTER_PROFILE': [tr(B.OUTL)]}
+            if not single:
+                extra[f'DOWEL_{B.P["dowel_d"]}mm_x{B.P["dowel_depth"]}mm_deep'] = [tr(circ(c, B.P['dowel_d'] / 2)) for c in B.DOWELS]
+            if single:
+                extra[f'MORTISE_{B.P["tenon_depth"]}mm_deep_open_top'] = [tr(B.tenon_poly(B.P['tenon_fit']))]
             if name == 'rim_upper':
                 extra[f'MORTISE_{B.P["tenon_depth"]}mm_deep_from_outer_face'] = [tr(B.tenon_poly(B.P['tenon_fit']))]
         if name in ('top', 'back'):
