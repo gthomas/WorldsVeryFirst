@@ -176,7 +176,7 @@ def main():
                      'Exported inside-up. Setup A inside (flat glue skirt and arch underside); setup B: flip about X, outside facets.')
     if B.P.get('rim_single'):
         parts['rim'] = (B.build_rim_single(), None, 'top', False,
-                        'One setup from the top face of a standard 1-3/4" blank: pocket the wall recess down to the back\'s glue ledge, cut through inside the ledge, cut the open-top neck mortise, profile. Then rout the control-plate window through the wall from outside with a template, and drill the endpin.')
+                        'One setup from the top face of a standard 1-3/4" blank: pocket the wall recess down to the back\'s glue ledge, cut through inside the ledge, cut the open-top neck mortise, profile. Then rout the pot window and the battery-box opening through the control face from outside with the template, and drill the jack hole.')
     else:
         parts['rim_lower'] = (lower, None, 'top', False,
                               'One setup from the split face: pocket the recess to the ledge, cut through inside the ledge, drill dowels, profile.')
@@ -276,17 +276,29 @@ def flat_parts():
         doc.saveas(os.path.join(d, 'goldfoil_bracket_flat.dxf'))
 
     # rim control plate (plate coordinates: x along the rim face, y up; origin at the plate centre)
-    doc, ms = doc_with([('OUTLINE', 7), ('POT_AND_JACK_HOLES', 1), ('SCREW_HOLES', 3), ('RIM_WINDOW_behind', 8)])
-    L, H, T = B.CTRL_PLATE
-    pl(ms, [(-L / 2, -H / 2), (L / 2, -H / 2), (L / 2, H / 2), (-L / 2, H / 2)], 'OUTLINE')
-    for name, x, dia in B.CTRL_HOLES: circ(ms, (x, 0), dia, 'POT_AND_JACK_HOLES')
-    dx, dz, dl, dh = B.CTRL_DOOR
-    doc.layers.add('BATTERY_DOOR_OPENING', color=2)
-    pl(ms, B.open_poly(np.array([(dx - dl / 2, dz - dh / 2), (dx + dl / 2, dz - dh / 2), (dx + dl / 2, dz + dh / 2), (dx - dl / 2, dz + dh / 2)]), 2.0), 'BATTERY_DOOR_OPENING')
-    for se, sz in B.CTRL_SCREWS: circ(ms, (se, sz), 2.8, 'SCREW_HOLES')
-    W, Hw = B.CTRL_WIN
-    pl(ms, [(-W / 2, -Hw / 2), (W / 2, -Hw / 2), (W / 2, Hw / 2), (-W / 2, Hw / 2)], 'RIM_WINDOW_behind')
+    doc, ms = doc_with([('OUTLINE', 7), ('POT_HOLE', 1), ('SCREW_HOLES', 3), ('RIM_WINDOW_behind', 8)])
+    L, H, T = B.CTRL_PLATE; x0 = B.CTRL_PLATE_S
+    pl(ms, B.open_poly(np.array([(-L / 2, -H / 2), (L / 2, -H / 2), (L / 2, H / 2), (-L / 2, H / 2)]), 4.0), 'OUTLINE')
+    for name, x, dia in B.CTRL_HOLES: circ(ms, (x - x0, 0), dia, 'POT_HOLE')
+    for se, sz in B.CTRL_SCREWS: circ(ms, (se - x0, sz), 2.8, 'SCREW_HOLES')
+    circ(ms, (0, 0), B.CTRL_WIN_D, 'RIM_WINDOW_behind')
     doc.saveas(os.path.join(d, f'control_plate_{T:.0f}mm.dxf'))
+
+    # router template for the rim's control face (face coordinates: x along the flat treble lower-bout face from its
+    # centre, toward the waist; y up from the rim's mid-height). Make it from 1/4 in MDF and rout with a pattern bit.
+    doc, ms = doc_with([('FACE_FLAT', 8), ('BB04_OPENING', 1), ('POT_WINDOW', 1), ('PILOT_HOLES', 3), ('BB04_FLANGE', 2), ('PLATE', 2), ('NOTES', 7)])
+    ms.add_line((-58, -20), (-58, 20), dxfattribs={'layer': 'FACE_FLAT'}); ms.add_line((56, -20), (56, 20), dxfattribs={'layer': 'FACE_FLAT'})
+    s0 = B.BB['s']; cl, ch = B.BB['cut']; fl, fh, _ = B.BB['flange']; sx_, sz_ = B.BB['screws']
+    pl(ms, B.open_poly(np.array([(s0 - cl / 2, -ch / 2), (s0 + cl / 2, -ch / 2), (s0 + cl / 2, ch / 2), (s0 - cl / 2, ch / 2)]), 3.2), 'BB04_OPENING')
+    pl(ms, B.open_poly(np.array([(s0 - fl / 2, -fh / 2), (s0 + fl / 2, -fh / 2), (s0 + fl / 2, fh / 2), (s0 - fl / 2, fh / 2)]), 3.0), 'BB04_FLANGE')
+    for a_ in (-1, 1):
+        for b_ in (-1, 1): circ(ms, (s0 + a_ * sx_ / 2, b_ * sz_ / 2), 1.6, 'PILOT_HOLES')
+    circ(ms, (x0, 0), B.CTRL_WIN_D, 'POT_WINDOW')
+    pl(ms, B.open_poly(np.array([(x0 - L / 2, -H / 2), (x0 + L / 2, -H / 2), (x0 + L / 2, H / 2), (x0 - L / 2, H / 2)]), 4.0), 'PLATE')
+    for se, sz in B.CTRL_SCREWS: circ(ms, (se, sz), 1.6, 'PILOT_HOLES')
+    ms.add_text('Rim control face, full size. Openings through the wall; check the BB-04 against the part before routing.',
+                dxfattribs={'layer': 'NOTES', 'height': 2.5}).set_placement((-58, 26))
+    doc.saveas(os.path.join(d, 'rim_control_face_template.dxf'))
 
     # positions table
     fb_end = B.n2b(B.U_FB_END, 0, 0)
@@ -296,10 +308,14 @@ def flat_parts():
         tuner_holes_face_coords_mm=[[round(v, 1), round(s, 1)] for v, s, _ in B.TUNER_LIST], tuner_hole_dia_mm=B.P['tuner_hole'],
         control_plate=dict(center_body_xy=[round(float(c), 1) for c in B.CTRL_C], z=round(B.Z_SPLIT, 1),
                            outward_normal=[round(float(c), 4) for c in B.CTRL_N], along_rim=[round(float(c), 4) for c in B.CTRL_E],
-                           holes={n: dict(along_mm=x, dia_mm=dd) for n, x, dd in B.CTRL_HOLES}, battery_door=dict(zip(('along_mm', 'height_mm', 'length_mm', 'tall_mm'), B.CTRL_DOOR)), screws_mm=B.CTRL_SCREWS,
-                           note='the window behind it is machined; drill the four 2 mm pilot holes square to the rim face'),
+                           plate_center_along_mm=B.CTRL_PLATE_S, window_dia_mm=B.CTRL_WIN_D,
+                           holes={n: dict(along_mm=x, dia_mm=dd) for n, x, dd in B.CTRL_HOLES}, screws_mm=B.CTRL_SCREWS,
+                           battery_box=dict(part='Gotoh BB-04 (or StewMac #3577)', center_along_mm=B.BB['s'], opening_mm=B.BB['cut'], corner_r_mm=3.2,
+                                            screw_spacing_mm=B.BB['screws']),
+                           note='positions along the face from its centre, + toward the waist; heights from the rim mid-height. Rout both openings with rim_control_face_template.dxf; drill the pilots square to the face'),
+        output_jack=dict(part='Switchcraft 152B stereo long-thread jack', center_body_xy=[round(float(c), 1) for c in B.JACK_C], z=round(B.Z_SPLIT, 1),
+                         outward_normal=[round(float(c), 4) for c in B.JACK_N], dia_mm=B.JACK_HOLE, note='centre of the flat treble tail facet; drill square to the facet after glue-up'),
         pickup_wire_hole=dict(center_body_xy=list(B.WIRE_HOLE[:2]), dia_mm=B.WIRE_HOLE[2], note='through the top, under the fingerboard extension (machined with the top)'),
-        endpin=dict(center_body_xy=[0.0, 0.0], z=round(B.Z_BACK_IN + B.P['rim_h'] / 2 - 4, 1), dia_mm=12.0),
         dowels_body_xy=B.DOWELS, dowel=f"{B.P['dowel_d']} mm x {2 * B.P['dowel_depth']} mm",
         truss_rod=f"{B.P['truss_len'] / 25.4:.0f} in dual-action, channel {B.P['truss_w']} x {B.P['truss_d']} mm",
         bridge_saddle=dict(scale_mm=B.P['scale'], compensation_mm=dict(treble=1.5, bass=3.5), extra_height_mm=B.BRIDGE_FIT),

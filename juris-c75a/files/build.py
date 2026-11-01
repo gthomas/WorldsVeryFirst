@@ -492,7 +492,8 @@ DOWELS = [(0.0, 399.8), (-34.0, 405.0), (-20.0, 10.0), (20.0, 10.0)]
 def rim_regions():
     blocks = (m3.CrossSection([NECK_BLOCK]) + m3.CrossSection([TAIL_BLOCK])) ^ OUTL_CS
     through = open_cs(OUTL_CS.offset(-(P['rim_wall'] + P['lining_w']), m3.JoinType.Round, circular_segments=96) - blocks)
-    pad = m3.CrossSection([ctrl_box(CTRL_PAD_L, -30.0, 1.0)])      # wall left full ledge-thick behind the control plate
+    pad = m3.CrossSection([ctrl_box(CTRL_PAD_L, -30.0, 1.0)]) + m3.CrossSection([jack_box(JACK_PAD_L, -30.0, 1.0)])
+    # wall left full ledge-thick behind the control plate, the battery box and the jack
     recess = open_cs(OUTL_CS.offset(-P['rim_wall'], m3.JoinType.Round, circular_segments=96) - blocks - pad)
     return through, recess
 
@@ -508,11 +509,9 @@ def build_rim_halves(machining=True):
     lower = ring.translate([0, 0, Z_BACK_IN]) - pocket.translate([0, 0, Z_BACK_IN + lh]) - dow(zs - P['dowel_depth'])
     upper = ring.translate([0, 0, zs]) - pocket.translate([0, 0, zs]) - dow(zs) - MORTISE
     # control window: a notch through the wall in each half, cut from the split face (3-axis)
-    wh = CTRL_WIN[1] / 2
-    win = prism(ctrl_box(CTRL_WIN[0], -40.0, 6.0), zs - wh, zs + wh)
     holes = union([m3.Manifold.cylinder(14, 1.0, 1.0, 16).rotate([0, 90, 0]).rotate([0, 0, math.degrees(math.atan2(CTRL_N[1], CTRL_N[0]))])
                    .translate([*(CTRL_C + CTRL_E * se + CTRL_N * -12.0), zs + sz]) for se, sz in CTRL_SCREWS])
-    lower = lower - win; upper = upper - win          # plate screw pilots are drilled by hand into the rim face
+    lower = lower - ctrl_cutters() - jack_cutter(); upper = upper - ctrl_cutters() - jack_cutter()          # plate screw pilots are drilled by hand into the rim face
     return lower, upper
 
 def build_rim_single():
@@ -524,14 +523,11 @@ def build_rim_single():
     lh = P['lining_h']; z0 = Z_BACK_IN; h = P['rim_h']
     ring = m3.Manifold.extrude(OUTL_CS - through, h).translate([0, 0, z0])
     pocket = m3.Manifold.extrude(recess, h - lh + 1.0).translate([0, 0, z0 + lh])
-    wh = CTRL_WIN[1] / 2
-    win = prism(ctrl_box(CTRL_WIN[0], -40.0, 6.0), Z_SPLIT - wh, Z_SPLIT + wh)
-    return ring - pocket - MORTISE - win
+    return ring - pocket - MORTISE - ctrl_cutters() - jack_cutter()
 
 def build_rim():
     if P.get('rim_single'):
         rim = build_rim_single()
-        rim = rim - m3.Manifold.cylinder(40, 6.0, 6.0, 48).rotate([90, 0, 0]).translate([0, 20, Z_BACK_IN + P['rim_h'] / 2 - 4])
         return rim ^ KEEP_TOP ^ KEEP_BOT
     lower, upper = build_rim_halves()
     rim = lower + upper
@@ -980,17 +976,21 @@ def ctrl_frame():
     e = (b - a) / np.linalg.norm(b - a); n = np.array([e[1], -e[0]])     # n points out of the body (CCW outline)
     return (a + b) / 2, n, e
 CTRL_C, CTRL_N, CTRL_E = ctrl_frame()
-CTRL_PLATE = (100.0, 44.0, 2.0)          # along the rim, tall, thick (black fibre or aluminium)
-CTRL_WIN = (84.0, 30.0)                  # opening through the rim wall behind it
+CTRL_PLATE = (36.0, 36.0, 2.0)           # along the rim, tall, thick (black fibre or aluminium): stacked pot only
+CTRL_PLATE_S = 36.0                      # plate centre along the face from CTRL_C (toward the waist)
+CTRL_WIN_D = 26.0                        # round window through the wall behind it (the stacked pot body is 24 mm)
 CTRL_PAD_L = 116.0
-CTRL_SCREWS = [(se, sz) for se in (-46.0, 46.0) for sz in (-17.0, 17.0)]
-CTRL_HOLES = [('jack', -34.0, 9.5), ('concentric', -6.0, 9.5)]   # stereo jack; stacked volume/tone pot. Position along the plate, hole dia
-CTRL_DOOR = (26.0, 0.0, 32.0, 22.0)   # battery door: centre along the plate, centre height, length, height
-SLEEVE_DEPTH = 54.0                     # end-loading 9 V sleeve behind the door
-
+CTRL_SCREWS = [(CTRL_PLATE_S + se, sz) for se in (-13.5, 13.5) for sz in (-13.5, 13.5)]
+CTRL_HOLES = [('concentric', CTRL_PLATE_S, 9.5)]   # stacked volume/tone pot. Position along the face, hole dia
+# Gotoh BB-04 single 9 V battery box (StewMac #3577 is the same format), toward the tail on the same face
+BB = dict(s=-21.0, flange=(70.0, 29.0, 1.6), screws=(61.5, 20.7), body=(56.0, 24.3, 33.0), cut=(57.0, 25.0))
 def ctrl_box(L, n0, n1):
     """plan rectangle centred on the control face: +-L/2 along the rim, n0..n1 along the outward normal"""
     c, n, e = CTRL_C, CTRL_N, CTRL_E
+    return ccw(np.array([c + e * s_ + n * t for s_, t in [(-L / 2, n0), (L / 2, n0), (L / 2, n1), (-L / 2, n1)]]))
+
+def jack_box(L, n0, n1):
+    c, n, e = JACK_C, JACK_N, JACK_E
     return ccw(np.array([c + e * s_ + n * t for s_, t in [(-L / 2, n0), (L / 2, n0), (L / 2, n1), (-L / 2, n1)]]))
 
 def _ctrl_local(man):
@@ -998,49 +998,83 @@ def _ctrl_local(man):
     ang = math.degrees(math.atan2(CTRL_E[1], CTRL_E[0]))
     return man.mirror([0, 1, 0]).rotate([0, 0, ang]).translate([*CTRL_C, Z_SPLIT])   # local +y -> outward normal
 
+def _rrect_xz(L, H, r, y0, y1, x0=0.0, z0=0.0):
+    """rounded rectangle in the face plane (x along, z up), extruded along local y"""
+    pts = [(x0 + sx * (L / 2 - r) + r * math.cos(t), y, z0 + sz * (H / 2 - r) + r * math.sin(t))
+           for sx in (-1, 1) for sz in (-1, 1) for t in np.linspace(0, 2 * math.pi, 17)[:-1] for y in (y0, y1)]
+    return hull(pts)
+
+def _ycyl(r, y0, y1, x, z, n=32):
+    return m3.Manifold.cylinder(y1 - y0, r, r, n).rotate([-90, 0, 0]).translate([x, y0, z])
+
+def ctrl_cutters(depth=40.0):
+    """openings through the rim wall on the control face, in body coordinates: the round window behind the plate
+    and the BB-04's body opening. Both are template routes from outside."""
+    win = _ycyl(CTRL_WIN_D / 2, -depth, 6.0, CTRL_PLATE_S, 0.0, 64)
+    L, H = BB['cut']
+    bb = _rrect_xz(L, H, 3.2, -depth, 6.0, BB['s'])       # 1/4 in router bit corners
+    return _ctrl_local(win + bb)
+
 def build_control_plate():
-    L, H, T = CTRL_PLATE; ch = 0.8
-    pts = [(sx * L / 2, 0.0, sz * H / 2) for sx in (-1, 1) for sz in (-1, 1)] + \
-          [(sx * (L / 2 - ch), T, sz * (H / 2 - ch)) for sx in (-1, 1) for sz in (-1, 1)]
-    plate = hull(pts)
+    L, H, T = CTRL_PLATE; x0 = CTRL_PLATE_S
+    plate = _rrect_xz(L, H, 4.0, 0.0, T - 0.6, x0) + _rrect_xz(L - 1.2, H - 1.2, 3.4, T - 0.6, T, x0)
     for _, x, d in CTRL_HOLES:
-        plate = plate - m3.Manifold.cylinder(20, d / 2, d / 2, 40).rotate([90, 0, 0]).translate([x, 10, 0])
+        plate = plate - _ycyl(d / 2, -5, 10, x, 0)
     for se, sz in CTRL_SCREWS:
-        plate = plate - m3.Manifold.cylinder(20, 1.4, 1.4, 16).rotate([90, 0, 0]).translate([se, 10, sz])
-    dx, dz, dl, dh = CTRL_DOOR
-    plate = plate - m3.Manifold.cube([dl, 30, dh], True).translate([dx, 0, dz])
+        plate = plate - _ycyl(1.4, -5, 10, se, sz, 16)
     return _ctrl_local(plate)
 
 def build_battery_box():
-    """battery door in the control plate and the end-loading 9 V sleeve behind it"""
-    T = CTRL_PLATE[2]; dx, dz, dl, dh = CTRL_DOOR
-    door = m3.Manifold.cube([dl - 0.6, T + 0.6, dh - 0.6], True).translate([dx, (T + 0.6) / 2, dz])
-    door = door - m3.Manifold.cube([8.0, 2.0, 4.0], True).translate([dx + dl / 2 - 6.0, T + 0.6, dz])     # thumb notch
-    door = door + m3.Manifold.cylinder(1.2, 2.0, 2.0, 16).rotate([-90, 0, 0]).translate([dx - dl / 2 + 4.0, T + 0.6, dz])   # quarter-turn latch
-    wall = 1.5
-    sleeve = m3.Manifold.cube([dl, SLEEVE_DEPTH, dh], True).translate([dx, -SLEEVE_DEPTH / 2, dz]) - \
-             m3.Manifold.cube([dl - 2 * wall, SLEEVE_DEPTH - wall, dh - 2 * wall], True).translate([dx, -(SLEEVE_DEPTH - wall) / 2 + 0.01, dz])
+    """Gotoh BB-04: flange screwed to the rim face, hinged lid in the flange, box body through the wall, 9 V inside"""
+    s0 = BB['s']; FL, FH, FT = BB['flange']; bl, bw, bd = BB['body']
+    flange = _rrect_xz(FL, FH, 3.0, 0.0, FT, s0) - _rrect_xz(FL - 6.0, FH - 5.0, 2.0, -1, FT + 1, s0)
+    body = _rrect_xz(bl, bw, 3.5, -bd, 0.01, s0) - _rrect_xz(bl - 2.4, bw - 2.4, 2.3, -bd + 1.2, 1.0, s0)
+    sx_, sz_ = BB['screws']
+    heads = union([_ycyl(2.3, FT, FT + 0.9, s0 + a * sx_ / 2, b * sz_ / 2, 16) for a in (-1, 1) for b in (-1, 1)])
+    box = flange + body + heads
+    lid = _rrect_xz(FL - 6.6, FH - 5.6, 1.7, 0.0, FT + 0.4, s0)
+    lid = lid - _rrect_xz(10.0, 4.0, 1.9, FT - 0.4, FT + 1.0, s0 + (FL - 6.6) / 2 - 8.0, 0.0)     # thumb notch for the catch
+    lid = lid + _ycyl(1.2, FT + 0.4, FT + 0.7, s0 - (FL - 6.6) / 2 + 5.0, 0.0, 12)               # hinge-end rib
     Lb, Tb, Hb = BATTERY
-    bat = m3.Manifold.cube([Hb, Lb, Tb], True).translate([dx, -(Lb / 2 + 1.0), dz])            # end-loaded, terminals inboard
-    return _ctrl_local(door), _ctrl_local(sleeve), _ctrl_local(bat)
+    bat = m3.Manifold.cube([Lb, Hb, Tb], True).translate([s0, -(Hb / 2 + 2.0), 0.0])           # lies in the box, terminals at one end
+    return _ctrl_local(lid), _ctrl_local(box), _ctrl_local(bat)
 
 def build_control_hardware():
-    """knobs, jack nut, screw heads, and the pot bodies behind the plate (for clearance checks)"""
+    """stacked knob, screw heads, and the pot body behind the plate (for clearance checks)"""
     T = CTRL_PLATE[2]; out = []
-    hexa = lambda r, y0, y1: hull([(r * math.cos(t), y, r * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1] for y in (y0, y1)])
-    for name, x, d in CTRL_HOLES:
-        if name == 'jack':
-            out.append(hexa(7.5, T, T + 3.0).translate([x, 0, 0]) - m3.Manifold.cylinder(30, 3.3, 3.3, 24).rotate([90, 0, 0]).translate([x, 15, 0]))
-            out.append(m3.Manifold.cylinder(28, 6.0, 6.0, 32).rotate([90, 0, 0]).translate([x, 0, 0]))       # barrel inside
-        else:   # stacked (concentric) pot: outer hex knob for volume, inner knob for tone
-            ring = lambda r0, r1, y0, y1: hull([(r0 * math.cos(t), y0, r0 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]] +
-                                               [(r1 * math.cos(t), y1, r1 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]])
-            out.append(ring(11.0, 10.0, T + 1.0, T + 9.0).translate([x, 0, 0]))
-            out.append(ring(7.0, 6.0, T + 9.0, T + 17.0).translate([x, 0, 0]))
-            out.append(m3.Manifold.cylinder(32, 12.0, 12.0, 32).rotate([90, 0, 0]).translate([x, -1.0, 0]))   # stacked pot body
+    ring = lambda r0, r1, y0, y1: hull([(r0 * math.cos(t), y0, r0 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]] +
+                                       [(r1 * math.cos(t), y1, r1 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1]])
+    for name, x, d in CTRL_HOLES:      # stacked (concentric) pot: outer knob for volume, inner knob for tone
+        out.append(ring(11.0, 10.0, T + 1.0, T + 9.0).translate([x, 0, 0]))
+        out.append(ring(7.0, 6.0, T + 9.0, T + 17.0).translate([x, 0, 0]))
+        out.append(_ycyl(12.0, -14.0, 0.0, x, 0.0))      # stacked pot body
     for se, sz in CTRL_SCREWS:
-        out.append(m3.Manifold.cylinder(1.0, 2.6, 2.6, 16).rotate([-90, 0, 0]).translate([se, T, sz]))
+        out.append(_ycyl(2.6, T, T + 1.0, se, sz, 16))
     return _ctrl_local(union(out))
+
+# ----------------------------------------------------------------------------- OUTPUT JACK (treble tail facet)
+def jack_frame():
+    a, b = SHARP[names.index('tailR')], SHARP[names.index('tTail')]
+    e = (b - a) / np.linalg.norm(b - a); n = np.array([e[1], -e[0]])
+    return (a + b) / 2, n, e
+JACK_C, JACK_N, JACK_E = jack_frame()
+JACK_HOLE = 12.2          # Switchcraft 152B stereo long-thread jack: 12 mm bushing, panels to 1.25 in
+JACK_PAD_L = 34.0
+
+def _jack_local(man):
+    ang = math.degrees(math.atan2(JACK_E[1], JACK_E[0]))
+    return man.mirror([0, 1, 0]).rotate([0, 0, ang]).translate([*JACK_C, Z_SPLIT])
+
+def jack_cutter():
+    return _jack_local(_ycyl(JACK_HOLE / 2, -40.0, 6.0, 0.0, 0.0))
+
+def build_jack():
+    """152B in the rim wall: flanged nut and washer outside, threaded barrel through the wall"""
+    hexa = hull([(7.5 * math.cos(t), y, 7.5 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 7)[:-1] for y in (1.0, 4.5)])
+    wash = _ycyl(9.0, 0.0, 1.0, 0, 0)
+    barrel = _ycyl(6.0, -24.0, 5.5, 0, 0)
+    sock = _ycyl(3.3, -10.0, 8.0, 0, 0)
+    return _jack_local((wash + hexa + barrel) - sock)
 
 BATTERY = (48.5, 17.5, 26.5)      # 9 V: long, thick, tall
 def fb_bottom_z(y):
@@ -1199,6 +1233,7 @@ def main():
     parts['control_plate'] = build_control_plate()
     parts['controls'] = build_control_hardware()
     parts['battery_door'], parts['battery_sleeve'], parts['battery'] = build_battery_box()
+    parts['jack'] = build_jack()
     parts['strap_buttons'] = build_strap_buttons()
     st, string_lines = build_strings(anchor); parts['strings'] = st
 
@@ -1238,7 +1273,7 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(goldfoil=110, goldfoil_foil=0, goldfoil_bracket=12, tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=70, control_plate=15, battery_door=3, battery_sleeve=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(goldfoil=110, goldfoil_foil=0, goldfoil_bracket=12, tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=50, control_plate=6, battery_door=4, battery_sleeve=14, jack=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
     for k, g in nominal.items(): mass[k] = g
     total_g = sum(v for k, v in mass.items() if not k.startswith('goldfoil'))     # gold foil is the alternative pickup
 

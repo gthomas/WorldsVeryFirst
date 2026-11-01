@@ -22,10 +22,10 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 1-1/8 in thick (5/4) | Back | Finished 1.0 in at most (the 22 mm arch). Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
 | 1 | Richlite guitar fingerboard blank (Black Diamond), unslotted | 20½ × 2¾ × 3/8 in or larger | Fingerboard | Finished 18 × 2.22 × 0.29 in. Barely moves with humidity, so fret ends stay put in dry weather. Machines like a hard hardwood; cut fret slots with a sharp saw or slotting cutter and press the frets in (a drop of thin glue in each slot is a good idea). |
 | 1 | Maple headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.5 × 3.6 in (the built C-75's headstock shape). Finished to match the top (dye and shellac along with it). |
-| 1 | Black fibre or aluminium sheet | 5 × 2½ in, 2 mm | Rim control plate | Holds the stacked pot, the stereo jack and the battery door. |
+| 1 | Black fibre or aluminium sheet | 1½ × 1½ in, 2 mm | Rim control plate | Holds the stacked pot only. |
+| 1 | ¼ in MDF or ply | 6 × 3 in | Router template for the control face | Cut from `rim_control_face_template.dxf`; rout with a pattern bit. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
 | 1 | Stacked (concentric) pot, 25k, with a concentric knob | 3/8 in bushing | Volume and tone | EMG actives use 25k pots. |
-| 1 | End-loading 9 V sleeve | 32 × 22 mm, 54 mm deep | Battery | Fold from 1.5 mm ABS or aluminium, or 3D-print it; it fixes to the back of the plate around the door opening. The door is cut from the plate offcut and held by a quarter-turn latch. |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
 ## Hardware to buy
@@ -38,8 +38,9 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | The flat at the tail is 56 mm (2.2 in) wide, so a standard 51 mm (2 in) mounting plate sits on it with about 2.5 mm to spare each side. Its screws go into the tail block (68 mm wide). See the break angle note below. |
 | Pickup | EMG 91 | Comes with its mounting bracket, screws, output cable and battery cable. Use EMG's bracket from the fingerboard extension; the strap bracket in the model is a stand-in. |
 | Pot | EMG 25KX2 stacked volume/tone, 25k, solderless (part 5129) | Comes with a split stacked knob. Check the bushing against the 3/8 in hole. |
-| Output jack | Stereo 1/4 in jack with 9 V battery connector, e.g. EMG's prewired jack, or a Switchcraft stereo jack | 3/8 in hole; the 2 mm plate suits a short-thread jack. |
-| Battery | 9 V alkaline or lithium | End-loads into the sleeve behind the door. |
+| Battery box | Gotoh BB-04 single 9 V (or StewMac #3577, same format) | 70 × 29 mm flange, four screws on 61.5 × 20.7 mm centres. The body drops through a 57 × 25 mm opening (1/4 in bit corners) and hangs about 13 mm inside the wall. Check the part before routing. |
+| Output jack | Switchcraft 152B stereo long-thread jack (EMG switches the battery through the stereo jack) | 12 mm hole through the 20 mm wall in the treble tail facet; the 152B takes panels up to 1¼ in. |
+| Battery | 9 V alkaline or lithium | Drops into the BB-04 under its hinged lid. |
 
 **Break angle and tailpiece length.** Because the plateau is high, a shorter trapeze gives more break angle, not less. With the string anchor 5.5 mm above the top: 50 mm from the tail edge gives about 13°, 100 mm about 16°, and a 5 in (125 mm) trapeze about 21.5°. Over about 18° the bridge sees noticeably more down-pressure (about a third more at 22°). The top has the margin for it, but the extra drive also changes the sound, so a longer trapeze, with its anchor 2–3 in from the tail, is the conservative choice.
 
@@ -62,13 +63,14 @@ Feeds and speeds depend on your machine; use the CAM program's defaults for hard
 |---|---|---|---|---|
 | Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 8 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1-1/8 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside facets, ridge and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
-| Rim | `rim/` | Mahogany body blank, 21 × 14 × 1¾ in (standard) | 1 | Everything from the top face: pocket the recess inside the 8 mm wall down to the back's glue ledge (12 × 8 mm), cut through inside the ledge, cut the open-top neck mortise 26 mm deep, profile the outside. The top glues to the full 8 mm wall. Afterwards, rout the control-plate window through the treble lower-bout wall from outside with a template (see `positions.json`), and drill the endpin. |
+| Rim | `rim/` | Mahogany body blank, 21 × 14 × 1¾ in (standard) | 1 | Everything from the top face: pocket the recess inside the 8 mm wall down to the back's glue ledge (12 × 8 mm), cut through inside the ledge, cut the open-top neck mortise 26 mm deep, profile the outside. The top glues to the full 8 mm wall. Afterwards, rout the pot window and the BB-04 opening through the treble lower-bout wall from outside with `rim_control_face_template.dxf`, and drill the 12 mm jack hole in the treble tail facet (see `positions.json`). |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
 | Fingerboard | `fingerboard/` | Richlite, 20½ × 2¾ × 3/8 in | 1 | Flat side down: 12 in radius top, 22 fret slots, taper profile. |
 
 The `flat/` folder has 2D cut files:
 - `faceplate_and_truss_cover.dxf`: 1.6 mm maple headstock overlay (finished to match the top) with tuner holes and truss rod access, plus the truss rod cover and its screw holes.
-- `control_plate_2mm.dxf`: the rim access plate, 100 × 44 mm, with 9.5 mm (3/8 in) holes for the stereo jack and the stacked pot, the 32 × 22 mm battery door opening, four screw holes, and the outline of the window it covers.
+- `control_plate_2mm.dxf`: the pot plate, 36 × 36 mm with 4 mm corners, a 9.5 mm (3/8 in) hole for the stacked pot, four screw holes, and the 26 mm window it covers.
+- `rim_control_face_template.dxf`: full-size template for the flat treble lower-bout face. It has the BB-04 opening, the pot window, the plate and flange outlines, the pilot holes, and the ends of the flat face for registration.
 - `goldfoil_bracket_flat.dxf`: flat pattern for the optional gold foil bracket (see below): outline, two bend lines, two holes for screws into the underside of the fingerboard end, and two for the pickup's mounting screws. Sizes are placeholders until the pickup is measured.
 
 ## Build order
@@ -79,10 +81,10 @@ The `flat/` folder has 2D cut files:
 4. **Top:** glue the top onto the top of the rim wall (an 8 mm glue land) and the neck block. It has a notch at the neck end, open to the end face, directly over the mortise.
 5. **Neck:** set the neck from above, after the body is closed. The tenon drops through the notch in the top into the mortise, and the tongue lands on the top over the neck block; glue all three faces (tenon, tongue on top, heel on the end face). The tenon floor sets the height, so you can still check the neck angle with the body closed.
 6. **Chamfer:** cut the 45° edge chamfer around the top and back edges with a V-bit, 3.5 mm deep. It fades to nothing over the last 28 mm before the neck's end face; blend that taper by hand or with a ramped toolpath.
-7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Fix the battery sleeve to the back of the control plate around the door opening, with the battery clip at its inner end. Mount the stacked pot and the stereo jack on the plate, wire everything through the window (EMG's solderless harness works), and screw the plate on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, open the door and slide the 9 V out; the plate stays put.
+7. **Wiring:** feed the EMG 91 lead through the 6 mm hole in the top under the fingerboard extension. Mount the stacked pot on the plate and the 152B in the tail facet. Run the BB-04's clip lead in through its opening and wire everything through the pot window (EMG's solderless harness works), then screw the plate and the battery box on. The EMG is active, so there is no string or tailpiece ground; don't add one. To change the battery, flip open the BB-04 lid; no screws.
 8. **Finish the top:** mask a 1/4 in (6.35 mm) band around the top's edge, including the chamfer, and dye the rest of the top black. The mask line is the `TOP_DYE_MASK` layer in `model/juris_c75a_templates.dxf`. Pull the mask, then shellac over everything; the undyed band reads as a faux binding. Finish the maple headstock face the same way (dye, then shellac), so the top and headstock match; mask the truss rod cover recess and tuner holes.
 9. **Fingerboard:** glue it on, fret it, and drill the side dots by hand.
-10. **Hand-drilled holes:** drill the endpin and the control plate's four pilot holes square to the rim. Positions are in `positions.json`.
+10. **Hand-drilled holes:** rout the control face's two openings with the template, drill the 12 mm jack hole in the treble tail facet, and drill the plate's and the battery box's pilot holes square to the rim. Positions are in `positions.json`.
 11. **Tuner holes:** drill them with the headstock face held flat, using a drill press with a 13° wedge or a separate CNC setup. They are 11/32 in (8.73 mm) for the Grover 133's press-in bushings; check the fit in scrap first. Each tuner also takes one small screw on the back of the headstock; mark it from the tuner itself.
 12. **Bridge:** set the flat-bottomed base on the plateau (it needs no fitting) and the compensated top on its thumbwheels. Put the treble end about 1.5 mm and the bass end about 3.5 mm behind the scale line, then set intonation by sliding the bridge. The saddle sits about 31.6 mm (1.24 in) above the plateau, so check that your base and top reach that with adjustment to spare.
 
@@ -97,9 +99,9 @@ These dimensions come from typical parts. Measure yours and change the parameter
 | Bridge base | Gretsch 008-0636-200, measured 135 × 14.95 × 11.75 mm, posts at 74 mm; plateau 141 mm wide | `BASE`, `plat_half_w` |
 | Tailpiece | Standard trapeze, 51 mm (2 in) mounting plate | `TAIL_HALF` in `outline.py` (flat is 2 × 28 mm) |
 | Pickup | EMG 91, 86.3 × 38.1 × 10.9 mm (EMG sheet, 0.43 in max height), on a fingerboard-extension bracket | `EMG91`, `build_pickup_bracket` |
-| Battery | 9 V, 48.5 × 26.5 × 17.5 mm, end-loaded through a door in the plate | `BATTERY`, `CTRL_DOOR`, `SLEEVE_DEPTH` |
-| Output jack | Stereo (EMG switches the battery through the jack), 3/8 in hole | `CTRL_HOLES` |
-| Pots and jack | Stacked pot and stereo jack, 3/8 in bushings (9.5 mm holes) on a 2 mm plate | `CTRL_HOLES`, `CTRL_PLATE` |
+| Battery box | Gotoh BB-04, 70 × 29 mm flange, 57 × 25 mm opening | `BB`, `BATTERY` |
+| Output jack | Switchcraft 152B stereo, 12 mm hole in the treble tail facet | `JACK_HOLE`, `jack_frame` |
+| Pot | Stacked pot, 3/8 in bushing (9.5 mm hole) on a 36 mm 2 mm plate over a 26 mm window | `CTRL_HOLES`, `CTRL_PLATE`, `CTRL_WIN_D` |
 | Strings | 13–56 set for the action and bridge height | `action12` |
 
 ## Optional pickup: Novak DeArmond-style gold foil
@@ -108,7 +110,7 @@ The model and viewer carry a second pickup option: a Curtis Novak DeArmond-style
 
 - **Bracket:** one 1.5 mm brass or aluminium strap. A tab screws to the underside of the fingerboard end, it drops about 5 mm just past the end of the board, and a shelf runs across under the casing's ears. The pickup screws down to the shelf through its ears over springs, which sets the height (about 3 mm of spring travel). The shelf clears the top by about 7 mm. Flat pattern: `flat/goldfoil_bracket_flat.dxf`.
 - **Sizes are placeholders.** I couldn't find published dimensions for Novak's mustache casing, so the model uses typical DeArmond mustache proportions: 124 mm tip to tip, a 78 × 34 mm housing 9 mm tall, and ear screws at ±56 mm. Measure the pickup when it arrives and change `GOLDFOIL` in `build.py`, then rebuild.
-- **Wiring:** it's passive. Use a 500k stacked volume/tone pot instead of the EMG's 25k, run a string ground to the tailpiece, and ground the casing. The battery door and sleeve aren't needed; the control plate can be cut without the door, or keep it to swap back to the EMG later.
+- **Wiring:** it's passive. Use a 500k stacked volume/tone pot instead of the EMG's 25k, run a string ground to the tailpiece, and ground the casing. The battery box isn't needed. Leave its opening uncut, or fit the box anyway so you can swap back to the EMG later.
 - **Lead:** it runs through the same 6 mm hole under the fingerboard end.
 
 ## Voicing the top
