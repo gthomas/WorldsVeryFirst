@@ -53,15 +53,42 @@ class Body:
     """A bevelled body on `outl` with the flats `top`/`back` (shapely polygons). The drop at each station comes
     from the nearest point of Chuck's edge, scaled by how this body's bevel width compares with Chuck's there, so
     the slope carries over to an outline that differs (the C-75T's wider neck tongue)."""
-    def __init__(self, outl, top, back, T_body, max_slope=None):
+    def __init__(self, outl, top, back, T_body, max_slope=None, rul_top=None, rul_back=None):
         self.OUTL = np.asarray(outl, float); self.RING = LinearRing(self.OUTL); self.L = self.RING.length
         self.TOP, self.BACK, self.T, self.max_slope = top, back, T_body, max_slope
+        self.RUL = {+1: self._prep(rul_top, top), -1: self._prep(rul_back, back)}
+    def _prep(self, rul, flat):
+        """rulings sorted round the outline as (s_out, s_in) pairs, plus zero-width ones where the flat meets the edge
+        (the square tail), so stations can be lofted between them the way Chuck's surfaces are"""
+        if rul is None or len(rul) == 0: return None
+        F = LinearRing(np.array(flat.exterior.coords)[:-1]); F = F if F.is_ccw else LinearRing(np.array(F.coords)[::-1])
+        R = self.RING; pairs = []
+        for xi, yi, xo, yo in rul:
+            pairs.append((R.project(Point(xo, yo)), F.project(Point(xi, yi))))
+        # zero-width rulings at the ends of the square runs
+        ss = np.arange(0.0, self.L, 1.0)
+        w = np.array([flat.exterior.distance(R.interpolate(x)) for x in ss]); sq = w < 0.3
+        for i in range(len(ss)):
+            if sq[i] != sq[i - 1]:
+                x = ss[i] if sq[i] else ss[i - 1]; p = R.interpolate(x); pairs.append((x, F.project(p)))
+        pairs.sort()
+        return F, np.array(pairs)
+    def _inner(self, s, side, flat, p):
+        r = self.RUL[side]
+        if r is None: return np.array(nearest_points(flat.exterior, Point(p))[0].coords[0])
+        F, P = r; Lo, Lf = self.L, F.length; n = len(P)
+        k = int(np.searchsorted(P[:, 0], s, side='right')) - 1
+        a, b = P[k % n], P[(k + 1) % n]
+        so = (b[0] - a[0]) % Lo; si = (b[1] - a[1]) % Lf
+        if si > Lf / 2: si -= Lf
+        f = ((s - a[0]) % Lo) / so if so > 1e-9 else 0.0
+        return np.array(F.interpolate((a[1] + f * si) % Lf).coords[0])
     def _stations(self, side, step):
         flat = self.TOP if side > 0 else self.BACK; R, Lb = self.RING, self.L; out = []
         for s in np.arange(0.0, Lb, step):
             p = np.array(R.interpolate(s).coords[0]); a = np.array(R.interpolate((s - 0.8) % Lb).coords[0]); b = np.array(R.interpolate((s + 0.8) % Lb).coords[0])
             t = (b - a) / np.linalg.norm(b - a); n_in = np.array([-t[1], t[0]])
-            q = np.array(nearest_points(flat.exterior, Point(p))[0].coords[0]); w = float(np.linalg.norm(q - p))
+            q = self._inner(s, side, flat, p); w = float(np.linalg.norm(q - p))
             sc = RING.project(Point(p)); wc = float(np.interp(sc, _SS, W_TOP if side > 0 else W_BACK)); dc = drop(sc, side)
             d = 0.0 if wc < 0.3 else dc * min(1.0, w / wc)
             if self.max_slope: d = min(d, w * self.max_slope)
@@ -105,7 +132,9 @@ class Body:
 
 W_TOP = np.array([TOP_FLAT.exterior.distance(RING.interpolate(s)) for s in _SS])
 W_BACK = np.array([BACK_FLAT.exterior.distance(RING.interpolate(s)) for s in _SS])
-CHUCK = Body(OUTL, TOP_FLAT, BACK_FLAT, T)
+RUL_TOP = np.asarray(_D['rul_top'], float) if 'rul_top' in _D.files else None
+RUL_BACK = np.asarray(_D['rul_back'], float) if 'rul_back' in _D.files else None
+CHUCK = Body(OUTL, TOP_FLAT, BACK_FLAT, T, rul_top=RUL_TOP, rul_back=RUL_BACK)
 def blank(round_r=0.0): return CHUCK.blank(round_r)
 
 def widened(dx=7.5, T_body=44.45):
@@ -122,5 +151,6 @@ def widened(dx=7.5, T_body=44.45):
     top = Polygon(f(np.array(TOP_FLAT.exterior.coords))).buffer(0); back = Polygon(f(np.array(BACK_FLAT.exterior.coords))).buffer(0)
     P = np.array(o.exterior.coords)[:-1]
     if not LinearRing(P).is_ccw: P = P[::-1]
-    b = Body(P, top, back, T_body); b.shift = f
+    sr = lambda Rr: np.c_[f(Rr[:, :2]), f(Rr[:, 2:])]
+    b = Body(P, top, back, T_body, rul_top=sr(RUL_TOP), rul_back=sr(RUL_BACK)); b.shift = f
     return b
