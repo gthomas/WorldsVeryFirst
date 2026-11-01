@@ -98,7 +98,7 @@ class Body:
         """cutter for the top (side = +1, z_top = T) or back (side = -1, z_top = 0) bevel"""
         pts = []; jit = np.random.default_rng(7 if side > 0 else 11)
         for s, p, n_in, q, w, d in self._stations(side, step):
-            if w < 0.3 or d < 0.3: pts.append(None); continue
+            if w < 1.0 or d < 1.0: pts.append(None); continue          # stop just short of zero width: no knife-edge contacts
             r = (p - q) / w                                              # ruling direction, outward
             A = q + jit.normal(0, 0.004, 2) - r * 0.05; Bo = p + r * 3.0; zl = z_top - side * d * (w + 3.0) / w
             pts.append([(A[0], A[1], z_top + side * 0.001), (Bo[0], Bo[1], zl), (A[0], A[1], z_top + side * 60), (Bo[0], Bo[1], z_top + side * 60)])
