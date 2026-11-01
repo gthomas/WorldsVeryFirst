@@ -44,11 +44,11 @@
   }
  },
  "soundhole_area_each": 517.8656588680747,
- "air_volume_l": 5.181958301533613,
- "helmholtz_hz_est": 127.35075989475237,
+ "air_volume_l": 5.1803547036931,
+ "helmholtz_hz_est": 127.37046931751043,
  "masses_g": {
-  "top": 152.5,
-  "top_binding": 8.4,
+  "top": 164.5,
+  "top_binding": 9.0,
   "back": 186.2,
   "rim": 445.5,
   "neck": 290.2,
@@ -79,8 +79,8 @@
   "badge": 8,
   "badge_qr": 0
  },
- "total_mass_g": 1920,
- "total_mass_lb": 4.23,
+ "total_mass_g": 1933,
+ "total_mass_lb": 4.26,
  "manifold_ok": {
   "top": true,
   "top_binding": true,
@@ -122,6 +122,7 @@
   "rim_wall": 8.0,
   "lining_w": 12.0,
   "lining_h": 8.0,
+  "crease_r": 25.0,
   "top_arch": 11.0,
   "plat_half_w": 70.5,
   "plat_tip": 85.0,

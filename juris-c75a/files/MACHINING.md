@@ -18,22 +18,41 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 |---|---|---|---|---|
 | 1 | Mahogany body blank, 2-piece, standard thickness | 21 × 14 × 1¾ in (milled from 8/4) | Rim | One ring, cut whole from a standard blank: no stacking, glue-up or dowels. Finished 18.05 × 13.6 × 1.75 in, so a 14 in blank leaves about 0.2 in per side; hold it by the ends (the pin holes in the setup DXF are at the ends), or buy an oversized 15 in blank. The centre seam is fine: it runs through the neck and tail blocks. |
 | 1 | Mahogany neck blank | 30 × 3 × 1 in | Neck | Needs three glue-ups before machining: a 13° scarf-jointed headstock, a stacked heel (two 1 in layers glued under the heel end, about 3 in of total depth there), and headstock ears to reach 3.5 in width. Or buy a one-piece blank of at least 26 × 3.5 × 3 in and skip the glue-ups. |
-| 1 | Quartersawn Sitka spruce archtop top wedges, bookmatched | 2 halves, each about 22 × 8 in, at least 1 in thick at the centre joint | Top | Joined it is about 20 × 16 in. The finished top is 0.75 in thick at the plateau, which sits on the centre line. Adirondack (red) spruce is the upgrade for more volume and stiffness, with no design changes. |
+| 1 | Quartersawn (rift and quartered) Port Orford cedar, flat stock | 2 pieces, each 22 × 7½ in, at least 7/8 in thick after flattening | Top | Joined it is about 22 × 15 in. The finished top needs 0.76 in of thickness across most of its width (the plateau and the soundhole lips sit at different heights), so use flat boards, not tapered archtop wedges. A slip-match from one board is fine under the black dye. Sitka spruce works with no design changes (about 10 g lighter, a little weaker in bending). Wear a respirator and use extraction: POC dust and oil are respiratory irritants. |
 | 1 | Quartersawn bigleaf maple back set, bookmatched | 2 halves, each about 22 × 8 in, about 1-1/8 in thick (5/4) | Back | Finished 1.0 in at most (the 22 mm arch). Plain or flamed makes no acoustic difference. A stiff maple back reflects energy into the top and machines crisply. |
-| 1 | Richlite guitar fingerboard blank (Black Diamond), unslotted | 20½ × 2¾ × 3/8 in or larger | Fingerboard | Finished 18 × 2.22 × 0.29 in. Barely moves with humidity, so fret ends stay put in dry weather. Machines like a hard hardwood; cut fret slots with a sharp saw or slotting cutter and press the frets in (a drop of thin glue in each slot is a good idea). |
-| 1 | Maple headstock veneer | 8 × 4 × 1/16 in | Faceplate | Finished head is 7.5 × 3.6 in (the built C-75's headstock shape). Finished to match the top (dye and shellac along with it). |
+| 1 | Richlite guitar fingerboard blank (Black Diamond), unslotted | 20 × 2¾ × 5/16 in (Richlite's standard blank) | Fingerboard | Finished 18 × 2.22 × 0.29 in. Barely moves with humidity, so fret ends stay put in dry weather. Machines like a hard hardwood; cut fret slots with a sharp saw or slotting cutter and press the frets in (a drop of thin glue in each slot is a good idea). |
+| 1 | Maple headstock veneer | 8 × 4 × 1/16 in | Faceplate | Resaw it from the back stock's offcut. Finished head is 7.5 × 3.6 in (the built C-75's headstock shape), a hair bigger than the common 190 × 90 mm veneers. Finished to match the top (dye and shellac along with it). |
 | 1 | Black fibre or aluminium sheet | 1½ × 1½ in, 2 mm | Rim control plate | Holds the stacked pot only. |
 | 1 | ¼ in MDF or ply | 6 × 3 in | Router template for the control face | Cut from `rim_control_face_template.dxf`; rout with a pattern bit. |
 | 1 | Brass or steel strap | 4 × ½ in, 1.5 mm | Pickup bracket | Bent to hang the EMG 91 from the underside of the fingerboard extension, unless you use a fingerboard-mount bracket for it. |
 | 1 | Stacked (concentric) pot, 25k, with a concentric knob | 3/8 in bushing | Volume and tone | EMG actives use 25k pots. |
 | 1 | Dual-action truss rod | 15 in | Neck | Check the channel size against your rod. |
 
+## Lumber: sources and cost
+
+Prices are as listed on 1 November 2026, before tax and shipping. Most are one-off pieces or depend on stock, so check before ordering.
+
+| Part | Buy | Source | Price |
+|---|---|---|---|
+| Top | Port Orford cedar, 4/4 Select & Better, rift and quartered, one board at least 7½ in wide × 48 in (about 2.7 bd ft). Cut it in two for a slip-matched pair. Make sure it flattens to at least 7/8 in. If not, buy 8/4 and resaw it for a true bookmatch (about 5.3 bd ft, about $213). | [Hearne Hardwoods](https://www.hearnehardwoods.com/cedar-port-orford-lumber/), $40/bd ft (call for stock: 610-932-7400) | about $107 |
+| Back | Bigleaf maple, 5/4 Select & Better, 8 in × 48 in (about 3.3 bd ft). Ask for quartered stock. The listed grain is mixed, and the cheapest figure grade is light quilt. | [Hearne Hardwoods](https://www.hearnehardwoods.com/maple-big-leaf-lumber/), from $15/bd ft | about $50 |
+| Rim | Honduran mahogany 2-piece body blank, 20½ × 14 × 1⅞ in. Face it to 1¾ in. | [StewMac](https://www.stewmac.com/tonewoods/wood-parts/honduran-mahogany-body-blank-2-piece---505) (WoodStax piece 505; similar blanks run about $105–130) | $114.73 |
+| Neck | Honduran mahogany neck blank, 1 × 3 × 30 in, plus a 1 × 4 × 36 in blank for the heel stack and headstock ears | [StewMac](https://www.stewmac.com/tonewoods/wood-parts/honduran-mahogany-neck-blanks), $35.49 + $35.49 | $70.98 |
+| Fingerboard | Richlite Black Diamond guitar fretboard blank, 20 × 2.75 × 0.3125 in, unslotted | [Richlite](https://www.richlite.com/products/guitar-fretboard-blank-black-diamond) $20 (sold out); [Solo Music Gear](https://www.solomusicgear.com/product/richlite-guitar-fretboard-blank-20-unslotted-black-diamond/) CA$23.99 (in stock) | about $20 |
+| Headstock veneer | From the back's offcut | — | $0 |
+| **Total** | | | **about $363** (about $469 with 8/4 cedar resawn for a true bookmatch) |
+
+Other options looked at:
+- [Allied Lutherie's Port Orford cedar archtop set](https://alliedlutherie.com/products/port-orford-cedar-archtop), $300, sold out. Tapered archtop wedges don't suit this top.
+- [NW Timber's musical-grade POC](https://nwtimber.com/rare-wide-boards/port-orford-white-cedar): 10/4 × 9⅝ × 40½ in at $697, or 1/4 in bookmatches (too thin).
+- [Maderas Barber's European curly maple archtop backs](https://maderasbarber.com/en/archtop-guitar-backs/898-a-curly-maple-backs-guitar-archtop.html), $130, tapered 25 → 8 mm. These suit a carved back better than this machined one.
+
 ## Hardware to buy
 
 | Item | Choice | Fit notes |
 |---|---|---|
 | Tuners | Genuine Grover Deluxe SD90, 3+3, nickel, safety post (133N), as on the C-75 | 15:1, 6 mm posts. 11/32 in post holes with 8.8 mm press-in bushings; one back screw per tuner. |
-| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 6 mm ring beam. Strength check with this base: about 0.62 mm sink under the feet, 0.87 mm at most, stresses at least 4× under clear-spruce strength. Expect it to settle a little more over the first months; take that up with the thumbwheels (checked without the soundhole lips, which only add stiffness). |
+| Bridge base | Gretsch 008-0636-200 rosewood bridge base, flat bottom (for flat-top guitars), as on the C-75 | Sits flat on the bridge plateau with no fitting; thumbwheel posts at 74 mm. Measured base: 135 × 14.95 mm, 11.5–12 mm tall. The plateau is 141 mm (5.55 in) wide across the strings, so the base sits fully on it with 3 mm to spare each side, and its feet land over the 5 × 6 mm ring beam. Strength check with this base (Port Orford cedar top): about 0.51 mm sink under the feet, 0.72 mm at most, stresses at least 4× under clear-wood strength. Expect it to settle a little more over the first months; take that up with the thumbwheels (checked without the soundhole lips, which only add stiffness). |
 | Bridge top | A standard wooden compensated archtop bridge top (ebony or rosewood) with post holes at 74 mm | Must match the base's 74 mm post spacing. |
 | Tailpiece | A trapeze tailpiece that screws to the tail block, for example the StewMac trapeze (5.1 in long, 50 mm string spread) | The flat at the tail is 56 mm (2.2 in) wide, so a standard 51 mm (2 in) mounting plate sits on it with about 2.5 mm to spare each side. Its screws go into the tail block (68 mm wide). See the break angle note below. |
 | Pickup | EMG 91 | Comes with its mounting bracket, screws, output cable and battery cable. Use EMG's bracket from the fingerboard extension; the strap bracket in the model is a stand-in. |
@@ -55,13 +74,13 @@ Standard sizes from a luthier supply. Finished part sizes are in the Parts table
 | 0.6 mm (0.023 in) end mill or a fret-slot saw | Fret slots |
 | 90° V-bit | Edge chamfer on the assembled body |
 
-Feeds and speeds depend on your machine; use the CAM program's defaults for hardwood (mahogany, maple, Richlite) and softwood (spruce) as a starting point. Run the grain lengthwise on the top and back, use compression or downcut end mills for profiles and a fresh ball-nose for the facets, and finish the spruce facets with a light 0.1–0.2 mm pass cutting with the grain where your CAM allows.
+Feeds and speeds depend on your machine; use the CAM program's defaults for hardwood (mahogany, maple, Richlite) and softwood (Port Orford cedar) as a starting point. Run the grain lengthwise on the top and back, use compression or downcut end mills for profiles and a fresh ball-nose for the facets, and finish the cedar facets with a light 0.1–0.2 mm pass cutting with the grain where your CAM allows.
 
 ## Parts
 
 | Part | Folder | Stock (L × W × T) | Setups | What gets cut |
 |---|---|---|---|---|
-| Top | `top/` | Bookmatched quartersawn Sitka spruce, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt. B (flipped): inside of the plate, ring beam, two tone bars, upper-bout cross bar, and the 4 × 8 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
+| Top | `top/` | Bookmatched quartersawn Port Orford cedar, 16 × 20 × 1-1/8 in | 2 | A: outside facets and flat skirt; the 25 mm crease blends in the valleys come from the ball-nose finishing pass (keep the stepover fine along them). B (flipped): inside of the plate, with the same blends under each ridge, ring beam, two tone bars, upper-bout cross bar, and the 4 × 8 mm lip around each soundhole (it joins the ring beam, so there's no slot too narrow for the 1/4 in cutter). Soundholes, the 6 mm pickup wire hole and the tenon notch at the neck end cut through. |
 | Back | `back/` | Bookmatched bigleaf maple, 16 × 20 × 1-1/8 in | 2 | Exported inside-up. A: inside (flat glue border, underside of the ridge). B: outside facets, ridge and flat border. All faces are planes, so a flat end mill with a fine stepover finishes them. |
 | Rim | `rim/` | Mahogany body blank, 21 × 14 × 1¾ in (standard) | 1 | Everything from the top face: pocket the recess inside the 8 mm wall down to the back's glue ledge (12 × 8 mm), cut through inside the ledge, cut the open-top neck mortise 26 mm deep, profile the outside. The top glues to the full 8 mm wall. Afterwards, rout the pot window and the BB-04 opening through the treble lower-bout wall from outside with `rim_control_face_template.dxf`, and drill the 12 mm jack hole in the treble tail facet (see `positions.json`). |
 | Neck | `neck/` | Glued-up neck blank (see Stock to buy), at least 26 × 3.5 × 3 in overall | 2 | Neck frame: X along the neck, Z0 at the fingerboard gluing plane. A: gluing plane (including the tongue under the fingerboard extension), truss rod channel, headstock face. B (flipped): back carve, heel, tongue underside, tenon, volute, headstock back. |
@@ -120,7 +139,7 @@ The top is graduated light: the plateau is 3.5 mm, the falls are 2.8 mm at the p
 - **Creases:** each fold between facets has a concave side, inside or out. Finish all the facets with the 1/4 in ball-nose and leave its 3 mm radius in those inside corners; don't sharpen them by hand. The convex ridges can stay crisp, with just a light sanding break so they don't chip. With that radius the creases carry no more stress than the open facets.
 - **Tap tuning (optional):** after machining and before gluing, hold the top at a node and tap the plateau. The main tap tone should sit between two semitones and away from the air resonance (about 127 Hz). If it lands right on a note you'd play a lot, take a few tenths of a millimetre off the tone bars by hand, which lowers it.
 - **Neck dead spots:** `neck_modes.py` checks the neck, fingerboard and headstock with the tuners on, held rigid at the body. The mode most likely to deaden a note is the second up-and-down bend, near 200 Hz with the current headstock: around G3–G#3, so open G or its 1st fret, the D string 5th–6th frets and the A string 10th–11th. In the real guitar it will land somewhat lower, so it can't be pinned to one note. If a note there sounds short once the guitar is strung up, try a small clamp-on mass on the headstock: a few grams moves the mode off the note. Lighter tuners raise it, heavier ones lower it. Carbon rods beside the truss rod were modelled and moved this mode by under 1%, so they're left out.
-- **Humidity:** like any solid spruce top, it cracks along the grain if it dries out. Keep it between 40 and 55% relative humidity. The faceted shape gives a little more room for seasonal movement than a flat top.
+- **Humidity:** like any solid softwood top, it cracks along the grain if it dries out. Keep it between 40 and 55% relative humidity. The faceted shape gives a little more room for seasonal movement than a flat top.
 
 ## Known limits
 

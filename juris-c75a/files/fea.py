@@ -1,5 +1,5 @@
 """Static FEA of the Juris C-75A top under string load.
-Quadratic tets (P2), orthotropic quartersawn spruce, top fixed where it is glued to the rim/linings.
+Quadratic tets (P2), orthotropic quartersawn Port Orford cedar (or spruce, FEA_WOOD=spruce), top fixed where it is glued to the rim/linings.
 Units: mm, N, MPa."""
 import json, math, sys, time
 import numpy as np, trimesh, tetgen
@@ -15,7 +15,12 @@ MESH = os.environ.get('FEA_MESH', 'out/top_fea.stl')
 TAG = os.environ.get('FEA_TAG', '')
 OUTJ = f'out/fea_{TAG}.json' if TAG else 'out/fea.json'
 NMODES = int(os.environ.get('FEA_MODES', '4'))
-RHO = 430e-12          # spruce, tonne/mm^3 (N, mm, s units)
+WOOD = os.environ.get('FEA_WOOD', 'poc')
+# Port Orford cedar vs Sitka (USDA Wood Handbook, dry): MOE 1.70 vs 1.57 Mpsi, SG 0.43 vs 0.40, MOR 12,700 vs 10,200 psi,
+# shear 1,370 vs 1,150 psi. Off-axis moduli keep spruce's ratios; cross-grain tension and rolling shear are not
+# published for POC, so those allowables stay at spruce's.
+KW = dict(spruce=1.0, poc=1.70 / 1.57)[WOOD]
+RHO = dict(spruce=430e-12, poc=430e-12 * 0.43 / 0.40)[WOOD]          # tonne/mm^3 (N, mm, s units)
 BRIDGE_G = 37.0        # base + top, carried on the feet
 
 # ---- load
@@ -26,17 +31,20 @@ a_neck = math.atan2(nut[2] - sad[2], nut[1] - sad[1])          # negative: strin
 F = TENSION_N * (math.sin(a_tail) + math.sin(-a_neck))
 
 # ---- mesh
-tm = trimesh.load(MESH)   # top without the soundhole lips: they only add stiffness, and tetgen can't mesh their joint
-tg = tetgen.TetGen(tm.vertices, tm.faces)
-_r = tg.tetrahedralize(order=1, mindihedral=12, minratio=float(os.environ.get('FEA_MINRATIO', '2.0')), maxvolume=MAXVOL); nodes, elems = _r[0], _r[1]
+if os.environ.get('FEA_TETS'):      # a ready tet mesh (gmsh, for tops tetgen can't recover, e.g. with crease blends)
+    _z = np.load(os.environ['FEA_TETS']); nodes, elems = _z['nodes'], _z['tets']
+else:
+    tm = trimesh.load(MESH)   # top without the soundhole lips: they only add stiffness, and tetgen can't mesh their joint
+    tg = tetgen.TetGen(tm.vertices, tm.faces)
+    _r = tg.tetrahedralize(order=1, mindihedral=12, minratio=float(os.environ.get('FEA_MINRATIO', '2.0')), maxvolume=MAXVOL); nodes, elems = _r[0], _r[1]
 m = MeshTet(nodes.T.copy(), elems.T.copy())
 e = ElementVector(ElementTetP2())
 ib = Basis(m, e, intorder=3)
 print(f'mesh: {m.nelements} tets, {ib.N} dofs', flush=True)
 
 # ---- quartersawn spruce: x = radial (across the width), y = longitudinal (grain), z = tangential (thickness)
-EL, ER, ET = 11000.0, 900.0, 500.0
-GLR, GLT, GRT = 700.0, 600.0, 35.0
+EL, ER, ET = 11000.0 * KW, 900.0 * KW, 500.0 * KW
+GLR, GLT, GRT = 700.0 * KW, 600.0 * KW, 35.0 * KW
 nLR, nLT, nRT = 0.37, 0.42, 0.47
 S = np.zeros((6, 6))
 S[0, 0], S[1, 1], S[2, 2] = 1 / ER, 1 / EL, 1 / ET
@@ -151,6 +159,8 @@ else:
     out['stress_MPa_max'] = {n: float(np.abs(sig[i]).max()) for i, n in enumerate(names)}
     # allowable (short-term, clear spruce, approx.)
     allow = dict(xx_cross=4.0, yy_grain=35.0, zz_thick=4.0, yz_LT=6.0, xz_RT=1.5, xy_LR=6.0)
+    if WOOD == 'poc': allow.update(yy_grain=35.0 * 12700 / 10200, yz_LT=6.0 * 1370 / 1150, xy_LR=6.0 * 1370 / 1150)
+    out['wood'] = WOOD
     out['safety_factor_p99'] = {n: allow[n] / max(out['stress_MPa_p99'][n], 1e-9) for n in names}
     # ---- stress at the fold lines (creases between facets) vs. away from them
     from shapely.geometry import LineString, MultiLineString

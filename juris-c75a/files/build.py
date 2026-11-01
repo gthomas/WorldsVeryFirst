@@ -23,7 +23,8 @@ P = dict(
     rim_h=44.45,             # 1-3/4" blank -> 50.85 (2.0") edge depth, the same as the C-75
     rim_wall=8.0,            # also the top's glue land
     lining_w=12.0, lining_h=8.0,   # integral glue ledges, routed in
-    # top (spruce): faceted arch
+    # top (Port Orford cedar): faceted arch
+    crease_r=25.0,           # radius blended into the inside (re-entrant side) of every top crease
     top_arch=11.0, plat_half_w=70.5,   # plateau fits the 135 mm Gretsch flat-bottom base (feet land on the ring beam)
     plat_tip=85.0, plat_tip_neck=70.0, plat_side=45.0,
     top_plateau_t=3.5, top_fall_t_at_plateau=2.8,   # lightened (study/run.py v4)
@@ -457,9 +458,90 @@ def build_collars(below_inner):
             sols.append(sol)
     return union(sols) ^ sheet
 
+# ---- crease radii: roll a ball of radius crease_r over each faceted surface and fill only the re-entrant side
+# of every fold (closing on the outer surface's valleys, opening on the inner surface's ridges). Convex sides stay
+# crisp: the exact faceted solid is kept wherever the ball doesn't add material.
+CREASE_H = 1.0
+def _hf_sample(man, X, Y):
+    """heights of the upward faces of a terrain solid on a grid"""
+    mh = man.to_mesh(); V = np.array(mh.vert_properties)[:, :3]; Fc = np.array(mh.tri_verts)
+    Z = np.full(X.shape, np.nan)
+    for f in Fc:
+        a, b, c = V[f]
+        n = np.cross(b - a, c - a)
+        if n[2] <= 1e-9: continue
+        x0, x1 = min(a[0], b[0], c[0]) - 1e-6, max(a[0], b[0], c[0]) + 1e-6
+        y0, y1 = min(a[1], b[1], c[1]) - 1e-6, max(a[1], b[1], c[1]) + 1e-6
+        m_ = (X >= x0) & (X <= x1) & (Y >= y0) & (Y <= y1)
+        if not m_.any(): continue
+        px, py = X[m_], Y[m_]
+        d = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+        l1 = ((b[1] - c[1]) * (px - c[0]) + (c[0] - b[0]) * (py - c[1])) / d
+        l2 = ((c[1] - a[1]) * (px - c[0]) + (a[0] - c[0]) * (py - c[1])) / d
+        l3 = 1 - l1 - l2
+        ins = (l1 >= -1e-9) & (l2 >= -1e-9) & (l3 >= -1e-9)
+        z = l1 * a[2] + l2 * b[2] + l3 * c[2]
+        cur = Z[m_]
+        cur[ins] = np.where(np.isnan(cur[ins]), z[ins], np.maximum(cur[ins], z[ins]))
+        Z[m_] = cur
+    return Z
+
+def _hf_solid(X, Y, Z, z_far):
+    """closed solid between a height grid and a flat cap at z_far"""
+    ny, nx = Z.shape; N = nx * ny
+    V = np.vstack([np.c_[X.ravel(), Y.ravel(), Z.ravel()], np.c_[X.ravel(), Y.ravel(), np.full(N, z_far)]])
+    idx = np.arange(N).reshape(ny, nx)
+    a, b, c, d = idx[:-1, :-1].ravel(), idx[:-1, 1:].ravel(), idx[1:, 1:].ravel(), idx[1:, :-1].ravel()
+    top = np.r_[np.c_[a, b, c], np.c_[a, c, d]]
+    bot = np.r_[np.c_[a, c, b], np.c_[a, d, c]] + N
+    ring = np.r_[idx[0, :], idx[1:, -1], idx[-1, -2::-1], idx[-2:0:-1, 0]]
+    r2 = np.roll(ring, -1)
+    side = np.r_[np.c_[ring, ring + N, r2], np.c_[r2, ring + N, r2 + N]]
+    Fc = np.r_[top, bot, side]
+    if z_far > Z.max(): Fc = Fc[:, ::-1]
+    man = mesh_manifold(V, Fc)
+    if man.volume() < 0 or man.is_empty():
+        man = mesh_manifold(V, Fc[:, ::-1])
+    return man
+
+def _crease_grid():
+    from shapely.geometry import Polygon as _P
+    x0, y0, x1, y1 = _P(ARCH).buffer(14.0).bounds
+    xs = np.arange(x0, x1 + CREASE_H, CREASE_H); ys = np.arange(y0, y1 + CREASE_H, CREASE_H)
+    return np.meshgrid(xs, ys)
+
+def _ball(R, slope_deg=28.0):
+    r = int(math.ceil((R * math.sin(math.radians(slope_deg)) + 1.0) / CREASE_H))
+    d = np.arange(-r, r + 1) * CREASE_H
+    D = np.hypot(*np.meshgrid(d, d))
+    fp = D <= r * CREASE_H
+    return fp, np.where(fp, np.sqrt(np.maximum(R * R - D * D, 0.0)) - R, 0.0)
+
+def round_creases(outer, inner, R, eps=0.02):
+    """outer: solid below the outer surface; inner: void below the inner surface. Returns both with every
+    re-entrant crease filled to radius R (adds wood only)."""
+    from scipy import ndimage as nd
+    X, Y = _crease_grid(); fp, st = _ball(R)
+    Zo = _hf_sample(outer, X, Y); Zi = _hf_sample(inner, X, Y)
+    Zo = np.where(np.isnan(Zo), np.nanmin(Zo), Zo); Zi = np.where(np.isnan(Zi), np.nanmin(Zi), Zi)   # outside the body: flat skirt level
+    Zc = nd.grey_erosion(nd.grey_dilation(Zo, footprint=fp, structure=st, mode='nearest'), footprint=fp, structure=st, mode='nearest')
+    Zp = nd.grey_dilation(nd.grey_erosion(Zi, footprint=fp, structure=st, mode='nearest'), footprint=fp, structure=st, mode='nearest')
+    if P.get('crease_pure'):        # grid surfaces throughout the blend zone (clean input for the FEA mesher)
+        rect = prism(np.array([(X.min(), Y.min()), (X.max(), Y.min()), (X.max(), Y.max()), (X.min(), Y.max())]), -BIG, BIG)
+        outer2 = (outer - rect) + _hf_solid(X, Y, Zc, -BIG).simplify(0.005)
+        inner2 = (inner - rect) + _hf_solid(X, Y, Zp, -BIG).simplify(0.005)
+    else:
+        outer2 = outer + _hf_solid(X, Y, Zc - eps, -BIG).simplify(0.005)
+        inner2 = inner - _hf_solid(X, Y, Zp + eps, BIG).simplify(0.005)
+    global CREASE_INFO
+    CREASE_INFO = dict(radius_mm=R, outer_added_max_mm=float(np.nanmax(Zc - Zo)), inner_added_max_mm=float(np.nanmax(Zi - Zp)))
+    return outer2, inner2
+CREASE_INFO = {}
+
 def build_top(chamfer=True):
     below_outer = terrain_below(TOP_TRIS, TOP_HEX, Z_EDGE, Z_PLAT, Z_PLAT, Z_EDGE)
     below_inner = terrain_below(TOP_TRIS, TOP_HEX, Z_RIM_TOP, FALL_IN_AT_PLAT, Z_PLAT_IN, Z_RIM_TOP)
+    if P.get('crease_r'): below_outer, below_inner = round_creases(below_outer, below_inner, P['crease_r'])
     shell = (BODY_PRISM ^ below_outer) - below_inner
     shell = shell ^ prism(OUTL, Z_RIM_TOP - 0.001, BIG)
     beam_in = open_poly(offset_polygon(ccw(TOP_HEX), P['beam_w']))
@@ -1201,6 +1283,8 @@ def to_trimesh(man):
     if t.body_count > 1:            # drop zero-volume slivers that coplanar CSG faces leave behind
         parts = [p for p in t.split(only_watertight=False) if abs(p.volume) > 5.0]
         if parts: t = trimesh.util.concatenate(parts) if len(parts) > 1 else parts[0]
+    if not t.is_watertight:          # needle triangles from the crease blends: weld and collapse them
+        import meshfix; t = meshfix.clean(t)
     return t
 
 def main():
@@ -1250,7 +1334,8 @@ def main():
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
-    DENS = dict(gold=8400, brass=8500, spruce=430, spruce_black=430, spruce_back=430, maple=550, mahogany=590, ebony=1150, richlite=1400, bone=1900, nickel=8400, steel=7850, black=1400)
+    DENS = dict(gold=8400, brass=8500, spruce=462, spruce_black=462,   # top: Port Orford cedar (SG 0.43 vs Sitka 0.40)
+                 spruce_back=430, maple=550, mahogany=590, ebony=1150, richlite=1400, bone=1900, nickel=8400, steel=7850, black=1400)
 
     scene = trimesh.Scene()
     vols = {}

@@ -17,8 +17,8 @@ PIN_D = 6.35         # 1/4" registration pins
 SKIP_STEP = '--no-step' in sys.argv
 
 
-def tm_of(man):
-    mh = man.simplify(0.005).to_mesh()
+def tm_of(man, tol=0.005):
+    mh = man.simplify(tol).to_mesh()
     tm = trimesh.Trimesh(np.array(mh.vert_properties)[:, :3].astype(float), np.array(mh.tri_verts), process=True)
     if tm.body_count > 1:                       # drop zero-volume slivers left by coplanar CSG faces
         parts = [p for p in tm.split(only_watertight=False) if abs(p.volume) > 5.0]
@@ -191,7 +191,7 @@ def main():
     report = {}
     for name, (man, T, z0, two, note) in parts.items():
         d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True)
-        tm = tm_of(man)
+        tm = tm_of(man, 0.02 if name == 'top' else 0.005)     # the top's crease blends: 0.02 mm keeps the face count sane
         tm, off = place(tm, T, z0)
         tm.export(os.path.join(d, f'{name}.stl'))
         if not SKIP_STEP:
