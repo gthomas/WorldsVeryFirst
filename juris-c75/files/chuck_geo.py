@@ -70,6 +70,14 @@ def _smooth_treble_tail():
         arr[m] = arr[np.searchsorted(_SS, sc)] * (_SS[m] - st) / (sc - st)
 _smooth_treble_tail()
 
+# The jack: Chuck eases the bevels around it so the Electrosocket plate can sit flat. Here the bevels keep their full
+# depth past the jack (the plate sits on the side band), so the bevels run unbroken.
+def _full_drop_at_jack():
+    sj = RING.project(Point(_D['jack'][0])); m = np.abs(((_SS - sj + L / 2) % L) - L / 2) < 30
+    DROP_TOP[m] = 15.875; DROP_BACK[m] = 15.875
+_full_drop_at_jack()
+SPOT_R = 15.2                                       # spot face for the 1-1/8" Electrosocket plate
+
 CHAMBER = np.asarray(_D['chamber'], float)
 ROUTE_NECK = np.asarray(_D['route_neck'], float); ROUTE_BRIDGE = np.asarray(_D['route_bridge'], float)
 COVER = np.asarray(_D['cover'], float)
@@ -162,6 +170,13 @@ class Body:
         body = B.prism(self.OUTL, 0.0, self.T) - self.bevel(self.T, +1) - self.bevel(0.0, -1)
         if round_r > 0: body = body - self.roundover(self.T, +1, round_r) - self.roundover(0.0, -1, round_r)
         return body
+    def spot_face(self):
+        """round flat for the jack plate, square to the side wall at the jack"""
+        j = np.array(_D['jack'][0], float); j = self.shift(np.array([j]))[0] if hasattr(self, 'shift') else j
+        n = np.asarray(_D['jack_n'], float); n = n / np.linalg.norm(n)
+        ang = math.degrees(math.atan2(n[1], n[0]))
+        cyl = m3.Manifold.cylinder(40.0, SPOT_R, SPOT_R, 96).rotate([0, 90, 0]).rotate([0, 0, ang])
+        return cyl.translate([j[0] - n[0] * 0.05, j[1] - n[1] * 0.05, self.T / 2])
 
 W_TOP = np.array([TOP_FLAT.exterior.distance(RING.interpolate(s)) for s in _SS])
 W_BACK = np.array([BACK_FLAT.exterior.distance(RING.interpolate(s)) for s in _SS])
