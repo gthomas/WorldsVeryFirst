@@ -48,8 +48,14 @@ def _fill(a):
 _SS = np.asarray(_D['ss'], float)
 DROP_TOP = np.clip(_fill(-np.asarray(_D['zt'])), 0, 15.875)
 DROP_BACK = np.clip(_fill(np.asarray(_D['zb']) + T), 0, 15.875)
+_JF = {}
 def drop(s, side, jack_flat=False):
-    a = (DROP_TOP_CHUCK_JACK if side > 0 else DROP_BACK_CHUCK_JACK) if jack_flat else (DROP_TOP if side > 0 else DROP_BACK)
+    """edge drop at outline position s; jack_flat = the body thickness when the bevels ease around a cup jack"""
+    if jack_flat:
+        if jack_flat not in _JF: _JF[jack_flat] = (_jack_flat(DROP_TOP, T_body=jack_flat), _jack_flat(DROP_BACK, T_body=jack_flat))
+        a = _JF[jack_flat][0 if side > 0 else 1]
+    else:
+        a = DROP_TOP if side > 0 else DROP_BACK
     return float(np.interp(s % L, _SS, a))
 
 # Smooth tail (Grant): Chuck's treble bevel stops dead at the tail corner in a small vertical end face. Here it tapers
@@ -86,7 +92,7 @@ def _smooth_transitions(a, win=15):
     return out
 DROP_TOP = _smooth_transitions(DROP_TOP); DROP_BACK = _smooth_transitions(DROP_BACK)
 # The T's Tele cup jack (22.2 mm cup) needs a flat: ease both bevels around the jack so the side band there is 26 mm
-# tall, holding that over the cup and blending back to full depth with a smooth ramp either side.
+# tall (on the 2" body that's only about 3.4 mm of easing per bevel), holding that over the cup and blending back to full depth with a smooth ramp either side.
 def _jack_flat(a, band=26.0, T_body=44.45, hold=14.0, ramp=32.0):
     sj = RING.project(Point(_D['jack'][0])); ds = np.abs(((_SS - sj + L / 2) % L) - L / 2)
     t = np.clip((ds - hold) / ramp, 0, 1); bump = 0.5 * (1 + np.cos(np.pi * t))
@@ -97,7 +103,6 @@ def _full_drop_at_jack():
     sj = RING.project(Point(_D['jack'][0])); m = np.abs(((_SS - sj + L / 2) % L) - L / 2) < 30
     DROP_TOP[m] = 15.875; DROP_BACK[m] = 15.875
 _full_drop_at_jack()
-DROP_TOP_CHUCK_JACK, DROP_BACK_CHUCK_JACK = _jack_flat(DROP_TOP), _jack_flat(DROP_BACK)
 SPOT_R = 15.2                                       # spot face for the 1-1/8" Electrosocket plate
 
 CHAMBER = np.asarray(_D['chamber'], float)
@@ -232,5 +237,5 @@ def widened(dx=7.5, T_body=44.45):
     P = np.array(o.exterior.coords)[:-1]
     if not LinearRing(P).is_ccw: P = P[::-1]
     sr = lambda Rr: np.c_[f(Rr[:, :2]), f(Rr[:, 2:])]
-    b = Body(P, top, back, T_body, rul_top=sr(RUL_TOP), rul_back=sr(RUL_BACK), jack_flat=True); b.shift = f
+    b = Body(P, top, back, T_body, rul_top=sr(RUL_TOP), rul_back=sr(RUL_BACK), jack_flat=T_body); b.shift = f
     return b

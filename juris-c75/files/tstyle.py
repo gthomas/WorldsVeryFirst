@@ -14,7 +14,7 @@ IN = 25.4
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out_t'); os.makedirs(OUT, exist_ok=True)
 
 P = dict(
-    T=44.45,                 # body thickness, 1-3/4"
+    T=50.8,                  # body thickness, 2" (the same as the C-75: a 3/4" side band, so the cup jack needs only a slight ease)
     bevel_drop=15.875,       # Chuck's C-75 bevels: 5/8" from the flat to the edge, top and back
     scale=647.7,             # 25.5"
     comp=2.5,                # average saddle compensation
