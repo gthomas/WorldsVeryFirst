@@ -994,25 +994,55 @@ def build_bridge():
     top = top ^ m3.Manifold.cylinder(200, R_, R_, 720).rotate([90, 0, 0]).translate([0, y0 + 100, SADDLE[2] - R_])
     return union([base, wheels, posts, top]), h
 
-TAIL_ANCHOR_Y = 50.0
+# WD Music T120 trapeze (replacement for the Gibson ES-125 / ES-330 / L-50; nickel T120N, chrome T120C): hinge plate
+# 2 x 1-1/2" (50.8 x 38.1 mm) on the tail face with two screws 1-25/64" apart near the top and a third, bottom-centre
+# hole 11/32" up (the strap button goes through it); upper hinge leaf 1-1/8 x 1-25/64"; frame 4-5/8" long without
+# the hinge; stamped bar 3-19/64" wide x 47/64" deep, strings 1-61/64" apart at the bar.
+TP = dict(plate=(50.8, 38.1, 1.6), screws_x=35.3 / 2, screw_up=8.0, bottom_hole=8.7, leaf=(35.3, 28.6), length=117.5,
+          bar=(83.7, 18.7), spread=49.6)
+TP_PLATE_TOP = Z_EDGE - P['chamfer'] - 0.8                       # plate sits on the flat of the tail face, under the chamfer
+TP_PLATE_BOT = TP_PLATE_TOP - TP['plate'][1]
+STRAP_Z = TP_PLATE_BOT + TP['bottom_hole']
+
 def build_tailpiece():
-    # hinge on the tail face, strap over the edge, trapeze plate to the string anchor bar
-    zt = top_height_at(0, TAIL_ANCHOR_Y)
-    anchor = np.array([0, TAIL_ANCHOR_Y, zt + 4.5])
-    hinge = hull([(sx * 25.5, y, z) for sx in (-1, 1) for y in (-3.0, -1.0) for z in (Z_BACK_IN + 10, Z_BACK_IN + 46)])   # standard 51 mm plate
-    strap = hull([(sx * 11, y, z) for sx in (-1, 1) for y in (-7.0, -1.5) for z in (Z_BACK_IN + 30, Z_EDGE + 7.5)])
-    strap = strap + hull([(sx * 11, y, z) for sx in (-1, 1) for y in (-7.0, 7.0) for z in (Z_EDGE + 4.8, Z_EDGE + 7.5)])
-    p0 = np.array([0, 6.0, Z_EDGE + 6.0])
-    arms = []
+    W, H, T = TP['plate']
+    plate = hull([(sx * (W / 2 - r), -0.05 - T * k, z) for sx in (-1, 1) for k in (0, 1) for r in (0, 2.5)
+                  for z in ((TP_PLATE_BOT + 2.5 - (r == 0) * 2.5, TP_PLATE_TOP - 2.5 + (r == 0) * 2.5))])
+    plate = plate + hull([(sx * (W / 2 - 4), -0.05 - T * k, z) for sx in (-1, 1) for k in (0, 1) for z in (TP_PLATE_TOP - 3, Z_EDGE + 0.6)])   # tab up to the knuckle
+    for sx in (-1, 1):                                                # screw heads
+        plate = plate + m3.Manifold.cylinder(1.4, 3.2, 2.6, 20).rotate([90, 0, 0]).translate([sx * TP['screws_x'], -T, TP_PLATE_TOP - TP['screw_up']])
+    kz = Z_EDGE + 0.9; ky = -T - 2.6                                   # hinge knuckle rolled from the top of the plate, at the tail's top corner
+    knuckle = m3.Manifold.cylinder(W - 8, 2.6, 2.6, 24).rotate([0, 90, 0]).translate([-(W - 8) / 2, ky, kz])
+    # upper leaf: rises over the tail edge from the knuckle at the angle of the frame
+    BW, BD = TP['bar']
+    yb_far = ky + TP['length']                                       # far edge of the bar
+    yb = yb_far - BD / 2
+    xs = np.linspace(-40, 40, 9); ys = np.linspace(yb - BD / 2 - 2, yb_far + 2, 6)
+    zbar0 = max(top_height_at(x, y) for x in xs for y in ys) + 3.0     # bar clears the plateau by 3 mm
+    zbar1 = zbar0 + 8.0
+    LW, LL = TP['leaf']
+    d = np.array([0, yb - BD / 2 - ky, zbar0 + 2.0 - kz]); d /= np.linalg.norm(d)
+    leaf_end = np.array([0, ky, kz]) + d * LL
+    leaf = hull([(sx * LW / 2, ky + dy, kz + dz) for sx in (-1, 1) for dy, dz in ((0, -1.0), (0, 1.0))] +
+                [(sx * LW / 2, leaf_end[1], leaf_end[2] + dz) for sx in (-1, 1) for dz in (-1.0, 1.0)])
+    # two stamped legs from the leaf to the ends of the bar, and a cross brace
+    legs = []
     for sx in (-1, 1):
-        a = [(sx * 9, p0[1], p0[2]), (sx * 14, p0[1], p0[2]), (sx * 30, anchor[1], anchor[2]), (sx * 36, anchor[1], anchor[2])]
-        arms.append(hull([(x, y, z + dz) for x, y, z in a for dz in (-1.5, 1.5)]))
-    bar = hull([(sx * 37, anchor[1] + dy, anchor[2] + dz) for sx in (-1, 1) for dy in (-2, 10) for dz in (-2.5, 2.5)])
-    # diamond badge in the middle of the trapeze
-    mid = (p0 + anchor) / 2
-    dia = hull([(0, mid[1] - 18, mid[2]), (0, mid[1] + 18, mid[2] + 3), (9, mid[1], mid[2] + 1.5), (-9, mid[1], mid[2] + 1.5)]
-               + [(0, mid[1] - 18, mid[2] + 2.4), (0, mid[1] + 18, mid[2] + 5.4)])
-    return union([hinge, strap] + arms + [bar, dia]), anchor
+        p = np.array([sx * (LW / 2 - 3), leaf_end[1], leaf_end[2]]); q = np.array([sx * (BW / 2 - 6), yb, zbar0 + 3.0])
+        legs.append(hull([tuple(v + np.array([ox, 0, oz])) for v in (p, q) for ox in (-3.0, 3.0) for oz in (-0.9, 0.9)]))
+    t = 0.55; m0 = np.array([0, leaf_end[1] + (yb - leaf_end[1]) * t, leaf_end[2] + (zbar0 + 3 - leaf_end[2]) * t])
+    half = (LW / 2 - 3) + ((BW / 2 - 6) - (LW / 2 - 3)) * t
+    brace = hull([(sx * half, m0[1] + dy, m0[2] + dz) for sx in (-1, 1) for dy in (-3, 3) for dz in (-0.9, 0.9)])
+    # stamped bar: rolled front lip, strings through six holes in its back face (ball ends behind)
+    bar = hull([(sx * (BW / 2 - r), yb + sy * (BD / 2 - r), z) for sx in (-1, 1) for sy in (-1, 1) for r in (0, 3.0)
+                for z in ((zbar0 + 1.5, zbar1 - 1.5) if r == 0 else (zbar0, zbar1))])
+    bar = bar - hull([(sx * (BW / 2 - 3), yb + sy * (BD / 2 - 3), z) for sx in (-1, 1) for sy in (-1, 1) for z in (zbar0 - 1, zbar1 - 2.0)])
+    holes = union([m3.Manifold.cylinder(BD + 4, 1.2, 1.2, 12).rotate([90, 0, 0]).translate([x, yb + BD / 2 + 2, zbar1 - 3.2])
+                   for x in np.linspace(-TP['spread'] / 2, TP['spread'] / 2, 6)])
+    bar = bar - holes
+    anchor = np.array([0, yb + BD / 2 - 4.0, zbar1 - 3.2 - 2.6])      # build_strings adds (+4, +2.6): the string leaves the bar front
+    return union([plate, knuckle, leaf, brace, bar] + legs), anchor
+TAIL_ANCHOR_Y = None
 
 def rrect(w, l, r, n=6):
     pts = []
@@ -1254,7 +1284,7 @@ def build_strings(anchor):
     gauges = [0.56, 0.45, 0.36, 0.30, 0.22, 0.165]   # radius-ish (13s flatwound, scaled)
     out, lines = [], []
     for i in range(6):
-        a = np.array([xs_b[i] * 0.86, anchor[1] + 4, anchor[2] + 2.6])
+        a = np.array([xs_b[i] * TP['spread'] / 52.4, anchor[1] + 4, anchor[2] + 2.6])
         s = np.array([xs_b[i], SADDLE[1], SADDLE[2]])
         nut = np.array([xs_n[i], NUT_PT[1], NUT_PT[2]])
         side = -1 if i < 3 else 1
@@ -1271,7 +1301,7 @@ def sphere_pts(r):
             for a in np.linspace(0, math.pi, 4) for b in np.linspace(0, 2 * math.pi, 6)[:-1]]
 
 def build_strap_buttons():
-    b1 = m3.Manifold.cylinder(12, 5.0, 5.0, 24).rotate([90, 0, 0]).translate([0, -1, Z_BACK_IN + 8])
+    b1 = m3.Manifold.cylinder(12, 5.0, 5.0, 24).rotate([90, 0, 0]).translate([0, -1 - TP['plate'][2], STRAP_Z])   # through the trapeze plate's bottom hole
     hn = SHARP[names.index('bHorn')]
     return b1
 
