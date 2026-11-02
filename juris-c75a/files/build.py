@@ -39,7 +39,7 @@ P = dict(
     chamfer=3.5,
     # neck
     fb_above_edge=15.0,      # fingerboard top (centre) above top edge at the joint
-    nut_w=42.86, fb_end_w=56.4, fb_radius=304.8, fb_t=7.3, fret_h=1.4, frets=22,
+    nut_w=42.86, fb_end_w=56.4, fb_radius=304.8, fb_t=7.3, fret_h=1.4, frets=22,   # Dunlop 6105: 0.090 x 0.055 in
     neck_d1=21.8, neck_d12=24.4,  # '59 roundback total depth incl. fingerboard
     action12=2.0,
     pickup=dict(string_gap=4.0),
