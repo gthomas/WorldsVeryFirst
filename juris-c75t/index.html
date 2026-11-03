@@ -215,12 +215,20 @@ document.querySelectorAll('[data-u]').forEach(b => b.addEventListener('click', (
 
 // ---------- three
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({canvas, antialias:true, preserveDrawingBuffer:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+// Safari (WebKit) drops the WebGL context when a page keeps the GPU busy or holds too much memory, and the model
+// vanishes. So: draw only when something changes, keep the shadow map out of the per-frame work, use a lighter
+// setup on WebKit, and rebuild if the context is lost anyway.
+const IS_WEBKIT = /^((?!chrome|chromium|crios|android|edg).)*safari/i.test(navigator.userAgent);
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, IS_WEBKIT ? 1.5 : 2));
+let frames = 120;                                         // frames still to draw; 0 = idle
+const wake = (n = 30, shadows = true) => { frames = Math.max(frames, n); if (shadows) renderer.shadowMap.needsUpdate = true; };
+canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); frames = 0; }, false);
+canvas.addEventListener('webglcontextrestored', () => location.reload(), false);
 renderer.localClippingEnabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
 // photo-studio environment: soft grey sweep, one big overhead softbox, two long strip lights and a warm fill card,
@@ -248,7 +256,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
 const key = new THREE.DirectionalLight(0xfff4e6, 1.5); key.position.set(250, 1400, 350); key.target.position.set(470, 0, 0);
-key.castShadow = true; key.shadow.mapSize.set(4096, 4096); key.shadow.radius = 7; key.shadow.blurSamples = 20;
+key.castShadow = true; key.shadow.mapSize.set(IS_WEBKIT ? 2048 : 4096, IS_WEBKIT ? 2048 : 4096); key.shadow.radius = 7; key.shadow.blurSamples = 20;
 key.shadow.bias = -0.00025; key.shadow.normalBias = 0.6;
 Object.assign(key.shadow.camera, {left:-760, right:760, top:400, bottom:-400, near:200, far:2600}); key.shadow.camera.updateProjectionMatrix();
 scene.add(key, key.target);
@@ -425,7 +433,7 @@ new GLTFLoader().parse(glbBytes, '', gltf => {
     parts[name] = {mesh, edges, group: meta.group, explode: new THREE.Vector3(...meta.explode), mat};
   }
   { const bb = new THREE.Box3().setFromObject(root); floor.position.y = bb.min.y - 0.5; }
-  buildPartToggles(); applyTheme(); setFinish(finish); setPickup('emg'); setView('persp', false);
+  buildPartToggles(); applyTheme(); setFinish(finish); setPickup('emg'); setView('persp', false); wake(120);
   document.getElementById('status').textContent = 'Model: ' + Object.keys(parts).length + ' parts, mm';
 }, err => { document.getElementById('status').textContent = 'The model file did not load. Reload the page to try again.'; console.error(err); });
 
@@ -593,15 +601,22 @@ function resize(){
 }
 new ResizeObserver(resize).observe(canvas.parentElement); resize();
 
+controls.addEventListener('change', () => wake(2, false));          // orbiting: the shadows don't move
+['input', 'change', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => wake(45), true));
+new ResizeObserver(() => wake(10)).observe(canvas.parentElement);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(30); });
 renderer.setAnimationLoop(() => {
   if (tween){
+    frames = Math.max(frames, 2);
     tween.t = Math.min(1, tween.t + 0.045); const k = 1 - Math.pow(1 - tween.t, 3);
     camera.position.lerpVectors(tween.from.pos, tween.to.pos, k);
     controls.target.lerpVectors(tween.from.tgt, tween.to.tgt, k);
     if (tween.t >= 1) tween = null;
     controls.enableDamping = !tween;
   }
-  controls.update();
+  if (controls.update()) frames = Math.max(frames, 2);              // damping still settling
+  if (frames <= 0) return;
+  frames--;
   floor.visible = camera.position.y > floor.position.y + 20;
   renderer.render(scene, camera);
 });
