@@ -260,6 +260,14 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
   .keydata > div:nth-child(n+5){border-top:1px solid var(--rule)}
   .plate{max-width:220px}
 }
+
+table.bom{width:100%;border-collapse:collapse;font-size:14px;line-height:19px}
+table.bom th{font-family:var(--f-letter);font-weight:600;font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:0 10px 6px 0;border-bottom:1px solid var(--ink)}
+table.bom td{padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+table.bom td:first-child{font-family:var(--f-data);font-size:12px;width:52px;color:var(--ink-2);white-space:nowrap}
+table.bom td:nth-child(2){font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;width:118px}
+table.bom td:last-child{padding-right:0}
+@media (max-width:860px){table.bom td:nth-child(2){width:96px}}
 </style>
 </head>
 <body>
@@ -296,7 +304,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 cover-r">
         <div>
           <div class="label">Abstract</div>
-          <p>A stringed electric instrument having a chambered mahogany body of geometric outline, the top and back bevelled such that the maple cap appears as a line, a mahogany neck set at 4°, and two pickups carried on a solid centre block. The disclosure relates generally to music, and specifically to this.</p>
+          <p>An electric stringed instrument. Chambered mahogany body, bevelled so that the maple cap shows as a line; mahogany neck set at 4°; two pickups on a solid centre block. The disclosure relates generally to music, and specifically to this.</p>
+        </div>
+        <div>
+          <div class="label">Bill of materials</div>
+          <table class="bom"><thead><tr><th>Item</th><th>Part</th><th>Specification</th></tr></thead><tbody><tr><td>20</td><td>Body</td><td>Mahogany, chambered. 2.0 deep on outline C-75.</td></tr><tr><td>12</td><td>Cap</td><td>Maple, 0.2. Walnut stain.</td></tr><tr><td>—</td><td>Neck</td><td>Mahogany, set at 4°. ’59 roundback.</td></tr><tr><td>—</td><td>Fingerboard</td><td>Ebony, 12 radius.</td></tr><tr><td>—</td><td>Frets</td><td>22, nickel silver.</td></tr><tr><td>—</td><td>Scale</td><td>24.75.</td></tr><tr><td>26, 28</td><td>Pickups</td><td>TV Jones T-Armond (2). Wood-mounted, no ears.</td></tr><tr><td>30</td><td>Bridge</td><td>Brass Compton, one-piece, compensated. Brass thumbwheels, rosewood base.</td></tr><tr><td>36</td><td>Tailpiece</td><td>Allparts short trapeze.</td></tr><tr><td>40–46</td><td>Controls</td><td>Volume, tone, three-way tone switch, pickup selector. Amber speck ribbed knobs.</td></tr><tr><td>48</td><td>Jack</td><td>Electrosocket.</td></tr><tr><td>52</td><td>Tuners</td><td>Grover Deluxe 133N.</td></tr><tr><td>54</td><td>Truss rod cover</td><td>Rosewood.</td></tr><tr><td>—</td><td>Finish</td><td>Shellac, then oil and wax, rubbed by hand. Solid colours in milk paint beneath.</td></tr></tbody></table>
         </div>
         <table class="revs">
           <thead><tr><th>Rev</th><th>Description</th></tr></thead>
@@ -310,7 +322,7 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s1"><div class="lab">Lower bout</div><b>13.49<em>in</em></b></div>
       <div class="s1"><div class="lab">Depth</div><b>2.0<em>in</em></b></div>
       <div class="s1"><div class="lab">Neck angle</div><b>4.0<em>deg</em></b></div>
-      <div class="s1"><div class="lab">Frets</div><b>22<em>gold</em></b></div>
+      <div class="s1"><div class="lab">Frets</div><b>22</b></div>
       <div class="s1"><div class="lab">Mass, calc.</div><b>6.55<em>lb</em></b></div>
       <div class="s1"><div class="lab">Units</div><b>5<em>FY</em></b></div>
     </div>
@@ -322,12 +334,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s3">
         <div class="label">General notes</div>
         <ol class="num" style="font-size:14.5px;line-height:21px">
-          <li>Dimensions are in inches; angles are in degrees.</li>
-          <li>DO NOT SCALE DRAWING.</li>
-          <li>Mass is calculated from the 27-part model and excludes the OPERATOR.</li>
-          <li>Frets are numbered from the nut. Fractional values (e.g. 15.9) are positions, not frets.</li>
-          <li>Binding is by removal of material. No binding has been added. See Claim 5.</li>
-          <li>Left and right are as viewed by the OPERATOR; bass and treble as heard.</li>
+          <li>Dimensions in inches; angles in degrees. DO NOT SCALE DRAWING.</li>
+          <li>Mass is calculated from the 27-part model. It excludes the OPERATOR.</li>
+          <li>Frets are numbered from the nut. 15.9 is a position, not a fret.</li>
+          <li>Binding is by removal of material. Nothing has been added. See Claim 3.</li>
+          <li>Left and right as viewed by the OPERATOR. Bass and treble as heard.</li>
           <li>This set supersedes no previous set.</li>
         </ol>
       </div>
@@ -335,12 +346,12 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
         <div class="label">Defined terms</div>
         <dl class="terms">
           <dt>Instrument</dt><dd>The article shown in FIGS. 1–8, and in FIG. 0 where they agree.</dd>
-          <dt>Operator</dt><dd>The person by whom the INSTRUMENT is operated. Not supplied.</dd>
-          <dt>Music</dt><dd>Output of the INSTRUMENT under operation. Unit of measure: under review.</dd>
-          <dt>Practice</dt><dd>(1) The exercise of a profession. (2) Repetition of a passage on the INSTRUMENT. Both are recorded in hours. One has a billing code.</dd>
-          <dt>Billable hour</dt><dd>An hour to which a billing code can be assigned.</dd>
-          <dt>Non-billable hour</dt><dd>An hour spent operating the INSTRUMENT. No code exists. No rate has been assigned.</dd>
-          <dt>Correspondence</dt><dd>Is answered by a person.</dd>
+          <dt>Operator</dt><dd>The person operating the INSTRUMENT. Not supplied.</dd>
+          <dt>Music</dt><dd>Output of the INSTRUMENT in operation. Unit of measure: under review.</dd>
+          <dt>Practice</dt><dd>(1) The exercise of a profession. (2) Repetition of a passage on the INSTRUMENT. Both are logged in hours. One is billed.</dd>
+          <dt>Billable hour</dt><dd>An hour with a billing code.</dd>
+          <dt>Non-billable hour</dt><dd>An hour of operation. No code exists.</dd>
+          <dt>Correspondence</dt><dd>Answered by a person.</dd>
         </dl>
       </div>
       <div class="s2">
@@ -420,18 +431,15 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
         <div class="flow">
           <p style="font-style:italic">What is claimed is:</p>
           <ol class="claims">
-            <li><span>A stringed instrument, comprising: a chambered body (20) of mahogany having a geometric outline and a maple cap; a mahogany neck set into said body at an angle of 4°; two pickups (26, 28); a bridge (30); and a trapeze tailpiece (36).</span></li>
-            <li><span>The instrument of claim 1, wherein the top and back are bevelled (10) such that the cap appears in edge view as a line (12).</span></li>
-            <li><span>The instrument of claim 1, having a scale length of 24.75 (628.65 mm) on an ebony fingerboard of 12 radius carrying twenty-two (22) gold frets, the neck having a ’59 roundback profile.</span></li>
-            <li><span>The instrument of claim 1, wherein the body has a lower bout of 13.49 (342.6 mm) and a depth of 2.0 (50.8 mm).</span></li>
-            <li><span>The instrument of claim 2, having binding along the edge of the cap, said binding being provided by the removal of material, and claimed accordingly.</span></li>
-            <li><span>The instrument of claim 1, wherein the pickups (26, 28) are TV Jones T-Armonds, wood-mounted without ears on black base plates, and carried on a solid centre block (24).</span></li>
-            <li><span>The instrument of claim 6, wherein the bridge (30) is a brass Compton, one-piece and compensated, on brass thumbwheels (32) over a rosewood base (34).</span></li>
-            <li><span>The instrument of claim 1, having volume (40) and tone (42) controls with ribbed amber-speck knobs, and a three-way tone switch (44).</span></li>
-            <li><span>The instrument of claim 8, having a full-size selector (46) on the bass horn with a skirted dress nut, and an output jack (48) of the Electrosocket type.</span></li>
-            <li><span>The instrument of claim 1, having a headstock at 11.2° carrying six Grover Deluxe 133N tuners (52), three per side, and a rosewood truss rod cover (54).</span></li>
-            <li><span>The instrument of claim 10, having an asset tag (56) riveted thereto, whereby the instrument may be inventoried.</span></li>
-            <li><span>The instrument of claim 1, finished in shellac followed by oil and wax, rubbed by hand, wherein no lacquer is present, the absence being deliberate.</span></li>
+            <li><span>A stringed instrument comprising a chambered mahogany body (20) with a maple cap, a mahogany neck set at 4°, two pickups (26, 28), a bridge (30) and a trapeze tailpiece (36).</span></li>
+            <li><span>The instrument of claim 1, the top and back bevelled (10) such that the cap shows in edge view as a line (12).</span></li>
+            <li><span>The instrument of claim 2, said line constituting binding obtained by the removal of material, and claimed accordingly.</span></li>
+            <li><span>The instrument of claim 1, the pickups and bridge carried on a solid centre block (24).</span></li>
+            <li><span>The instrument of claim 1, having a scale of 24.75 on an ebony fingerboard of 12 radius with twenty-two (22) nickel-silver frets.</span></li>
+            <li><span>The instrument of claim 1, having volume (40) and tone (42) controls, a three-way tone switch (44), a pickup selector (46) on the bass horn, and an output jack (48).</span></li>
+            <li><span>The instrument of claim 1, having a headstock at 11.2° carrying six tuners (52) and a riveted asset tag (56), whereby the instrument may be inventoried.</span></li>
+            <li><span>The instrument of claim 1, finished by hand in shellac and in oil and wax, no lacquer being present, the absence being deliberate.</span></li>
+            <li><span>The instrument of claim 1, having a calculated mass of 6.55 lb, subject to verification by scale.</span></li>
           </ol>
         </div>
       </div>
@@ -453,11 +461,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 flow">
         <div class="notice">The INSTRUMENT is to be operated by hand. Other methods of operation have not been evaluated.</div>
         <ol class="num">
-          <li>The INSTRUMENT is intended for use outside BILLABLE HOURS.</li>
-          <li>Do not apply lacquer. See Claim 12.</li>
+          <li>For use outside BILLABLE HOURS.</li>
+          <li>Do not apply lacquer. See Claim 8.</li>
           <li>The selector (46) is on the bass horn. OPERATORS accustomed to other locations shall allow for this.</li>
           <li>The asset tag (56) is riveted. It shall not be removed for any reason, including ownership.</li>
-          <li>Hours of operation shall be recorded as NON-BILLABLE. Entries received to date do not reconcile. An internal review is ongoing.</li>
+          <li>Hours of operation are recorded as NON-BILLABLE. Entries do not reconcile. A review is ongoing.</li>
         </ol>
         <div class="caution" role="note"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 19 16.5H1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 7v4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="13.6" r="1" fill="currentColor"/></svg><div><b>Caution</b><p>Chamber (20). The chamber contains no user-serviceable air.</p></div></div>
       </div>
@@ -485,11 +493,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
     <div class="g8">
       <div class="s5 flow">
         <ol class="num">
-          <li>The body is machined and chambered (20) to drawing.</li>
-          <li>The neck is set at 4° and glued.</li>
-          <li>Shellac is applied, then oil and wax, rubbed by hand. Solid colours are milk paint beneath the oil and wax. No lacquer is applied.</li>
-          <li>Hardware is fitted per Sheet 2.</li>
-          <li>The asset tag (56) is riveted. The serial is entered in the ledger and committed to a version-controlled record. The record cannot be amended without a record of the amendment.</li>
+          <li>Body machined and chambered (20) to drawing.</li>
+          <li>Neck set at 4° and glued.</li>
+          <li>Shellac, then oil and wax, rubbed by hand. Solid colours in milk paint beneath. No lacquer.</li>
+          <li>Hardware fitted per Sheet 2.</li>
+          <li>Asset tag (56) riveted. Serial entered in the ledger, a version-controlled record. The record cannot be amended without a record of the amendment.</li>
         </ol>
         <div><span class="serial"><span class="lab">Ledger</span><span>SERIAL NO. JPI-C75-___</span><span>ENTRY ___ OF 005</span></span></div>
       </div>
@@ -502,8 +510,8 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="label">Prior art · references cited</div>
       <table class="refs">
         <tbody>
-          <tr><td style="width:12.5%">Ref. 1</td><td>Single-coil pickup of the DeArmond type, as interpreted by TV Jones. Applied at 26 and 28.</td><td style="width:25%">Claim 6</td></tr>
-          <tr><td>Ref. 2</td><td>Bridge base (34), tone switch (44) and selector tips, after a Brooklyn maker of the previous century.</td><td>Claims 7, 8, 9</td></tr>
+          <tr><td style="width:12.5%">Ref. 1</td><td>Single-coil pickup of the DeArmond type, as interpreted by TV Jones. Applied at 26 and 28.</td><td style="width:25%">Items 26, 28</td></tr>
+          <tr><td>Ref. 2</td><td>Bridge base (34), tone switch (44) and selector tips, after a Brooklyn maker of the previous century.</td><td>Items 34, 44, 46</td></tr>
         </tbody>
       </table>
       <p class="ack">The Corporation claims nothing taught by the prior art, and records that it was taught well.</p>
@@ -523,7 +531,7 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
         <div class="docket" aria-label="Units">
           <div><b>001</b><span class="lab">Open</span></div><div><b>002</b><span class="lab">Open</span></div><div><b>003</b><span class="lab">Open</span></div><div><b>004</b><span class="lab">Open</span></div><div><b>005</b><span class="lab">Open</span></div>
         </div>
-        <p>Five units will be produced this fiscal year. A refundable deposit reserves a unit. Serials are assigned in order of requisition. The fee is to be determined. It has not been determined.</p>
+        <p>Five units this fiscal year. A refundable deposit reserves one. Serials follow the order of deposit. Fee: to be determined. It has not been determined.</p>
         <div class="req">
           <span class="lab">Deposit refundable</span>
           <button type="button" class="btn" id="requisition">Requisition</button>
@@ -587,7 +595,7 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
 
 const REPORT = {"units": "mm", "params": {"T": 50.8, "cap": 5.08, "bevel_drop": 15.875, "scale": 628.65, "comp": 2.5, "frets": 22, "neck_angle": 4.0, "head_angle": 11.2, "fb_t": 6.0, "fb_radius": 304.8, "nut_w": 42.86, "fb_end_w": 54.0, "neck_d1": 21.8, "neck_d12": 24.4, "fret_h": 1.2, "action12": 2.0, "bridge_target": 24.0, "tail_half": 16.0, "neck_half": 28.0}, "body_length": 457.32618244168606, "lower_bout": 342.60842003314144, "bridge_height": 28.423871786323048, "fb_above_body_at_joint": 6.0, "neck_joint_fret": 15.929357025230455, "y_saddle": 189.55364636815204, "total_mass_g": 2972, "total_mass_lb": 6.55, "manifold": {"body": true, "cap": true, "neck": true, "faceplate": true, "fingerboard": true, "frets": true, "nut": true, "tuners": true, "badge": true, "truss_cover": true, "truss_screws": true, "neck_pickup_ring": true, "neck_pickup": true, "neck_pickup_poles": true, "bridge_pickup_ring": true, "bridge_pickup": true, "bridge_pickup_poles": true, "bridge": true, "thumbwheels": true, "compton": true, "tailpiece": true, "knobs": true, "switches": true, "jack": true, "ctrl_cover": true, "strings": true, "cap_edge": true}};
-const META = {"meta": {"body": {"material": "mahogany_nat", "group": "Body", "explode": [0, 0, 0]}, "cap": {"material": "maple", "group": "Body", "explode": [0, 0, 0]}, "neck": {"material": "mahogany", "group": "Neck", "explode": [0, 60, 40]}, "faceplate": {"material": "maple", "group": "Neck", "explode": [0, 60, 40]}, "fingerboard": {"material": "ebony_brown", "group": "Neck", "explode": [0, 60, 40]}, "frets": {"material": "fretgold", "group": "Neck", "explode": [0, 60, 40]}, "nut": {"material": "bone", "group": "Neck", "explode": [0, 60, 40]}, "tuners": {"material": "nickel", "group": "Hardware", "explode": [0, 0, 80]}, "badge": {"material": "nickel", "group": "Neck", "explode": [0, 60, 40]}, "truss_cover": {"material": "rosewood", "group": "Neck", "explode": [0, 60, 40]}, "truss_screws": {"material": "nickel", "group": "Neck", "explode": [0, 60, 40]}, "neck_pickup_ring": {"material": "black_plastic", "group": "Pickups", "explode": [0, 0, 50]}, "neck_pickup": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "neck_pickup_poles": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup_ring": {"material": "black_plastic", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup_poles": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge": {"material": "rosewood", "group": "Hardware", "explode": [0, 0, 80]}, "thumbwheels": {"material": "brass", "group": "Hardware", "explode": [0, 0, 80]}, "compton": {"material": "brass", "group": "Hardware", "explode": [0, 0, 80]}, "tailpiece": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "knobs": {"material": "amber", "group": "Hardware", "explode": [0, 0, 80]}, "switches": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "jack": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "ctrl_cover": {"material": "black_plastic", "group": "Hardware", "explode": [0, 0, 80]}, "strings": {"material": "steel", "group": "Strings", "explode": [0, 0, 110]}, "cap_edge": {"material": "maple_nat", "group": "Body", "explode": [0, 0, 0]}}};
+const META = {"meta": {"body": {"material": "mahogany_nat", "group": "Body", "explode": [0, 0, 0]}, "cap": {"material": "maple", "group": "Body", "explode": [0, 0, 0]}, "neck": {"material": "mahogany", "group": "Neck", "explode": [0, 60, 40]}, "faceplate": {"material": "maple", "group": "Neck", "explode": [0, 60, 40]}, "fingerboard": {"material": "ebony_brown", "group": "Neck", "explode": [0, 60, 40]}, "frets": {"material": "nickel", "group": "Neck", "explode": [0, 60, 40]}, "nut": {"material": "bone", "group": "Neck", "explode": [0, 60, 40]}, "tuners": {"material": "nickel", "group": "Hardware", "explode": [0, 0, 80]}, "badge": {"material": "nickel", "group": "Neck", "explode": [0, 60, 40]}, "truss_cover": {"material": "rosewood", "group": "Neck", "explode": [0, 60, 40]}, "truss_screws": {"material": "nickel", "group": "Neck", "explode": [0, 60, 40]}, "neck_pickup_ring": {"material": "black_plastic", "group": "Pickups", "explode": [0, 0, 50]}, "neck_pickup": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "neck_pickup_poles": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup_ring": {"material": "black_plastic", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge_pickup_poles": {"material": "chrome", "group": "Pickups", "explode": [0, 0, 50]}, "bridge": {"material": "rosewood", "group": "Hardware", "explode": [0, 0, 80]}, "thumbwheels": {"material": "brass", "group": "Hardware", "explode": [0, 0, 80]}, "compton": {"material": "brass", "group": "Hardware", "explode": [0, 0, 80]}, "tailpiece": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "knobs": {"material": "amber", "group": "Hardware", "explode": [0, 0, 80]}, "switches": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "jack": {"material": "chrome", "group": "Hardware", "explode": [0, 0, 80]}, "ctrl_cover": {"material": "black_plastic", "group": "Hardware", "explode": [0, 0, 80]}, "strings": {"material": "steel", "group": "Strings", "explode": [0, 0, 110]}, "cap_edge": {"material": "maple_nat", "group": "Body", "explode": [0, 0, 0]}}};
 
 // ---------- spec + checks
 const IN = 25.4;
@@ -609,9 +617,9 @@ function renderSpec(){
   ];
   document.getElementById('spec').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   const checks = [
-    ['ok', 'Conforms', 'To Sheet 2 in all views, including views not ordinarily seen.'],
-    ['ok', 'Chambered (20)', 'One U-shaped chamber, 1.49 deep on a 5/16 floor, through both wings and across the lower bout. Contents: none. See CAUTION, Form JPI-75.'],
-    ['ok', 'Bevelled (10)', '5/8 flat bevels, top and back, leave a 3/4 square band (14). The bevels run out at 16, as drawn.'],
+    ['ok', 'Conforms', 'To Sheet 2 in all views, including those not ordinarily seen.'],
+    ['ok', 'Chambered (20)', 'One U-shaped chamber, 1.49 deep on a 5/16 floor, through both wings and the lower bout. Contents: none.'],
+    ['ok', 'Bevelled (10)', '5/8 flat, top and back, leaving a 3/4 square band (14). Run out at 16, as drawn.'],
   ];
   document.getElementById('checks').innerHTML = checks.map(([s,t,d]) => `<li><span class="dot ${s}"></span><span><b>${t}.</b> ${d}</span></li>`).join('');
 }

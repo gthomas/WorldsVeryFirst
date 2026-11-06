@@ -260,6 +260,14 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
   .keydata > div:nth-child(n+5){border-top:1px solid var(--rule)}
   .plate{max-width:220px}
 }
+
+table.bom{width:100%;border-collapse:collapse;font-size:14px;line-height:19px}
+table.bom th{font-family:var(--f-letter);font-weight:600;font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:0 10px 6px 0;border-bottom:1px solid var(--ink)}
+table.bom td{padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+table.bom td:first-child{font-family:var(--f-data);font-size:12px;width:52px;color:var(--ink-2);white-space:nowrap}
+table.bom td:nth-child(2){font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;width:118px}
+table.bom td:last-child{padding-right:0}
+@media (max-width:860px){table.bom td:nth-child(2){width:96px}}
 </style>
 </head>
 <body>
@@ -296,7 +304,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 cover-r">
         <div>
           <div class="label">Abstract</div>
-          <p>A solid-body stringed instrument on outline C-75, having a bolt-on neck of 25.5 scale and the pickups, bridge plate and controls of the T type. The disclosure relates generally to music, and specifically to an established precedent.</p>
+          <p>A solid-body stringed instrument on outline C-75. Bolted neck of 25.5 scale; pickups, bridge and controls of the T type. The disclosure relates generally to music, and specifically to an established precedent.</p>
+        </div>
+        <div>
+          <div class="label">Bill of materials</div>
+          <table class="bom"><thead><tr><th>Item</th><th>Part</th><th>Specification</th></tr></thead><tbody><tr><td>10</td><td>Body</td><td>Ash, solid, one or two pieces. 2.0 deep on outline C-75.</td></tr><tr><td>40</td><td>Neck</td><td>Maple, bolt-on. Standard heel. Headstock at 11.2° with volute.</td></tr><tr><td>42</td><td>Fingerboard</td><td>Ebony, 12 radius.</td></tr><tr><td>—</td><td>Frets</td><td>21, nickel silver.</td></tr><tr><td>—</td><td>Scale</td><td>25.5.</td></tr><tr><td>20</td><td>Bridge</td><td>Three-saddle plate. Strings through the body.</td></tr><tr><td>22</td><td>Bridge pickup</td><td>T type, on its baseplate.</td></tr><tr><td>24</td><td>Neck pickup</td><td>T type, chrome cover, on springs.</td></tr><tr><td>30</td><td>Controls</td><td>5-1/2 in plate: three-way switch, volume, tone.</td></tr><tr><td>34</td><td>Jack</td><td>Cup jack.</td></tr><tr><td>44</td><td>Tuners</td><td>Grover, three per side.</td></tr><tr><td>—</td><td>Finish</td><td>Shellac, then oil and wax, rubbed by hand. Solid colours in milk paint beneath.</td></tr></tbody></table>
         </div>
         <table class="revs">
           <thead><tr><th>Rev</th><th>Description</th></tr></thead>
@@ -310,7 +322,7 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s1"><div class="lab">Lower bout</div><b>13.49<em>in</em></b></div>
       <div class="s1"><div class="lab">Depth</div><b>2.0<em>in</em></b></div>
       <div class="s1"><div class="lab">Neck joint</div><b>16<em>fret</em></b></div>
-      <div class="s1"><div class="lab">Frets</div><b>21<em></em></b></div>
+      <div class="s1"><div class="lab">Frets</div><b>21</b></div>
       <div class="s1"><div class="lab">Mass, calc.</div><b>7.65<em>lb</em></b></div>
       <div class="s1"><div class="lab">Units</div><b>0<em>FY</em></b></div>
     </div>
@@ -322,20 +334,19 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s3">
         <div class="label">General notes</div>
         <ol class="num" style="font-size:14.5px;line-height:21px">
-          <li>Dimensions are in inches; angles are in degrees.</li>
-          <li>DO NOT SCALE DRAWING.</li>
-          <li>No unit has been produced. Mass is calculated from the model and excludes the OPERATOR.</li>
+          <li>Dimensions in inches; angles in degrees. DO NOT SCALE DRAWING.</li>
+          <li>No unit has been produced. Mass is calculated. It excludes the OPERATOR.</li>
           <li>The middle of the tail is left square. This is intended.</li>
-          <li>No string tree is fitted. None is required. See Claim 6.</li>
-          <li>The designation of this instrument is withheld pending review. It shall be referred to as the C-75T.</li>
+          <li>No string tree is fitted. None is required. See Claim 4.</li>
+          <li>Designation withheld pending review. Refer to the instrument as the C-75T.</li>
         </ol>
       </div>
       <div class="s3">
         <div class="label">Defined terms</div>
-        <p style="font-size:14.5px;line-height:21px">INSTRUMENT, OPERATOR, MUSIC, PRACTICE, BILLABLE HOUR and NON-BILLABLE HOUR are as defined in <a href="../c-75/#terms">C-75-001, Sheet 1</a>. In this set, INSTRUMENT means the article shown in FIGS. 1–8.</p>
+        <p style="font-size:14.5px;line-height:21px">As defined in <a href="../c-75/#terms">C-75-001, Sheet 1</a>, with the following additions.</p>
         <dl class="terms" style="margin-top:14px">
           <dt>Precedent</dt><dd>An earlier instrument whose arrangement is followed. Not cited by name.</dd>
-          <dt>Pocket</dt><dd>The recess that receives the neck. Of the standard pattern.</dd>
+          <dt>Pocket</dt><dd>The recess that receives the neck. Standard pattern.</dd>
         </dl>
       </div>
       <div class="s2">
@@ -412,18 +423,14 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
         <div class="flow">
           <p style="font-style:italic">What is claimed is:</p>
           <ol class="claims">
-            <li><span>A stringed instrument, comprising: a solid body (10) 2.0 (50.8 mm) deep on outline C-75; a neck (40) attached to the body by bolts; and six (6) steel strings tensioned over a scale of 25.5 (647.7 mm).</span></li>
-            <li><span>The instrument of claim 1, wherein the body is bevelled 5/8 at the top and back edges, leaving a 3/4 square band around the side, the middle of the tail being left square.</span></li>
-            <li><span>The instrument of claim 1, wherein the neck is seated in a pocket of the standard pattern meeting the body at the sixteenth fret, such that any neck made for that pocket would fit it, and no such neck would have its headstock.</span></li>
-            <li><span>The instrument of claim 1, wherein the neck is maple and carries an ebony fingerboard (42) of 12 radius with twenty-one (21) frets.</span></li>
-            <li><span>The instrument of claim 1, having a headstock inclined at 11.2° with a volute, whereby no string tree is required.</span></li>
-            <li><span>The instrument of claim 5, having six Grover tuners (44), three per side, and a truss rod adjusted through a slot above the nut.</span></li>
-            <li><span>The instrument of claim 1, having a bridge pickup (22) of the T type on its baseplate in a three-saddle bridge plate (20), the strings passing through the body.</span></li>
-            <li><span>The instrument of claim 7, having a neck pickup (24), chrome-covered, screwed to the body on springs.</span></li>
-            <li><span>The instrument of claim 1, having a control plate (30) of 5-1/2 in carrying a three-way switch and volume and tone controls (32), set parallel to the treble bevel.</span></li>
-            <li><span>The instrument of claim 2, having a cup jack (34) on the flat of the treble lower bevel, where Case No. C-75 carries its Electrosocket.</span></li>
-            <li><span>The instrument of claim 1, wherein no pickguard is present.</span></li>
-            <li><span>The instrument of claim 2, the body being machined in two setups, top and then back, the bevels being cut with a 1/4 in ball-nose cutter.</span></li>
+            <li><span>A stringed instrument comprising a solid body (10) 2.0 deep on outline C-75, a neck (40) attached by bolts, and a scale of 25.5.</span></li>
+            <li><span>The instrument of claim 1, bevelled 5/8 top and back, leaving a 3/4 square band, the middle of the tail left square.</span></li>
+            <li><span>The instrument of claim 1, the neck seated in a pocket of the standard pattern at the sixteenth fret, such that any neck made for that pocket would fit it, and no such neck would have its headstock.</span></li>
+            <li><span>The instrument of claim 1, the headstock inclined at 11.2° with a volute, whereby no string tree is required.</span></li>
+            <li><span>The instrument of claim 1, having twenty-one (21) nickel-silver frets on an ebony fingerboard (42) of 12 radius.</span></li>
+            <li><span>The instrument of claim 1, having a bridge pickup (22) in a three-saddle plate (20), strings passing through the body, and a covered neck pickup (24) on springs.</span></li>
+            <li><span>The instrument of claim 1, having a control plate (30) parallel to the treble bevel, and a jack (34) on the flat of the treble lower bevel, where Case No. C-75 carries its own.</span></li>
+            <li><span>The instrument of claim 1, no pickguard being present.</span></li>
           </ol>
         </div>
       </div>
@@ -445,11 +452,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 flow">
         <div class="notice">The INSTRUMENT is to be operated by hand. Other methods of operation have not been evaluated.</div>
         <ol class="num">
-          <li>The INSTRUMENT is intended for use outside BILLABLE HOURS.</li>
-          <li>The scale of the C-75T exceeds that of the C-75 by 0.75. OPERATORS transferring between instruments shall allow for this.</li>
-          <li>The neck (40) is attached by bolts. It may be removed. Removal is not a condition of use.</li>
-          <li>The precedent on which this instrument is based shall not be cited by name.</li>
-          <li>Hours of operation shall be recorded as NON-BILLABLE. Entries received to date: none. No unit has been produced.</li>
+          <li>For use outside BILLABLE HOURS.</li>
+          <li>The scale exceeds that of the C-75 by 0.75. OPERATORS moving between instruments shall allow for this.</li>
+          <li>The neck (40) is bolted. It may be removed. Removal is not a condition of use.</li>
+          <li>The precedent for this instrument shall not be cited by name.</li>
+          <li>Hours of operation are recorded as NON-BILLABLE. Entries to date: none.</li>
         </ol>
         <div class="caution" role="note"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 19 16.5H1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 7v4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="13.6" r="1" fill="currentColor"/></svg><div><b>Caution</b><p>Neck pocket. Do not operate the INSTRUMENT with the pocket empty.</p></div></div>
       </div>
@@ -477,11 +484,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
     <div class="g8">
       <div class="s5 flow">
         <ol class="num">
-          <li>The body (10), of one or two pieces, is machined on a 3-axis router in two setups: the top, then the back.</li>
-          <li>The bevels are cut with a 1/4 in ball-nose cutter.</li>
-          <li>The neck (40) is made to the Corporation’s pattern, with a standard heel, and bolted into the pocket.</li>
-          <li>Hardware is fitted per Sheet 2.</li>
-          <li>On production, the serial is entered in the ledger and committed to a version-controlled record. No entry has been made.</li>
+          <li>Body (10), of one or two pieces, machined in two setups: top, then back.</li>
+          <li>Bevels cut with a 1/4 in ball-nose.</li>
+          <li>Neck (40) made to the Corporation’s pattern on a standard heel, and bolted.</li>
+          <li>Hardware fitted per Sheet 2.</li>
+          <li>On production, the serial is entered in the ledger. No entry has been made.</li>
         </ol>
         <div>
           <div class="label" style="margin-top:6px">Documents issued under this filing</div>
@@ -503,8 +510,8 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="label">Prior art · references cited</div>
       <table class="refs">
         <tbody>
-          <tr><td style="width:12.5%">Ref. 1</td><td>The solid-body instrument of the T type, first produced in the previous century, from which this filing takes its pickups, bridge plate and controls.</td><td style="width:25%">Claims 7, 8, 9</td></tr>
-          <tr><td>Ref. 2</td><td>Neck pocket and heel of the standard pattern.</td><td>Claim 3</td></tr>
+          <tr><td style="width:12.5%">Ref. 1</td><td>The solid-body instrument of the T type, first produced in the previous century, from which this filing takes its pickups, bridge plate and controls.</td><td style="width:25%">Items 20–34</td></tr>
+          <tr><td>Ref. 2</td><td>Neck pocket and heel of the standard pattern.</td><td>Item 40</td></tr>
         </tbody>
       </table>
       <p class="ack">The Corporation claims nothing taught by the prior art. The precedent stands.</p>
@@ -521,7 +528,7 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
     <div class="g8">
       <div class="s5">
         <p class="alloc">Units: none.</p>
-        <p style="margin-top:20px">No units of the C-75T have been allocated. Requisitions are received and held on file until the designation is released. The fee is to be determined. It has not been determined.</p>
+        <p style="margin-top:20px">None allocated. Requisitions are held on file until the designation is released. Fee: to be determined. It has not been determined.</p>
         <div class="req">
           <span class="lab">Held on file until issue</span>
           <a class="btn" href="../#requisition" style="display:inline-flex;align-items:center;text-decoration:none">Requisition</a>
@@ -603,9 +610,9 @@ function renderSpec(){
   ];
   document.getElementById('spec').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   const checks = [
-    ['ok', 'Conforms (10)', 'Outline and bevels to outline C-75: 5/8 flat bevels top and back, about 20 mm wide up the sides and 41 mm on the bass lower bout, the middle of the tail left square. The treble side of the neck tongue is eased 7.5 mm so that the pocket keeps a wall.'],
-    ['ok', 'Pocket', 'Standard pattern, 3 long and 5/8 deep, with corner reliefs so that a square heel seats. Board 9.5 mm above the body; strings about 14.2 mm above it at the saddles.'],
-    ['ok', 'Controls on the flat (30)', 'Bridge plate, both pickup routes and the control plate land inside the bevel lines.'],
+    ['ok', 'Conforms (10)', 'Outline and bevels to outline C-75; the middle of the tail left square. The neck tongue is eased 7.5 mm on the treble side so that the pocket keeps a wall.'],
+    ['ok', 'Pocket (40)', 'Standard pattern, 3 long, 5/8 deep, corner-relieved. Strings about 14.2 mm above the body at the saddles.'],
+    ['ok', 'Controls on the flat (30)', 'Bridge plate, pickup routes and control plate all land inside the bevel lines.'],
   ];
   document.getElementById('checks').innerHTML = checks.map(([s,t,d]) => `<li><span class="dot ${s}"></span><span><b>${t}.</b> ${d}</span></li>`).join('');
 }

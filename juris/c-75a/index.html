@@ -260,6 +260,14 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
   .keydata > div:nth-child(n+5){border-top:1px solid var(--rule)}
   .plate{max-width:220px}
 }
+
+table.bom{width:100%;border-collapse:collapse;font-size:14px;line-height:19px}
+table.bom th{font-family:var(--f-letter);font-weight:600;font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);text-align:left;padding:0 10px 6px 0;border-bottom:1px solid var(--ink)}
+table.bom td{padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+table.bom td:first-child{font-family:var(--f-data);font-size:12px;width:52px;color:var(--ink-2);white-space:nowrap}
+table.bom td:nth-child(2){font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;width:118px}
+table.bom td:last-child{padding-right:0}
+@media (max-width:860px){table.bom td:nth-child(2){width:96px}}
 </style>
 </head>
 <body>
@@ -296,7 +304,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 cover-r">
         <div>
           <div class="label">Abstract</div>
-          <p>An archtop stringed instrument having a top of Port Orford cedar carved in flat facets, a rim cut whole from a single alder blank, an arched back of bigleaf maple, and one pickup hung from the fingerboard. The body follows outline C-75. The disclosure relates generally to music, and specifically to this.</p>
+          <p>An archtop stringed instrument on outline C-75. Faceted Port Orford cedar top; rim cut whole from one alder blank; arched bigleaf maple back; one pickup hung from the fingerboard. The disclosure relates generally to music, and specifically to this.</p>
+        </div>
+        <div>
+          <div class="label">Bill of materials</div>
+          <table class="bom"><thead><tr><th>Item</th><th>Part</th><th>Specification</th></tr></thead><tbody><tr><td>10</td><td>Top</td><td>Port Orford cedar, quartersawn. 17 flat facets, graduated 2.8–3.2 mm.</td></tr><tr><td>12</td><td>Back</td><td>Bigleaf maple, quartersawn. 13 facets, arched 22 mm. Unbraced.</td></tr><tr><td>14</td><td>Rim</td><td>Red alder, cut whole from one blank. 2.0 deep at the edge.</td></tr><tr><td>40</td><td>Neck</td><td>Maple, set.</td></tr><tr><td>42</td><td>Fingerboard</td><td>Richlite.</td></tr><tr><td>—</td><td>Frets</td><td>22, nickel silver.</td></tr><tr><td>—</td><td>Scale</td><td>24.75.</td></tr><tr><td>20</td><td>Bridge</td><td>Compensated wood top on a 135 mm rosewood base. Floating.</td></tr><tr><td>22</td><td>Tailpiece</td><td>Trapeze.</td></tr><tr><td>24</td><td>Pickup</td><td>EMG 91, active, hung from a bracket (26). Alternative: Novak gold foil.</td></tr><tr><td>30</td><td>Controls</td><td>Stacked volume and tone, concentric knob.</td></tr><tr><td>32</td><td>Battery</td><td>9 V in a Gotoh BB-04 box.</td></tr><tr><td>34</td><td>Jack</td><td>Switchcraft 152B, stereo.</td></tr><tr><td>44</td><td>Tuners</td><td>Grover Deluxe 133N.</td></tr><tr><td>—</td><td>Finish</td><td>Shellac, then oil and wax, rubbed by hand. Solid colours in milk paint beneath.</td></tr></tbody></table>
         </div>
         <table class="revs">
           <thead><tr><th>Rev</th><th>Description</th></tr></thead>
@@ -322,20 +334,19 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s3">
         <div class="label">General notes</div>
         <ol class="num" style="font-size:14.5px;line-height:21px">
-          <li>Dimensions are in inches; angles are in degrees.</li>
-          <li>DO NOT SCALE DRAWING.</li>
-          <li>No unit has been produced. Mass is calculated from the model and excludes the OPERATOR.</li>
-          <li>Every fold in the top is eased on its inside to a 25 mm radius. No crease is a knife line.</li>
-          <li>Every wood in the body and neck is of Pacific Northwest origin. This was not a requirement.</li>
-          <li>The body is 2.0 deep at the edge, as Case No. C-75. The additional depth is arch.</li>
+          <li>Dimensions in inches; angles in degrees. DO NOT SCALE DRAWING.</li>
+          <li>No unit has been produced. Mass is calculated. It excludes the OPERATOR.</li>
+          <li>Every fold in the top is eased inside to 25 mm. No crease is a knife line.</li>
+          <li>Every wood is of Pacific Northwest origin. This was not a requirement.</li>
+          <li>Depth at the edge is 2.0, as Case No. C-75. The rest is arch.</li>
         </ol>
       </div>
       <div class="s3">
         <div class="label">Defined terms</div>
-        <p style="font-size:14.5px;line-height:21px">INSTRUMENT, OPERATOR, MUSIC, PRACTICE, BILLABLE HOUR and NON-BILLABLE HOUR are as defined in <a href="../c-75/#terms">C-75-001, Sheet 1</a>. In this set, INSTRUMENT means the article shown in FIGS. 1–8.</p>
+        <p style="font-size:14.5px;line-height:21px">As defined in <a href="../c-75/#terms">C-75-001, Sheet 1</a>, with the following additions.</p>
         <dl class="terms" style="margin-top:14px">
-          <dt>Facet</dt><dd>A flat plane of the top or back. The top has seventeen. The back has thirteen.</dd>
-          <dt>Air</dt><dd>The contents of the body. Resonant at approximately 127 Hz. Not supplied separately.</dd>
+          <dt>Facet</dt><dd>A flat plane of the top or back. Thirty in all.</dd>
+          <dt>Air</dt><dd>The contents of the body. Resonant at about 127 Hz. Not supplied separately.</dd>
         </dl>
       </div>
       <div class="s2">
@@ -416,18 +427,16 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
         <div class="flow">
           <p style="font-style:italic">What is claimed is:</p>
           <ol class="claims">
-            <li><span>A stringed instrument, comprising: a rim (14) cut whole from a single alder blank; a carved top (10) of quartersawn Port Orford cedar; an arched back (12) of quartersawn bigleaf maple; a set neck (40); a bridge (20); and a trapeze tailpiece (22).</span></li>
-            <li><span>The instrument of claim 1, wherein the top is carved as seventeen (17) flat facets, each fold eased on its inside to a 25 mm radius, the outside of each ridge remaining crisp.</span></li>
-            <li><span>The instrument of claim 2, wherein the top is graduated from 2.8 mm at the plateau to 3.2 mm at the skirt, and carries a hexagonal bridge plateau 3.5 mm thick and 141 mm wide, on which a 135 mm bridge base sits flat.</span></li>
-            <li><span>The instrument of claim 2, having two soundholes in the side facets beside the bridge, each with a 12 mm lip beneath it, such that the air within the body resonates at approximately 127 Hz.</span></li>
-            <li><span>The instrument of claim 1, wherein the top is braced by a ring beam beneath the bridge base, two parallel tone bars with scalloped ends beneath the plateau, and a cross bar in the upper bout.</span></li>
-            <li><span>The instrument of claim 1, wherein the back is arched 22 mm in thirteen (13) facets rising to a centre ridge, is glued to a ledge routed in the rim in place of kerfed linings, and carries no braces.</span></li>
-            <li><span>The instrument of claim 1, wherein the rim is 2.0 (50.8 mm) deep at the edge, as Case No. C-75, and the body 3.30 (83.9 mm) deep at the arch.</span></li>
-            <li><span>The instrument of claim 1, wherein the neck tenon drops through a notch in the top into an open-top mortise, such that the neck is fitted last.</span></li>
-            <li><span>The instrument of claim 1, having an EMG 91 active humbucker (24) hung from a bracket (26) beneath the fingerboard extension (42), which floats clear of the top; or, alternatively, a passive gold-foil pickup of the DeArmond type.</span></li>
-            <li><span>The instrument of claim 9, having a stacked volume and tone control on a plate (30) and a 9 V battery box (32) side by side on the flat treble face of the rim, and a stereo output jack (34) in the treble tail facet.</span></li>
-            <li><span>The instrument of claim 1, wherein no pickguard is present.</span></li>
-            <li><span>The instrument of claim 2, wherein the top is dyed black under shellac, a band of 1/4 in being left undyed at the edge, constituting binding obtained by the omission of dye.</span></li>
+            <li><span>A stringed instrument comprising a rim (14) cut whole from a single blank, a carved top (10), an arched back (12), a set neck (40), a floating bridge (20) and a trapeze tailpiece (22).</span></li>
+            <li><span>The instrument of claim 1, the top carved as seventeen (17) flat facets, each fold eased inside to a 25 mm radius, each ridge left crisp.</span></li>
+            <li><span>The instrument of claim 2, the top graduated from 2.8 mm at the plateau to 3.2 mm at the skirt, the bridge base sitting flat on a hexagonal plateau.</span></li>
+            <li><span>The instrument of claim 2, having two lipped soundholes in the side facets, the air within resonating at about 127 Hz.</span></li>
+            <li><span>The instrument of claim 1, the top braced by a ring beam, two scalloped tone bars and one cross bar.</span></li>
+            <li><span>The instrument of claim 1, the back arched in thirteen (13) facets, glued to a ledge routed in the rim, and unbraced.</span></li>
+            <li><span>The instrument of claim 1, 2.0 deep at the edge, as Case No. C-75, the remaining depth being arch.</span></li>
+            <li><span>The instrument of claim 1, the neck tenon dropping through a notch in the top, such that the neck is fitted last.</span></li>
+            <li><span>The instrument of claim 1, having one pickup (24) hung from a bracket (26) beneath a floating fingerboard extension (42), no pickguard being present.</span></li>
+            <li><span>The instrument of claim 2, the top dyed under shellac, a 1/4 in band at the edge left undyed, constituting binding obtained by the omission of dye.</span></li>
           </ol>
         </div>
       </div>
@@ -449,11 +458,11 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="s5 flow">
         <div class="notice">The INSTRUMENT is to be operated by hand. Other methods of operation have not been evaluated.</div>
         <ol class="num">
-          <li>The INSTRUMENT is intended for use outside BILLABLE HOURS.</li>
-          <li>The pickup (24) is active. It shall be supplied with 9 V through the battery door (32), which opens without tools.</li>
-          <li>When the battery is exhausted, the INSTRUMENT will continue to produce output acoustically. This output is not metered.</li>
-          <li>The fingerboard extension (42) floats 15.3 mm clear of the top. It shall not be loaded.</li>
-          <li>Hours of operation shall be recorded as NON-BILLABLE. Entries received to date: none. No unit has been produced.</li>
+          <li>For use outside BILLABLE HOURS.</li>
+          <li>The pickup (24) is active. Supply 9 V at the battery door (32). No tools are required.</li>
+          <li>With the battery exhausted, the INSTRUMENT continues to produce output acoustically. This output is not metered.</li>
+          <li>The fingerboard extension (42) floats 15.3 mm above the top. Do not load it.</li>
+          <li>Hours of operation are recorded as NON-BILLABLE. Entries to date: none.</li>
         </ol>
         <div class="caution" role="note"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 19 16.5H1Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 7v4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="13.6" r="1" fill="currentColor"/></svg><div><b>Caution</b><p>Top (10). Do not press the facets to confirm that they are flat. They are flat.</p></div></div>
       </div>
@@ -481,12 +490,12 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
     <div class="g8">
       <div class="s5 flow">
         <ol class="num">
-          <li>The rim (14) is cut whole from one standard 1-3/4 in alder body blank, from the top face, in one setup: walls, glue ledge, neck and tail blocks, and mortise.</li>
-          <li>The top (10) is carved as flat planes, graduated, and fitted with its bracing and soundhole lips.</li>
-          <li>The back (12) is carved in facets and glued to the ledge. No linings are kerfed.</li>
-          <li>Every part is cut on a 3-axis router in one or two setups.</li>
-          <li>The neck (40) is fitted last.</li>
-          <li>On production, the serial is entered in the ledger and committed to a version-controlled record. No entry has been made.</li>
+          <li>Rim (14) cut whole from one 1-3/4 in alder blank, from the top face, in one setup.</li>
+          <li>Top (10) carved in flat planes, graduated, braced and lipped.</li>
+          <li>Back (12) carved in facets and glued to the ledge. No linings are kerfed.</li>
+          <li>All parts cut on a 3-axis router in one or two setups.</li>
+          <li>Neck (40) fitted last.</li>
+          <li>On production, the serial is entered in the ledger. No entry has been made.</li>
         </ol>
         <div>
           <div class="label" style="margin-top:6px">Documents issued under this application</div>
@@ -509,9 +518,9 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
       <div class="label">Prior art · references cited</div>
       <table class="refs">
         <tbody>
-          <tr><td style="width:12.5%">Ref. 1</td><td>The carved archtop, with floating bridge and trapeze tailpiece, of the previous century.</td><td style="width:25%">Claims 1, 2</td></tr>
-          <tr><td>Ref. 2</td><td>Gold-foil pickup of the DeArmond type, as interpreted by Novak.</td><td>Claim 9</td></tr>
-          <tr><td>Ref. 3</td><td>Bridge base of 135 mm, after a Brooklyn maker of the previous century.</td><td>Claim 3</td></tr>
+          <tr><td style="width:12.5%">Ref. 1</td><td>The carved archtop, with floating bridge and trapeze tailpiece, of the previous century.</td><td style="width:25%">Items 10, 20, 22</td></tr>
+          <tr><td>Ref. 2</td><td>Gold-foil pickup of the DeArmond type, as interpreted by Novak.</td><td>Item 24</td></tr>
+          <tr><td>Ref. 3</td><td>Bridge base of 135 mm, after a Brooklyn maker of the previous century.</td><td>Item 20</td></tr>
         </tbody>
       </table>
       <p class="ack">The Corporation claims nothing taught by the prior art. It notes that the prior art was carved by hand, and that this is not.</p>
@@ -528,7 +537,7 @@ table.refs td:last-child{font-family:var(--f-letter);font-size:12.5px;letter-spa
     <div class="g8">
       <div class="s5">
         <p class="alloc">Units: none.</p>
-        <p style="margin-top:20px">No units of the C-75A have been allocated. The application is pending. Requisitions for the C-75A are received and held on file until issue. The fee is to be determined. It has not been determined.</p>
+        <p style="margin-top:20px">None allocated. The application is pending. Requisitions are held on file until issue. Fee: to be determined. It has not been determined.</p>
         <div class="req">
           <span class="lab">Held on file until issue</span>
           <a class="btn" href="../#requisition" style="display:inline-flex;align-items:center;text-decoration:none">Requisition</a>
@@ -614,15 +623,13 @@ function renderSpec(){
   document.getElementById('spec').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   const pk = r.pickup;
   const checks = [
-    ['ok', 'Bridge needs no foot fitting', `It sits flat on the plateau at ${fmt(r.bridge_height)} tall, inside the usual archtop range.`],
-    ...(r.fea ? [['ok', 'Top holds the string load', `Finite-element check (quartersawn Port Orford cedar, ${Math.round(r.fea.downforce_N)} N downforce from 13s): the bridge sinks ${fmt(r.fea.bridge_down_mm)}, ${fmt(r.fea.max_down_mm)} at most. 99th-percentile working stresses sit at least ${Math.floor(Math.min(...Object.values(r.fea.safety_factor_p99)))}× under clear-wood strength (checked without the soundhole lips, which only add stiffness), so allow for creep but expect no cave-in.`]] : []),
-    ...(r.fea && r.fea.modes ? [['ok', 'Top resonance well clear of the air mode', `Main top mode about ${Math.round(r.fea.modes[0].hz)} Hz with the rim held rigid (lower in the finished body, which flexes). That keeps it far from the ${Math.round(r.helmholtz_hz_est)} Hz air resonance, so the two can't pair up into a wolf note around E3. Creases between facets carry no more stress than the open facets.`]] : []),
-    ['ok', 'Fingerboard extension floats', `${fmt(r.fb_extension_clearance)} clear of the top at its tip.`],
-    ['ok', 'EMG 91 fits', `Hung from the fingerboard extension, its ${fmt(pk.height)} body clears the top by ${fmt(pk.clearance_to_top)}, with a 4 mm gap under the strings. There is room for a pickup up to ${fmt(pk.max_height_for_3mm_clearance)} tall.`],
-    ...(r.goldfoil ? [[r.goldfoil.bracket_clearance_to_top > 3 ? 'ok' : 'warn', 'Novak gold foil option fits', `A bent ${r.goldfoil.flat_pattern.t} mm strap screws under the fingerboard end and runs a shelf across under the mustache casing's ears; the pickup screws down to it over springs for height. The shelf clears the top by ${fmt(r.goldfoil.bracket_clearance_to_top)}. Sizes are placeholders until the pickup is measured. It is passive: use 500k pots and a string ground, and the battery parts aren't needed.`]] : []),
-    ['ok', 'Controls and battery are serviceable', 'Every electronic part is off the shelf: a stacked pot on a small plate, a Gotoh BB-04 battery box beside it, and a Switchcraft 152B jack in the tail facet. Both control-face openings are template routes through the rim wall after machining, and the wall behind them is left at the full ledge thickness for the screws.'],
-    [r.string_break_angle_deg >= 10 ? 'ok' : 'warn', 'Tailpiece break angle', `${r.string_break_angle_deg.toFixed(1)}° over the saddle, enough downforce to drive a floating bridge.`],
-    [r.helmholtz_hz_est < 150 ? 'ok' : 'warn', 'Air resonance clear of E3', `About ${Math.round(r.helmholtz_hz_est)} Hz by Helmholtz estimate (rough), between B2 and C3 and well below E3 (165 Hz). A ${p.collar_h} mm lip under each soundhole lengthens the port, which keeps the air resonance down in the shallower standard-blank body without shrinking the holes. A flexible top usually pulls the real air mode a little lower still.`],
+    ['ok', 'Bridge seats flat (20)', `${fmt(r.bridge_height)} tall on the plateau. No foot fitting.`],
+    ...(r.fea ? [['ok', 'Top holds the string load (10)', `Under ${Math.round(r.fea.downforce_N)} N the bridge sinks ${fmt(r.fea.bridge_down_mm)}. Stresses at least ${Math.floor(Math.min(...Object.values(r.fea.safety_factor_p99)))}× under clear-wood strength.`]] : []),
+    ...(r.fea && r.fea.modes ? [['ok', 'Top clear of the air', `Top about ${Math.round(r.fea.modes[0].hz)} Hz; air about ${Math.round(r.helmholtz_hz_est)} Hz. The two do not pair.`]] : []),
+    ['ok', 'Extension floats (42)', `${fmt(r.fb_extension_clearance)} clear of the top.`],
+    ['ok', 'Pickup clears (24)', `${fmt(pk.clearance_to_top)} above the top; 4 mm below the strings.`],
+    ...(r.goldfoil ? [[r.goldfoil.bracket_clearance_to_top > 3 ? 'ok' : 'warn', 'Gold-foil alternative fits', `Shelf ${fmt(r.goldfoil.bracket_clearance_to_top)} clear of the top. Sizes provisional.`]] : []),
+    [r.string_break_angle_deg >= 10 ? 'ok' : 'warn', 'Break angle (22)', `${r.string_break_angle_deg.toFixed(1)}° over the saddle.`],
   ];
   document.getElementById('checks').innerHTML = checks.map(([s,t,d]) => `<li><span class="dot ${s}"></span><span><b>${t}.</b> ${d}</span></li>`).join('');
 }
