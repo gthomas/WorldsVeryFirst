@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Juris Professional Instruments Corporation: register of instruments.">
+<title>Juris Drawing Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+
+/* Shared Juris sheet system. Layout: drawing sheets on a gridded table; inside each sheet an 8-column grid whose
+   column starts are the zone ticks along the top edge. Type in three steps: sheet title, body, label. */
+:root{
+  --desk:#DAD7CC; --grid:rgba(22,24,27,.05); --paper:#FBFAF5; --ink:#16181B; --ink-2:#565A5F; --rule:#C7C5BE;
+  --accent:#8C2A22; --on-accent:#FBFAF5;
+  --f-letter:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-text:"Century Schoolbook","New Century Schoolbook","TeX Gyre Schola","Old Standard TT",Georgia,serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-display:var(--f-letter); --f-body:var(--f-text); --f-mono:var(--f-data);
+  --scene:var(--paper); --sheet:var(--paper);
+  --t-title:40px; --t-body:15.5px; --lh:23px; --t-label:11px;
+  --pad:44px; --gap:24px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#0A1424; --grid:rgba(220,231,245,.045); --paper:#12284A; --ink:#DCE7F5; --ink-2:#9AB0CC; --rule:#2F4C75;
+  --accent:#F2937B; --on-accent:#0A1424; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#0A1424; --grid:rgba(220,231,245,.045); --paper:#12284A; --ink:#DCE7F5; --ink-2:#9AB0CC; --rule:#2F4C75;
+  --accent:#F2937B; --on-accent:#0A1424; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background-color:var(--desk);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;color:var(--ink);font-family:var(--f-text);font-size:var(--t-body);line-height:var(--lh);
+  font-variant-numeric:lining-nums;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+p{margin:0}
+h1,h2{text-wrap:balance}
+a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* labels: the one small tier */
+.lab{font-family:var(--f-letter);font-weight:600;font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);line-height:1.4}
+.label{font-family:var(--f-letter);font-weight:600;font-size:var(--t-label);letter-spacing:.18em;text-transform:uppercase;line-height:1.4;
+  border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+
+/* top strip */
+.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;max-width:1200px;margin:0 auto;background:var(--desk);
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 20px;padding:12px 0 11px;border-bottom:1px solid var(--ink)}
+.strip .house{font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.2em;text-transform:uppercase;text-decoration:none}
+.strip nav{display:flex;flex-wrap:wrap;gap:4px 18px}
+.strip nav a{font-family:var(--f-letter);font-weight:500;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+
+/* sheets and the grid */
+.sheets{max-width:1200px;margin:36px auto 0;display:flex;flex-direction:column;gap:44px}
+.sheet{background:var(--paper);border:1px solid var(--ink);outline:1.5px solid var(--ink);outline-offset:-10px;position:relative;
+  padding:46px var(--pad) 0;scroll-margin-top:64px}
+.zones{position:absolute;top:0;left:var(--pad);right:var(--pad);height:10px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:var(--gap);pointer-events:none}
+.zones span{border-left:1px solid var(--ink);position:relative}
+.zones span::after{content:attr(data-z);position:absolute;top:13px;left:6px;font-family:var(--f-letter);font-size:10px;letter-spacing:.1em;color:var(--ink-2)}
+.g8{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:var(--gap)}
+.s1{grid-column:span 1}.s2{grid-column:span 2}.s3{grid-column:span 3}.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s8{grid-column:1/-1}
+.sheet-body{padding:14px 0 30px}
+
+/* sheet head: one size */
+.sh{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sh .no{font-family:var(--f-data);font-size:12px;color:var(--ink-2)}
+.sh h2{margin:0;font-family:var(--f-letter);font-weight:600;font-size:var(--t-title);line-height:1;letter-spacing:.03em;text-transform:uppercase}
+.sh .form{margin-left:auto;font-family:var(--f-data);font-size:12px;color:var(--ink-2)}
+
+/* full title block (sheet 1 only) */
+.tb{display:grid;grid-template-columns:minmax(0,2.6fr) minmax(0,1.8fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,.55fr);
+  margin:0 calc(10px - var(--pad)) 10px auto;max-width:880px;border-top:1.5px solid var(--ink);border-left:1.5px solid var(--ink)}
+.tb > div{padding:7px 10px 8px;border-right:1px solid var(--ink);min-width:0}
+.tb > div:last-child{border-right:0}
+.tb small{display:block;font-family:var(--f-letter);font-size:10px;letter-spacing:.2em;color:var(--ink-2);text-transform:uppercase;line-height:1.3}
+.tb b{display:block;font-family:var(--f-letter);font-size:14px;letter-spacing:.07em;font-weight:600;text-transform:uppercase;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb .iss{display:flex;align-items:center;gap:10px}
+.tb .iss svg{flex:none;width:44px;height:auto;color:var(--ink)}
+/* continuation strip */
+.cont{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px 22px;margin:0 calc(10px - var(--pad)) 10px 0;padding:8px var(--pad) 8px 0;border-top:1px solid var(--ink);
+  font-family:var(--f-letter);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.cont span{color:var(--ink-2);font-weight:500;margin-right:6px}
+
+/* controls: selection is a 2px rule; solid ink is for actions only */
+button.opt{font:500 12.5px/1 var(--f-letter);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);background:none;border:0;border-radius:0;
+  padding:10px 2px 8px;min-height:36px;cursor:pointer;box-shadow:inset 0 -1px 0 transparent}
+button.opt:hover{color:var(--ink);box-shadow:inset 0 -1px 0 var(--ink)}
+button.opt[aria-pressed="true"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:0 18px;align-items:center}
+.btn{min-height:50px;padding:0 28px;background:var(--ink);color:var(--paper);border:0;border-radius:0;font-family:var(--f-letter);font-size:16px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:var(--ink-2)}
+.link{font-family:var(--f-letter);font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase}
+
+/* nameplate */
+.plate{width:100%;max-width:280px;height:auto;color:var(--ink);display:block}
+
+/* lists and tables */
+ol.num{margin:0;padding:0;list-style:none;counter-reset:n;display:flex;flex-direction:column;gap:8px}
+ol.num li{counter-increment:n;display:grid;grid-template-columns:24px minmax(0,1fr)}
+ol.num li::before{content:counter(n) ".";font-family:var(--f-letter);font-weight:600;font-size:14px}
+dl.kv{margin:0;display:grid;grid-template-columns:minmax(0,1fr) auto}
+dl.kv dt,dl.kv dd{margin:0;padding:6px 0;border-bottom:1px solid var(--rule);line-height:1.35}
+dl.kv dt{font-family:var(--f-letter);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+dl.kv dd{font-family:var(--f-data);font-size:13px;text-align:right;padding-left:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.status{font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase}
+
+@media (max-width:860px){
+  :root{--pad:20px;--gap:14px;--t-title:30px}
+  .sheet{padding-top:40px}
+  .zones{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .zones span:nth-child(n+5){display:none}
+  .g8{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .s1{grid-column:span 2}.s2,.s3,.s4,.s5,.s6,.s8{grid-column:1/-1}
+  .g8{row-gap:28px}
+  .keydata{row-gap:0}
+  .tb{margin:0 -10px 10px;grid-template-columns:repeat(4,minmax(0,1fr));max-width:none}
+  .tb > div:nth-child(1),.tb > div:nth-child(2){grid-column:1/-1;border-right:0;border-bottom:1px solid var(--ink)}
+  .cont{justify-content:flex-start;margin:0 -10px 10px;padding:8px 10px}
+  .strip nav{display:none}
+  .sh{flex-wrap:wrap}
+  .sh .form{margin-left:0;flex-basis:100%}
+}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* ---- register ---- */
+.mast{align-items:end;padding-bottom:22px;border-bottom:3px double var(--ink)}
+.mast h1{margin:0;font-family:var(--f-letter);font-weight:600;font-size:clamp(34px,4.4vw,56px);line-height:.95;letter-spacing:.02em;text-transform:uppercase}
+.mast .office{margin-top:10px}
+.statement{margin-top:24px;font-size:20px;line-height:29px;max-width:34em}
+.hero{margin-top:30px;align-items:start}
+.datums{position:relative;padding:28px 0 40px;--a:2.37%;--b:46.47%;--k:1}
+.dr{position:relative}
+.dr + .dr{margin-top:10px}
+.dr .cap{display:flex;gap:10px;align-items:baseline;padding-left:var(--a)}
+.dr .cap .status{font-size:11.5px;color:var(--ink-2)}
+.clip{position:relative;overflow:hidden}
+.pv{width:calc(100% * var(--k));aspect-ratio:2504/898;background:var(--ink);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%}
+.pv.a{-webkit-mask-image:url(plan_juris-c75.png);mask-image:url(plan_juris-c75.png)}
+.pv.b{-webkit-mask-image:url(plan_juris-c75a.png);mask-image:url(plan_juris-c75a.png)}
+.pv.c{-webkit-mask-image:url(plan_juris-c75t.png);mask-image:url(plan_juris-c75t.png)}
+.brk{display:none}
+.dl{position:absolute;top:0;bottom:28px;width:0;border-left:1px dashed var(--ink-2);pointer-events:none}
+.dl i{position:absolute;top:0;left:-11px;width:22px;height:22px;border:1px solid var(--ink);border-radius:50%;background:var(--paper);display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--f-letter);font-weight:600;font-size:13px}
+.dim{position:absolute;bottom:10px;height:14px;border-bottom:1px solid var(--ink)}
+.dim::before,.dim::after{content:"";position:absolute;bottom:-6px;width:1px;height:12px;background:var(--ink)}
+.dim::before{left:0}.dim::after{right:0}
+.dim b{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);background:var(--paper);padding:0 8px;font-family:var(--f-data);font-weight:400;font-size:11px;white-space:nowrap;color:var(--ink-2)}
+.figcap{margin-top:4px;padding-top:12px;border-top:1px solid var(--ink)}
+.figcap b{font-family:var(--f-letter);font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+.figcap p{margin-top:4px;font-size:15px;line-height:22px}
+.side{display:flex;flex-direction:column;gap:28px;padding-top:28px}
+.side ol{font-size:14.5px;line-height:21px}
+
+/* register */
+.rh,.entry{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:var(--gap);align-items:center}
+.rh{padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
+.entry{padding:18px 0;border-bottom:1px solid var(--rule);text-decoration:none;color:inherit}
+.entry:hover .name{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.entry .status{grid-column:span 1}
+.entry .thumb{grid-column:span 2;aspect-ratio:2504/898;background:var(--ink);-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.thumb.a{-webkit-mask-image:url(plan_juris-c75.png);mask-image:url(plan_juris-c75.png)}
+.thumb.b{-webkit-mask-image:url(plan_juris-c75a.png);mask-image:url(plan_juris-c75a.png)}
+.thumb.c{-webkit-mask-image:url(plan_juris-c75t.png);mask-image:url(plan_juris-c75t.png)}
+.entry .desc{grid-column:span 3}
+.entry .name{font-family:var(--f-letter);font-weight:600;font-size:22px;letter-spacing:.06em;text-transform:uppercase;line-height:1.15}
+.entry .kind{font-size:14.5px;line-height:21px;margin-top:4px;color:var(--ink-2)}
+.entry .data{grid-column:span 2;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14px;line-height:20px}
+.entry .data dt{font-family:var(--f-letter);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);padding-top:1px}
+.entry .data dd{margin:0}
+.entry .data .m{font-family:var(--f-data);font-size:13px}
+.rh .c1{grid-column:span 1}.rh .c2{grid-column:span 2}.rh .c3{grid-column:span 3}
+.xref{margin-top:16px}
+
+/* notices */
+ol.notices{list-style:none;margin:0;padding:0;border-top:1.5px solid var(--ink)}
+ol.notices li{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));column-gap:var(--gap);padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+ol.notices .nno{grid-column:span 1;font-family:var(--f-data);font-size:12.5px;color:var(--ink-2)}
+ol.notices p{grid-column:span 6}
+ol.notices .re{grid-column:span 1;text-align:right}
+
+/* requisition */
+form.req{border:1.5px solid var(--ink)}
+.req .fh{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;border-bottom:1.5px solid var(--ink)}
+.field{display:grid;grid-template-columns:44px minmax(0,1fr);border-bottom:1px solid var(--ink)}
+.field .bx{border-right:1px solid var(--ink);font-family:var(--f-data);font-size:12px;color:var(--ink-2);padding:10px 0;text-align:center}
+.field label{display:block;padding:8px 14px 0}
+.field input,.field select{display:block;width:100%;border:0;background:transparent;color:var(--ink);padding:4px 14px 10px;font:17px var(--f-text);border-radius:0}
+.field input::placeholder{color:var(--ink-2);opacity:.65}
+.field select{-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.req .actions{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:14px}
+#receipt{border-top:1px dashed var(--ink);padding:12px 14px;font-family:var(--f-letter);font-size:15px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+@media (max-width:860px){
+  .plate{max-width:200px}
+  .statement{font-size:18px;line-height:27px}
+  /* break lines: bodies between A and B, necks broken off */
+  .datums{--k:1.86;--a:4.41%;--b:86.43%}
+  .brk{display:block;position:absolute;right:0;top:0;bottom:0;width:16px;background:var(--paper)}
+  .brk svg{position:absolute;inset:0;width:100%;height:100%}
+  .brk span{position:absolute;right:20px;top:2px;font-family:var(--f-data);font-size:10.5px;color:var(--ink-2);background:var(--paper);padding:0 4px}
+  .dim b{font-size:10px}
+  .side{padding-top:0;margin-top:8px}
+  .rh{display:none}
+  .entry{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:10px;align-items:start}
+  .entry .thumb{grid-column:1/-1;order:-1}
+  .entry .status{grid-column:span 1}
+  .entry .desc{grid-column:span 3}
+  .entry .data{grid-column:2/-1}
+  ol.notices li{grid-template-columns:repeat(4,minmax(0,1fr))}
+  ol.notices .nno{grid-column:span 1}
+  ol.notices p{grid-column:span 3}
+  ol.notices .re{grid-column:2/-1;text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="strip" role="banner">
+  <span class="house">Juris Professional Instruments Corporation</span>
+  <nav aria-label="Sheets"><a href="#register">Register</a><a href="#notices">Notices</a><a href="#requisition">Requisition</a><a href="c-75/#terms">Defined terms</a></nav>
+</div>
+
+<main class="sheets">
+
+<!-- SHEET 1 -->
+<section class="sheet" aria-labelledby="t1">
+  <div class="zones" aria-hidden="true"><span data-z="1"></span><span data-z="2"></span><span data-z="3"></span><span data-z="4"></span><span data-z="5"></span><span data-z="6"></span><span data-z="7"></span><span data-z="8"></span></div>
+  <div class="sheet-body">
+    <div class="mast g8">
+      <div class="s2">
+        <svg class="plate" viewBox="0 0 300 96" role="img" aria-label="Juris Professional Instruments nameplate">
+          <rect x="1" y="1" width="298" height="94" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="7" y="7" width="286" height="82" rx="2" fill="none" stroke="currentColor" stroke-width=".75"/>
+          <circle cx="22" cy="48" r="5.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="22" cy="48" r="1.6" fill="currentColor"/>
+          <circle cx="278" cy="48" r="5.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="278" cy="48" r="1.6" fill="currentColor"/>
+          <text x="150" y="45" text-anchor="middle" fill="currentColor" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="600" font-size="34" letter-spacing="12">JURIS</text>
+          <line x1="44" y1="56" x2="256" y2="56" stroke="currentColor" stroke-width=".75"/>
+          <text x="150" y="74" text-anchor="middle" fill="currentColor" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="11.5" letter-spacing="4.2">PROFESSIONAL INSTRUMENTS</text>
+        </svg>
+      </div>
+      <div class="s6">
+        <h1 id="t1">Register of instruments</h1>
+        <p class="lab office">Office of Instruments · Drawing register JPI-000</p>
+      </div>
+    </div>
+    <p class="statement">The Corporation designs, documents and allocates instruments for members of the professions. It does not account for their use.</p>
+
+    <div class="hero g8">
+      <figure class="s6" style="margin:0">
+        <div class="datums" role="img" aria-label="Plan views of the C-75, C-75A and C-75T stacked to one scale on shared datum lines. Datum A at the tail and datum B at the end of the body line up on all three; the bodies are identical in outline and only the C-75T neck runs past the others.">
+          <div class="dr"><div class="cap"><span class="lab" style="color:var(--ink)">C-75 “The Proxy”</span><span class="status">Issued</span></div><div class="clip"><div class="pv a"></div><div class="brk" aria-hidden="true"><svg viewBox="0 0 16 100" preserveAspectRatio="none"><path d="M8 0V40L2 46L14 54L8 60V100" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg><span>24.75</span></div></div></div>
+          <div class="dr"><div class="cap"><span class="lab" style="color:var(--ink)">C-75A “The Amicus”</span><span class="status">Application pending</span></div><div class="clip"><div class="pv b"></div><div class="brk" aria-hidden="true"><svg viewBox="0 0 16 100" preserveAspectRatio="none"><path d="M8 0V40L2 46L14 54L8 60V100" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg><span>24.75</span></div></div></div>
+          <div class="dr"><div class="cap"><span class="lab" style="color:var(--ink)">C-75T</span><span class="status">Filed</span></div><div class="clip"><div class="pv c"></div><div class="brk" aria-hidden="true"><svg viewBox="0 0 16 100" preserveAspectRatio="none"><path d="M8 0V40L2 46L14 54L8 60V100" fill="none" stroke="currentColor" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg><span>25.5</span></div></div></div>
+          <span class="dl" style="left:var(--a)"><i>A</i></span>
+          <span class="dl" style="left:var(--b)"><i>B</i></span>
+          <span class="dim" style="left:var(--a);width:calc(var(--b) - var(--a))"><b>18.00 · Outline C-75</b></span>
+        </div>
+        <figcaption class="figcap"><b>FIG. 1 · Common outline</b><p>Plan views of the C-75, C-75A and C-75T, drawn to one scale and aligned on datums A and B. The outline between A and B is the same on every instrument.</p></figcaption>
+      </figure>
+      <div class="s2 side">
+        <div>
+          <div class="label">General notes</div>
+          <ol class="num">
+            <li>Outline C-75 runs from datum A to datum B. It is common to every instrument in this register.</li>
+            <li>Instruments differ beyond it.</li>
+            <li>The C-75T neck extends beyond the others, its scale being 25.5. This is not an error.</li>
+            <li>Strings are omitted for clarity.</li>
+            <li>DO NOT SCALE DRAWING.</li>
+          </ol>
+        </div>
+        <div>
+          <div class="label">Outline C-75</div>
+          <dl class="kv">
+            <dt>A to B</dt><dd>18.00</dd>
+            <dt>Lower bout</dt><dd>13.49</dd>
+            <dt>Depth</dt><dd>2.0</dd>
+            <dt>Bevel</dt><dd>5/8</dd>
+            <dt>Instruments</dt><dd>3</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tb"><div class="iss"><svg viewBox="0 0 300 96" aria-hidden="true"><rect x="2" y="2" width="296" height="92" rx="8" fill="none" stroke="currentColor" stroke-width="6"/><text x="150" y="66" text-anchor="middle" fill="currentColor" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="600" font-size="52" letter-spacing="16">JURIS</text></svg><div><small>Issued by</small><b>Juris Prof. Instruments Corp.</b></div></div><div><small>Title</small><b>Register · Common outline</b></div><div><small>Dwg no.</small><b>JPI-000-001</b></div><div><small>Scale</small><b>NTS</b></div><div><small>Sheet</small><b>1 of 4</b></div><div><small>Rev</small><b>A</b></div></div>
+</section>
+
+<!-- SHEET 2 -->
+<section class="sheet" aria-labelledby="t2" id="register">
+  <div class="zones" aria-hidden="true"><span data-z="1"></span><span data-z="2"></span><span data-z="3"></span><span data-z="4"></span><span data-z="5"></span><span data-z="6"></span><span data-z="7"></span><span data-z="8"></span></div>
+  <div class="sheet-body">
+    <div class="sh"><span class="no">02</span><h2 id="t2">Register</h2></div>
+    <div class="rh lab" aria-hidden="true"><span class="c1">Status</span><span class="c2">Plan, to one scale</span><span class="c3">Instrument</span><span class="c2">Data</span></div>
+    <a class="entry" href="c-75/">
+      <span class="status">Issued</span>
+      <div class="thumb a" role="img" aria-label="Plan view of the C-75"></div>
+      <div class="desc"><div class="name">C-75 “The Proxy”</div><div class="kind">Chambered mahogany, maple cap, set neck. Two pickups on a solid centre block.</div></div>
+      <dl class="data"><dt>Scale</dt><dd class="m">24.75 in</dd><dt>Units</dt><dd>Five (5), current fiscal year</dd></dl>
+    </a>
+    <a class="entry" href="/juris-c75a/">
+      <span class="status">Application pending</span>
+      <div class="thumb b" role="img" aria-label="Plan view of the C-75A"></div>
+      <div class="desc"><div class="name">C-75A “The Amicus”</div><div class="kind">Archtop. Faceted Port Orford cedar top on a one-piece alder rim. 2.0 at the edge; 3.30 at the arch.</div></div>
+      <dl class="data"><dt>Scale</dt><dd class="m">24.75 in</dd><dt>Units</dt><dd>None produced</dd></dl>
+    </a>
+    <a class="entry" href="/juris-c75t/">
+      <span class="status">Filed</span>
+      <div class="thumb c" role="img" aria-label="Plan view of the C-75T"></div>
+      <div class="desc"><div class="name">C-75T</div><div class="kind">T-type solid body, bolt-on neck, bevels unchanged. Designation withheld.</div></div>
+      <dl class="data"><dt>Scale</dt><dd class="m">25.5 in</dd><dt>Units</dt><dd>None</dd></dl>
+    </a>
+    <p class="lab xref">Defined terms: see <a href="c-75/">C-75-001, Sheet 1</a>. They apply to every instrument in this register.</p>
+  </div>
+  <div class="cont"><b><span>Dwg no.</span>JPI-000-002</b><b><span>Sheet</span>2 of 4</b><b><span>Rev</span>A</b></div>
+</section>
+
+<!-- SHEET 3 -->
+<section class="sheet" aria-labelledby="t3" id="notices">
+  <div class="zones" aria-hidden="true"><span data-z="1"></span><span data-z="2"></span><span data-z="3"></span><span data-z="4"></span><span data-z="5"></span><span data-z="6"></span><span data-z="7"></span><span data-z="8"></span></div>
+  <div class="sheet-body">
+    <div class="sh"><span class="no">03</span><h2 id="t3">Notices</h2></div>
+    <ol class="notices">
+      <li><span class="nno">No. 005</span><p>Burst finish withdrawn from the C-75. A burst is not consistent with Claim 12.</p><span class="re lab">C-75</span></li>
+      <li><span class="nno">No. 004</span><p>Audio specimens A, B and C for the C-75 have not yet been recorded.</p><span class="re lab">C-75</span></li>
+      <li><span class="nno">No. 003</span><p>C-75T filed. Designation withheld pending review.</p><span class="re lab">C-75T</span></li>
+      <li><span class="nno">No. 002</span><p>C-75A drawings issued for review. No unit has been produced.</p><span class="re lab">C-75A</span></li>
+      <li><span class="nno">No. 001</span><p>C-75 “The Proxy” issued. Five (5) units allocated for the current fiscal year.</p><span class="re lab">C-75</span></li>
+    </ol>
+  </div>
+  <div class="cont"><b><span>Dwg no.</span>JPI-000-003</b><b><span>Sheet</span>3 of 4</b><b><span>Rev</span>A</b></div>
+</section>
+
+<!-- SHEET 4 -->
+<section class="sheet" aria-labelledby="t4" id="requisition">
+  <div class="zones" aria-hidden="true"><span data-z="1"></span><span data-z="2"></span><span data-z="3"></span><span data-z="4"></span><span data-z="5"></span><span data-z="6"></span><span data-z="7"></span><span data-z="8"></span></div>
+  <div class="sheet-body">
+    <div class="sh"><span class="no">04</span><h2 id="t4">Requisition</h2><span class="form">Form JPI-R-1</span></div>
+    <div class="g8">
+      <form class="req s5" id="reqform" novalidate>
+        <div class="fh"><span class="lab" style="color:var(--ink)">Requisition for instrument</span><span class="lab">Form JPI-R-1</span></div>
+        <div class="field"><span class="bx">1</span><div><label class="lab" for="r-email">Correspondence address</label><input id="r-email" name="email" type="email" autocomplete="email" placeholder="name@domain" required></div></div>
+        <div class="field"><span class="bx">2</span><div><label class="lab" for="r-inst">Instrument requested</label>
+          <select id="r-inst" name="instrument"><option>C-75 “The Proxy”</option><option>C-75A “The Amicus”</option><option>C-75T</option><option>Undetermined</option></select></div></div>
+        <div class="field"><span class="bx">3</span><div><label class="lab" for="r-prof">Profession (optional; for records only)</label><input id="r-prof" name="profession" type="text" autocomplete="organization-title" placeholder="e.g. Counsel"></div></div>
+        <div class="actions"><span class="lab">Entry is not allocation</span><button class="btn" type="submit">File requisition</button></div>
+        <div id="receipt" role="status" hidden></div>
+      </form>
+      <div class="s3 stack">
+        <p>Units are allocated in the order requisitions are received. A refundable deposit constitutes a requisition. The fee is to be determined. It has not been determined.</p>
+        <p>Requisitions for instruments not yet issued are held on file until issue.</p>
+        <p class="lab">The profession given in field 3 is recorded and not verified. Correspondence is answered by a person.</p>
+      </div>
+    </div>
+  </div>
+  <div class="cont"><b><span>Dwg no.</span>JPI-000-004</b><b><span>Sheet</span>4 of 4</b><b><span>Rev</span>A</b></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var f = document.getElementById('reqform'), r = document.getElementById('receipt'), e = document.getElementById('r-email');
+  f.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    r.hidden = false;
+    if (!e.value || !e.checkValidity()){ r.textContent = 'Field 1 is incomplete. A correspondence address is required.'; e.focus(); return; }
+    r.textContent = 'Requisition received. It has not been filed. Requisitions open with the waitlist.';
+  });
+})();
+</script>
+</body>
+</html>
