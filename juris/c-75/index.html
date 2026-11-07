@@ -86,6 +86,7 @@ a:hover{text-decoration-thickness:2px}
 .tb > div:last-child{border-right:0}
 .tb small{display:block;font-family:var(--f-letter);font-size:10px;letter-spacing:.2em;color:var(--ink-2);text-transform:uppercase;line-height:1.3}
 .tb b{display:block;font-family:var(--f-letter);font-size:14px;letter-spacing:.07em;font-weight:600;text-transform:uppercase;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb .iss b{white-space:normal;line-height:1.15}
 .tb .iss{display:flex;align-items:center;gap:10px}
 .tb .iss svg{flex:none;width:44px;height:auto;color:var(--ink)}
 /* continuation strip */
@@ -272,6 +273,7 @@ table.bom td:last-child{padding-right:0}
 .strip .house{display:inline-flex;align-items:center;gap:10px}.strip .house svg{width:16px;height:16px;flex:none}.plate.lockup{max-width:250px}
 /* the cut: display type is sectioned at the INSIGNIA's two gutters (9–11 and 21–23 of 32, on cap height) */
 .cut{--lh:.82;--ct:calc(((var(--lh) - 1.2) / 2 + .3) * 1em);--u:.021875em;-webkit-mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);-webkit-mask-size:100% calc(var(--lh) * 1em);mask-size:100% calc(var(--lh) * 1em);-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y}
+h1.cut{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -288,7 +290,7 @@ table.bom td:last-child{padding-right:0}
   <div class="sheet-body">
     <div class="g8">
       <div class="s3 cover-l">
-        <svg class="plate lockup" viewBox="0 0 148 44" role="img" aria-label="Juris Professional Instruments"><defs><clipPath id="ins-lk"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath><mask id="ins-cut" maskUnits="userSpaceOnUse" x="40" y="-2" width="112" height="36"><rect x="40" y="-2" width="112" height="36" fill="#fff"/><rect x="40" y="9" width="112" height="2" fill="#000"/><rect x="40" y="21" width="112" height="2" fill="#000"/></mask></defs><g fill="currentColor" clip-path="url(#ins-lk)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g><text x="44" y="32" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="45.71" textLength="104" lengthAdjust="spacing" fill="currentColor" mask="url(#ins-cut)">JURIS</text><text x="44.6" y="44" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="8.57" textLength="103" lengthAdjust="spacing" fill="currentColor">PROFESSIONAL INSTRUMENTS</text></svg>
+        <svg class="plate lockup" viewBox="0 0 148 44" role="img" aria-label="Juris Professional Instruments"><defs><clipPath id="ins-lk"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath><mask id="ins-cut" maskUnits="userSpaceOnUse" x="40" y="-2" width="112" height="36"><rect x="40" y="-2" width="112" height="36" fill="#fff"/><rect x="40" y="9" width="112" height="2" fill="#000"/><rect x="40" y="21" width="112" height="2" fill="#000"/></mask></defs><g fill="currentColor" clip-path="url(#ins-lk)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g><text x="44" y="32" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="45.71" textLength="104" lengthAdjust="spacing" fill="currentColor" mask="url(#ins-cut)">JURIS</text><text x="44.4" y="44" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="8.57" letter-spacing=".6" fill="currentColor">PROFESSIONAL</text><text x="148" y="44" text-anchor="end" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="8.57" letter-spacing=".6" fill="currentColor">INSTRUMENTS</text></svg>
         <div class="kind">Instrument, stringed, electric, professional</div>
         <div class="model">
           <div class="w">Model</div>
@@ -323,8 +325,8 @@ table.bom td:last-child{padding-right:0}
       <div class="s1"><div class="lab">Units</div><b>5<em>FY</em></b></div>
     </div>
     <figure class="photo">
-      <img src="specimen.jpg" width="1800" height="1200" alt="Black-and-white photograph of the C-75 production specimen at a three-quarter angle: bevelled geometric body, two pickups, bridge on a wooden base, trapeze tailpiece, two knobs and the neck running to a 3+3 headstock.">
-      <figcaption><span class="lab" style="color:var(--ink)">FIG. 0 · Production specimen</span><span class="lab">Where specimen and drawings disagree, the drawings govern.</span></figcaption>
+      <img src="specimen.jpg" width="1800" height="1200" alt="Black-and-white rendering of the C-75 at a three-quarter angle: bevelled geometric body, two pickups, bridge on a wooden base, trapeze tailpiece, two knobs and the neck running to a 3+3 headstock.">
+      <figcaption><span class="lab" style="color:var(--ink)">FIG. 0 · Representation</span><span class="lab">Rendered from the drawings. A photograph will be entered into the record. Until then, the drawings govern.</span></figcaption>
     </figure>
     <div class="notes g8">
       <div class="s3">
@@ -362,7 +364,7 @@ table.bom td:last-child{padding-right:0}
       </div>
     </div>
   </div>
-  <div class="tb"><div class="iss"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><clipPath id="ins-tb"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath></defs><g fill="currentColor" clip-path="url(#ins-tb)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g></svg><div><small>Issued by</small><b>Juris Prof. Instruments Corp.</b></div></div><div><small>Title</small><b>C-75 · Cover sheet</b></div><div><small>Dwg no.</small><b>C-75-001</b></div><div><small>Scale</small><b>NTS</b></div><div><small>Sheet</small><b>1 of 6</b></div><div><small>Rev</small><b>A</b></div></div>
+  <div class="tb"><div class="iss"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><clipPath id="ins-tb"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath></defs><g fill="currentColor" clip-path="url(#ins-tb)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g></svg><div><small>Issued by</small><b>Juris Professional Instruments</b></div></div><div><small>Title</small><b>C-75 · Cover sheet</b></div><div><small>Dwg no.</small><b>C-75-001</b></div><div><small>Scale</small><b>NTS</b></div><div><small>Sheet</small><b>1 of 6</b></div><div><small>Rev</small><b>A</b></div></div>
 </section>
 
 <!-- SHEET 2 · DRAWINGS -->
@@ -489,6 +491,7 @@ table.bom td:last-child{padding-right:0}
     <div class="sh"><span class="no">05</span><h2 id="t5">Manufacture and custody</h2><span class="form">Procedure JPI-M-1</span></div>
     <div class="g8">
       <div class="s5 flow">
+        <p class="made">Made by hands and machines in Portland, Oregon.</p>
         <ol class="num">
           <li>Body machined and chambered (20) to drawing.</li>
           <li>Neck set at 4° and glued.</li>
@@ -528,7 +531,7 @@ table.bom td:last-child{padding-right:0}
         <div class="docket" aria-label="Units">
           <div><b>001</b><span class="lab">Open</span></div><div><b>002</b><span class="lab">Open</span></div><div><b>003</b><span class="lab">Open</span></div><div><b>004</b><span class="lab">Open</span></div><div><b>005</b><span class="lab">Open</span></div>
         </div>
-        <p>Five units this fiscal year. A refundable deposit reserves one. Serials follow the order of deposit. Fee: to be determined. It has not been determined.</p>
+        <p>Five units this fiscal year. A refundable deposit reserves one. Serials follow the order of deposit. Fee: USD 3,500.</p>
         <div class="req">
           <span class="lab">Deposit refundable</span>
           <button type="button" class="btn" id="requisition">Requisition</button>
