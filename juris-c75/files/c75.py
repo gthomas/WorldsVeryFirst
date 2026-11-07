@@ -158,19 +158,20 @@ def _sp(r, n=10):
     return [np.array([r * math.sin(a) * math.cos(b), r * math.sin(a) * math.sin(b), r * math.cos(a)]) for a in np.linspace(0, math.pi, n) for b in np.linspace(0, 2 * math.pi, 2 * n, endpoint=False)]
 
 def build_pickup(c):
-    """TV Jones T-Armond, wood mount, no ears: black base plate screwed to the top at its corners, chrome cover
-    with two staggered rows of six flat pole pieces and the logo bar"""
+    """TV Jones T-Armond, English mount: the pickup hangs by an ear at each end from a black ring, one screw and
+    spring per ear; chrome cover with two staggered rows of six flat pole pieces and the logo bar.
+    (The prototype carried no-ear pickups on base plates; production instruments are English mount.)"""
     y = float(c[1]); zt = string_z_body(y) - 3.5
-    plate = B.prism(B.rrect(86, 46, 2.5) + np.array([0, y]), T, T + 2.0)
-    screws = B.union([B.hull([(sx * 39.5 + dx, y + sy * 19.5 + dy, T + 2.0 + dz) for dx in (-1.6, 1.6) for dy in (-1.6, 1.6) for dz in (0, 0.7)])
-                      for sx in (-1, 1) for sy in (-1, 1)])
+    plate = B.prism(B.rrect(86, 46, 3.0) + np.array([0, y]), T, T + 2.0) - B.prism(B.rrect(72.6, 40.6, 2.2) + np.array([0, y]), T - 1, T + 3)
+    ears = B.union([B.prism(B.rrect(6.2, 11.0, 0.5) + np.array([sx * 38.4, y]), T + 2.0, T + 2.9) for sx in (-1, 1)])
+    screws = B.union([m3.Manifold.cylinder(1.0, 2.6, 2.6, 28).translate([sx * 39.5, y, T + 2.9]) for sx in (-1, 1)])
     cover = _chull([(B.rrect(70.6, 38.6, 4.5) + np.array([0, y]), T + 2.0), (B.rrect(70.6, 38.6, 4.5) + np.array([0, y]), zt - 1.2),
                     (B.rrect(68.2, 36.2, 3.4) + np.array([0, y]), zt)])
     xs = np.linspace(-26.2, 26.2, 6)
     poles = B.union([B.prism(B.rrect(6.4, 4.6, 1.2) + np.array([x + off, y + yo]), zt - 0.1, zt + 0.45)
                      for yo, off in ((-6.5, -2.0), (6.5, 2.0)) for x in xs])
     logo = B.prism(B.rrect(22, 3.2, 1.0) + np.array([-18, y]), zt - 0.1, zt + 0.25)
-    return plate, cover, poles + logo + screws
+    return plate, cover, poles + logo + ears + screws
 
 def build_bridge():
     """rosewood base on the top; brass Compton one-piece compensated bridge (dog-bone ends over the posts) sitting
