@@ -1042,8 +1042,42 @@ const patentDark = new THREE.MeshBasicMaterial({color:0x16181b, side:THREE.Doubl
 let patentOn = true;
 const patentBtn = document.getElementById('patent'), specBtn = document.getElementById('specimen'), figLabel = document.getElementById('figlabel');
 function sheetColors(){
-  patentFill.color.set(cssColor('--paper')); inkLine.color.set(cssColor('--ink')); patentDark.color.set(cssColor('--ink'));
+  patentFill.color.set(cssColor('--paper')); inkLine.color.set(cssColor('--ink')); silMat.color.set(cssColor('--ink')); patentDark.color.set(cssColor('--ink'));
   if (patentOn) scene.background = new THREE.Color(cssColor('--paper'));
+}
+
+// ---------- silhouettes: an inverted hull around every part, so curved outlines close. Constant width in screen pixels.
+const SIL_U = { value: 0 };
+const silMat = new THREE.MeshBasicMaterial({color:0x16181b, side:THREE.BackSide, clippingPlanes:[clip], polygonOffset:true, polygonOffsetFactor:6, polygonOffsetUnits:12});
+silMat.onBeforeCompile = (sh) => {
+  sh.uniforms.uPx = SIL_U; sh.uniforms.uW = { value: 1 };
+  sh.vertexShader = 'attribute vec3 sNormal;\nattribute float sW;\nuniform float uPx;\n' + sh.vertexShader.replace('#include <project_vertex>',
+    'vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);\n' +
+    'vec3 sn = normalize(normalMatrix * sNormal);\n' +
+    'mvPosition.xyz += sn * uPx * sW * max(-mvPosition.z, 1.0);\n' +
+    'gl_Position = projectionMatrix * mvPosition;');
+};
+function smoothNormals(geo){
+  // average normals over coincident positions so the hull doesn't split at hard edges
+  const pos = geo.attributes.position, nor = geo.attributes.normal, n = pos.count, map = new Map(), out = new Float32Array(n * 3);
+  if (!nor) geo.computeVertexNormals();
+  const N = geo.attributes.normal, key = (i) => Math.round(pos.getX(i) * 1e3) + ',' + Math.round(pos.getY(i) * 1e3) + ',' + Math.round(pos.getZ(i) * 1e3);
+  for (let i = 0; i < n; i++){ const k = key(i); let a = map.get(k); if (!a){ a = [0,0,0]; map.set(k, a); } a[0] += N.getX(i); a[1] += N.getY(i); a[2] += N.getZ(i); }
+  for (let i = 0; i < n; i++){ const a = map.get(key(i)), l = Math.hypot(a[0], a[1], a[2]) || 1; out[i*3] = a[0]/l; out[i*3+1] = a[1]/l; out[i*3+2] = a[2]/l; }
+  return out;
+}
+function addSilhouette(p, name){
+  const g = p.mesh.geometry;
+  if (!g.attributes.sNormal) g.setAttribute('sNormal', new THREE.BufferAttribute(smoothNormals(g), 3));
+  const heavy = /^(body|cap|cap_edge|neck|top|back|rim|headstock|pickguard)/.test(name);
+  g.setAttribute('sW', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(heavy ? 1.0 : 0.62), 1));
+  const h = new THREE.Mesh(g, silMat);
+  h.renderOrder = -1; h.frustumCulled = p.mesh.frustumCulled;
+  h.onBeforeRender = (r, s, cam) => {
+    const ht = r.domElement.clientHeight || r.domElement.height;
+    SIL_U.value = cam.isPerspectiveCamera ? 2 * Math.tan(cam.fov * Math.PI / 360) / ht * 2.2 : 2.2 / ht;
+  };
+  p.mesh.add(h); p.sil = h;
 }
 function setPatent(on){
   patentOn = on;
@@ -1056,11 +1090,14 @@ function setPatent(on){
         p.pedges = new THREE.LineSegments(new THREE.EdgesGeometry(p.mesh.geometry, ang), inkLine);
         p.mesh.add(p.pedges);
       }
+      if (name !== 'strings' && !p.sil) addSilhouette(p, name);
+      if (p.sil) p.sil.visible = true;
       if (p.pedges) p.pedges.visible = true;
       if (p.edges) p.edges.visible = false;
     } else {
       p.mesh.material = p.mat;
       if (p.pedges) p.pedges.visible = false;
+      if (p.sil) p.sil.visible = false;
       if (p.edges) p.edges.visible = false;
     }
   }
@@ -1097,10 +1134,11 @@ function showFig(n, scroll){
   figLabel.textContent = 'FIG. ' + n;
   setView(F.view);
   if (scroll){
-    const r = document.querySelector('.app').getBoundingClientRect();
+    const app = document.querySelector('.stage') || canvas.parentElement;
+    const r = app.getBoundingClientRect();
     if (r.top < 0 || r.bottom > innerHeight){
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      document.querySelector('.app').scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'center'});
+      app.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'center'});
     }
   }
 }
