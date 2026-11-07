@@ -275,6 +275,11 @@ table.bom td:last-child{padding-right:0}
 .cut{--lh:.82;--ct:calc(((var(--lh) - 1.2) / 2 + .3) * 1em);--u:.021875em;-webkit-mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);-webkit-mask-size:100% calc(var(--lh) * 1em);mask-size:100% calc(var(--lh) * 1em);-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y}
 h1.cut{white-space:nowrap;font-size:clamp(80px,9.4vw,136px)}
 @media (max-width:700px){h1.cut{font-size:96px}}
+.sworn{margin-top:40px;padding-top:18px;border-top:1.5px solid var(--ink);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,3fr);gap:24px;align-items:end}
+.sworn p{max-width:34em}
+.sworn .sig{display:flex;flex-direction:column;gap:6px}
+.sworn .sigline{display:block;height:44px;border-bottom:1px solid var(--ink)}
+@media (max-width:760px){.sworn{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -548,6 +553,10 @@ h1.cut{white-space:nowrap;font-size:clamp(80px,9.4vw,136px)}
         <div class="filing"><div class="top"><span class="name">C-75 “The Proxy”</span><span class="status">Issued</span></div><p>Chambered, set neck. The outline in common.</p><a class="link" href="../c-75/">View case file</a></div>
         <div class="filing"><div class="top"><span class="name">C-75T</span><span class="status">Filed</span></div><p>T-type on the C-75 outline; bevels unchanged. Designation withheld.</p><a class="link" href="../c-75t/">View case file</a></div>
       </div>
+    </div>
+    <div class="sworn">
+      <div><div class="label">Builder of record</div><p>The instrument described in this case file is made by hands and machines in Portland, Oregon, by the builder of record, who has read the drawings and agrees with them. Each instrument carries his signature. Correspondence: <a href="mailto:info@jurisinstruments.com">info@jurisinstruments.com</a>.</p></div>
+      <div class="sig"><span class="sigline" aria-hidden="true"></span><span class="lab">Grant Thomas · Builder of record · Sworn</span></div>
     </div>
     <div class="close">
       <p class="ril">Res ipsa loquitur.</p>
