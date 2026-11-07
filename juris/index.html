@@ -103,7 +103,7 @@ button.opt[aria-pressed="true"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(-
 .btn:hover{background:var(--ink-2)}
 .link{font-family:var(--f-letter);font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase}
 
-/* nameplate */
+/* lock-up: INSIGNIA and wordmark (W4) */
 .plate{width:100%;max-width:280px;height:auto;color:var(--ink);display:block}
 
 /* lists and tables */
@@ -225,7 +225,9 @@ form.req{border:1.5px solid var(--ink)}
   ol.notices p{grid-column:span 3}
   ol.notices .re{grid-column:2/-1;text-align:left}
 }
-.strip .house{display:inline-flex;align-items:center;gap:10px}.strip .house svg{width:16px;height:16px;flex:none}.plate.lockup{max-width:260px}
+.strip .house{display:inline-flex;align-items:center;gap:10px}.strip .house svg{width:16px;height:16px;flex:none}.plate.lockup{max-width:250px}
+/* the cut: display type is sectioned at the INSIGNIA's two gutters (9–11 and 21–23 of 32, on cap height) */
+.cut{--lh:.82;--ct:calc(((var(--lh) - 1.2) / 2 + .3) * 1em);--u:.021875em;-webkit-mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);-webkit-mask-size:100% calc(var(--lh) * 1em);mask-size:100% calc(var(--lh) * 1em);-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y}
 </style>
 </head>
 <body>
@@ -242,10 +244,10 @@ form.req{border:1.5px solid var(--ink)}
   <div class="sheet-body">
     <div class="mast g8">
       <div class="s2">
-        <svg class="plate lockup" viewBox="0 0 200 32" role="img" aria-label="Juris Professional Instruments"><defs><clipPath id="ins-lk"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath></defs><g fill="currentColor" clip-path="url(#ins-lk)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g><text x="42" y="18" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="25.7" letter-spacing="-.2" fill="currentColor">JURIS</text><text x="42.4" y="32" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="12.86" letter-spacing=".9" fill="currentColor">PROFESSIONAL INSTRUMENTS</text></svg>
+        <svg class="plate lockup" viewBox="0 0 148 44" role="img" aria-label="Juris Professional Instruments"><defs><clipPath id="ins-lk"><path d="M10,0 H22 L32,10 V22 L22,32 H10 L0,22 V10 Z"/></clipPath><mask id="ins-cut" maskUnits="userSpaceOnUse" x="40" y="-2" width="112" height="36"><rect x="40" y="-2" width="112" height="36" fill="#fff"/><rect x="40" y="9" width="112" height="2" fill="#000"/><rect x="40" y="21" width="112" height="2" fill="#000"/></mask></defs><g fill="currentColor" clip-path="url(#ins-lk)"><rect x="0" y="0" width="9" height="9"/><rect x="0" y="11" width="9" height="10"/><rect x="0" y="23" width="9" height="9"/><rect x="11" y="0" width="10" height="9"/><rect x="11" y="11" width="10" height="10"/><rect x="11" y="23" width="10" height="9"/><rect x="23" y="0" width="9" height="9"/><rect x="23" y="11" width="9" height="10"/><rect x="23" y="23" width="9" height="9"/></g><text x="44" y="32" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="45.71" textLength="104" lengthAdjust="spacing" fill="currentColor" mask="url(#ins-cut)">JURIS</text><text x="44.6" y="44" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="500" font-size="8.57" textLength="103" lengthAdjust="spacing" fill="currentColor">PROFESSIONAL INSTRUMENTS</text></svg>
       </div>
       <div class="s6">
-        <h1 id="t1">Register of instruments</h1>
+        <h1 id="t1" class="cut" style="--lh:.95">Register of instruments</h1>
         <p class="lab office">Office of Instruments · Drawing register JPI-000</p>
       </div>
     </div>
@@ -325,7 +327,7 @@ form.req{border:1.5px solid var(--ink)}
   <div class="sheet-body">
     <div class="sh"><span class="no">03</span><h2 id="t3">Notices</h2></div>
     <ol class="notices">
-      <li><span class="nno">No. 006</span><p>The INSIGNIA. The INSIGNIA of the Corporation is a section through the INSTRUMENT, divided on a grid of 10, 12 and 10. It does not depict the INSTRUMENT. It depicts the Corporation’s records of the INSTRUMENT, which are complete. The four corners have been removed. They are accounted for.</p><span class="re lab">All</span></li>
+      <li><span class="nno">No. 006</span><p>The INSIGNIA. The INSIGNIA of the Corporation is drawn from the edge of the C-75: bevel 0.625, flat 0.750, bevel 0.625, at 45°. The profile is mirrored, squared and divided at the same intervals. The name JURIS is cut at the same intervals. The INSIGNIA does not depict the INSTRUMENT. It depicts the Corporation’s records of the INSTRUMENT, which are complete. Four corners have been removed. They are accounted for.</p><span class="re lab">All</span></li>
       <li><span class="nno">No. 005</span><p>Burst finish withdrawn from all instruments. A burst is not consistent with Claim 8 of C-75-003.</p><span class="re lab">All</span></li>
       <li><span class="nno">No. 004</span><p>Audio specimens A, B and C for the C-75 have not yet been recorded.</p><span class="re lab">C-75</span></li>
       <li><span class="nno">No. 003</span><p>C-75T filed. Designation withheld pending review.</p><span class="re lab">C-75T</span></li>
