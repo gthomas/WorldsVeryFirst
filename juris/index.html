@@ -240,6 +240,12 @@ form.req{border:1.5px solid var(--ink)}
 .strip .house{display:inline-flex;align-items:center;gap:10px}.strip .house svg{width:16px;height:16px;flex:none}.plate.lockup{max-width:250px}
 /* the cut: display type is sectioned at the INSIGNIA's two gutters (9–11 and 21–23 of 32, on cap height) */
 .cut{--lh:.82;--ct:calc(((var(--lh) - 1.2) / 2 + .3) * 1em);--u:.021875em;-webkit-mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);mask-image:linear-gradient(#000 calc(var(--ct) + 9*var(--u)),transparent 0 calc(var(--ct) + 11*var(--u)),#000 0 calc(var(--ct) + 21*var(--u)),transparent 0 calc(var(--ct) + 23*var(--u)),#000 0);-webkit-mask-size:100% calc(var(--lh) * 1em);mask-size:100% calc(var(--lh) * 1em);-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y}
+.fig0{margin:30px 0 0}
+.fig0 .pv0{display:block;width:min(100%,calc(46vh * 2504 / 898));margin:0 auto;aspect-ratio:2504/898;background:var(--ink);-webkit-mask:url(plan_juris-c75.png?v=3) center/100% 100% no-repeat;mask:url(plan_juris-c75.png?v=3) center/100% 100% no-repeat}
+.fig0 figcaption{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.fig0 + .nowalloc{margin-top:14px}
+.nowalloc + .statement{margin-top:24px}
+@media (max-width:860px){.fig0{margin-top:20px}.fig0 .pv0{width:100%}}
 </style>
 </head>
 <body>
@@ -263,8 +269,13 @@ form.req{border:1.5px solid var(--ink)}
         <p class="lab office">Office of Instruments · Drawing register JPI-000</p>
       </div>
     </div>
+    <!-- FIG. 0: swap the drawing for the photograph when it exists: replace .pv0 with <img src="c75-plan.jpg" alt="..."> and update the caption -->
+    <figure class="fig0">
+      <a class="pv0" href="c-75/" role="img" aria-label="Plan view of the Juris C-75 “The Proxy”: a chambered guitar with a bevelled, angular body, two pickups, a Compton bridge and trapeze, and a three-a-side headstock."></a>
+      <figcaption><span class="lab" style="color:var(--ink)">FIG. 0 · C-75 “The Proxy”, plan</span><span class="lab">Drawn from the record. A photograph will be entered here.</span></figcaption>
+    </figure>
+    <div class="nowalloc"><span class="k">Now allocating</span><span class="v">C-75 “The Proxy”</span><span class="v">USD 3,500</span><span class="k">Five this year</span><span class="sp"></span><a class="btn" href="#requisition" style="text-decoration:none;display:inline-flex;align-items:center">Requisition</a><a class="lab" href="c-75/">Case file</a></div>
     <p class="statement">The Corporation designs, documents and allocates instruments for professionals. It does not account for their use. Instruments are made by hands and machines in Portland, Oregon.</p>
-        <div class="nowalloc"><span class="k">Now allocating</span><span class="v">C-75 “The Proxy”</span><span class="v">USD 3,500</span><span class="k">Five this year</span><span class="sp"></span><a class="btn" href="#requisition" style="text-decoration:none;display:inline-flex;align-items:center">Requisition</a><a class="lab" href="c-75/">Case file</a></div>
 
     <div class="hero g8">
       <figure class="s6" style="margin:0">
