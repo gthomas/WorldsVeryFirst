@@ -1058,13 +1058,13 @@ let patentOn = true, hiddenForFig = [];
 const patentBtn = document.getElementById('patent'), specBtn = document.getElementById('specimen'), figLabel = document.getElementById('figlabel');
 const SOFT = new Set(DCFG.soft || []);
 function sheetColors(){
-  patentFill.color.set(cssColor('--paper')); inkLine.color.set(cssColor('--ink')); silMat.color.set(cssColor('--ink')); patentDark.color.set(cssColor('--ink'));
+  patentFill.color.set(cssColor('--paper')); inkLine.color.set(cssColor('--ink')); silMat.color.set(cssColor('--ink')); silMatFlush.color.set(cssColor('--ink')); patentFillFlush.color.set(cssColor('--paper')); patentFillDeep.color.set(cssColor('--paper')); patentDark.color.set(cssColor('--ink'));
   if (patentOn) scene.background = new THREE.Color(cssColor('--paper'));
 }
 // ---------- silhouettes: an inverted hull around every part, so curved outlines close. Constant width in screen pixels.
 const SIL_U = { value: 0 };
 const silMat = new THREE.MeshBasicMaterial({color:0x16181b, side:THREE.BackSide, clippingPlanes:[clip], polygonOffset:true, polygonOffsetFactor:6, polygonOffsetUnits:12});
-silMat.onBeforeCompile = (sh) => {
+const silShader = (sh) => {
   sh.uniforms.uPx = SIL_U; sh.uniforms.uW = { value: 1 };
   sh.vertexShader = 'attribute vec3 sNormal;\nattribute float sW;\nuniform float uPx;\n' + sh.vertexShader.replace('#include <project_vertex>',
     'vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);\n' +
@@ -1072,6 +1072,14 @@ silMat.onBeforeCompile = (sh) => {
     'mvPosition.xyz += sn * uPx * sW * max(-mvPosition.z, 1.0);\n' +
     'gl_Position = projectionMatrix * mvPosition;');
 };
+silMat.onBeforeCompile = silShader;
+// hardware that lies flush on the top (the trapeze wire): its fill is pulled forward and its outline is not pushed back,
+// and the large surfaces are pushed back a little further, so the wire is never swallowed by the cap
+const FLUSH = new Set(['tailpiece']), DEEP = new Set(['body', 'cap', 'cap_edge', 'top', 'back', 'rim']);
+const silMatFlush = new THREE.MeshBasicMaterial({color:0x16181b, side:THREE.BackSide, clippingPlanes:[clip], polygonOffset:true, polygonOffsetFactor:0, polygonOffsetUnits:-2});
+silMatFlush.onBeforeCompile = silShader;
+const patentFillFlush = new THREE.MeshBasicMaterial({color:0xfaf9f4, side:THREE.DoubleSide, clippingPlanes:[clip], polygonOffset:true, polygonOffsetFactor:-1, polygonOffsetUnits:-6});
+const patentFillDeep = new THREE.MeshBasicMaterial({color:0xfaf9f4, side:THREE.DoubleSide, clippingPlanes:[clip], polygonOffset:true, polygonOffsetFactor:2, polygonOffsetUnits:60});
 function smoothNormals(geo){
   // average normals over coincident positions so the hull doesn't split at hard edges
   const pos = geo.attributes.position, nor = geo.attributes.normal, n = pos.count, map = new Map(), out = new Float32Array(n * 3);
@@ -1086,7 +1094,7 @@ function addSilhouette(p, name){
   if (!g.attributes.sNormal) g.setAttribute('sNormal', new THREE.BufferAttribute(smoothNormals(g), 3));
   const heavy = /^(body|cap|cap_edge|neck|top|back|rim|headstock|pickguard)/.test(name);
   g.setAttribute('sW', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count).fill(heavy ? 1.0 : 0.62), 1));
-  const h = new THREE.Mesh(g, silMat);
+  const h = new THREE.Mesh(g, FLUSH.has(name) ? silMatFlush : silMat);
   h.renderOrder = -1; h.frustumCulled = p.mesh.frustumCulled;
   h.onBeforeRender = (r, s, cam) => {
     const ht = r.domElement.clientHeight || r.domElement.height;
@@ -1099,7 +1107,7 @@ function setPatent(on){
   patentBtn.setAttribute('aria-pressed', on); specBtn.setAttribute('aria-pressed', !on);
   for (const [name, p] of Object.entries(parts)){
     if (on){
-      p.mesh.material = name === 'strings' ? patentDark : patentFill;
+      p.mesh.material = name === 'strings' ? patentDark : FLUSH.has(name) ? patentFillFlush : DEEP.has(name) ? patentFillDeep : patentFill;
       if (name !== 'strings' && !p.pedges){
         p.pedges = new THREE.LineSegments(new THREE.EdgesGeometry(p.mesh.geometry, SOFT.has(name) ? 12 : 30), inkLine);
         p.mesh.add(p.pedges);
