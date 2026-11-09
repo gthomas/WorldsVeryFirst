@@ -155,7 +155,9 @@ h1{margin:2px 0 0;font-family:var(--f-letter);font-weight:600;font-size:clamp(96
 .dim::before,.dim::after{content:"";position:absolute;bottom:-6px;width:1px;height:13px;background:var(--ink)}
 .dim::before{left:0}.dim::after{right:0}
 .dim span{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);background:var(--paper);padding:0 8px;font-family:var(--f-data);font-size:11px;color:var(--ink-2);white-space:nowrap}
-.designation{font-style:italic;font-size:28px;line-height:1.15}
+.designation{font-style:italic;font-size:clamp(40px,6vw,64px);line-height:1.02;margin:6px 0 0}
+.proxydef{font-size:16px;line-height:1.45;max-width:30em;margin:10px 0 0;color:var(--ink-2)}
+.proxydef i{color:var(--ink)}
 .cover-r{display:flex;flex-direction:column;gap:22px;padding-top:4px}
 .revs{width:100%;border-collapse:collapse;font-family:var(--f-letter);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .revs th,.revs td{border:1px solid var(--ink);padding:4px 8px;text-align:left;line-height:1.4}
@@ -321,7 +323,8 @@ h1.cut{white-space:nowrap}
           <h1 id="t1" class="cut">C-75</h1>
           <div class="dim" aria-hidden="true"><span>24.75 IN. SCALE</span></div>
         </div>
-        <p class="designation">“The Proxy”</p>
+        <p class="designation">The Proxy</p>
+        <p class="proxydef"><i>Proxy</i> (n.). One authorised to act for another. The INSTRUMENT acts for the PERFORMER. It does not speak for itself.</p>
         <div class="coverbuy"><div><span class="lab">Fee · Allocation 1</span><b>USD 2,500</b></div><div><span class="lab">Units</span><b>Five this year</b></div>
           <a class="btn" href="#allocation" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Requisition</a>
           <p class="lab">Waitlist. No payment is taken. <a href="../exhibit-a/">Exhibit A</a></p></div>
