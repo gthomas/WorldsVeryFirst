@@ -87,7 +87,7 @@ dl.spec dd{margin:0;font-family:var(--f-mono);font-size:12.5px;text-align:right;
 @media (max-width:860px){.hero figcaption{font-size:10px}}
 </style>
 
-<figure class="hero"><img src="hero.jpg" width="2400" height="1600" alt="Juris C-75 The Proxy as built: walnut-stained flamed maple cap, brass Compton bridge, amber knobs, on a grey studio sweep"><figcaption>C-75 The Proxy · as built · path-traced render of the build model</figcaption></figure>
+<figure class="hero"><img src="hero.jpg" width="2400" height="1600" alt="Juris C-75 The Proxy, path-traced render in an earlier walnut-brown finish: flamed maple cap, brass Compton bridge, amber knobs, on a grey studio sweep"><figcaption>C-75 The Proxy · path-traced render of the build model, in an earlier finish · as built the top is black dye under garnet shellac</figcaption></figure>
 
 <div class="app">
   <section class="stage" aria-label="3D model">
@@ -129,8 +129,7 @@ a.chip:hover{border-color:var(--ink-2)} a.chip[aria-pressed="true"]{background:v
     <div class="blk">
       <div class="lbl">Top &amp; headstock finish</div>
       <div class="toggles" role="group" aria-label="Body finish">
-        <button class="chip" data-finish="walnut">Walnut stain (as built)</button>
-        <button class="chip" data-finish="black">Black</button>
+                <button class="chip" data-finish="black">Black dye (as built)</button>
         <button class="chip" data-finish="garnet">Natural maple</button>
         <button class="chip" data-finish="white">Aged computer white</button>
         <button class="chip" data-finish="primer">Primer grey</button>
@@ -160,7 +159,7 @@ a.chip:hover{border-color:var(--ink-2)} a.chip[aria-pressed="true"]{background:v
     <div class="blk">
       <div class="lbl">Construction</div>
       <p class="note">The original Juris C-75, "The Proxy": a 2&nbsp;in chambered mahogany body with a maple cap, on the geometric outline with 5/8&nbsp;in bevels on the top and back edges. Set mahogany neck at 4° with an ebony board, 24.75&nbsp;in scale, '59 roundback profile; 3+3 Juris headstock (11.2° tilt-back) with flared shoulders, waisted sides and a gabled top, truss rod adjusted through a slot above the nut, and a riveted asset-tag badge.</p>
-      <p class="note">Hardware as specified: TV Jones T-Armonds, English mount, suspended by their ears from black rings (the prototype was fitted with no-ear pickups); a brass Compton one-piece compensated bridge on brass thumbwheels over a rosewood base; an Allparts short trapeze tailpiece. Amber speck ribbed knobs (Knobhead) for volume and tone (production: one volume per pickup, no tone knob), with a full-size Gretsch-tipped 3-way tone switch between them and the pickup selector on the bass horn, both under skirted dress nuts. Nickel silver frets, rosewood truss rod cover, Electrosocket jack on the treble side. The top is stained walnut-brown; where the bevels cut through the maple cap it shows as a natural line round the edge (faux binding).</p>
+      <p class="note">Hardware as specified: TV Jones T-Armonds, English mount, suspended by their ears from black rings (the prototype was fitted with no-ear pickups); a brass Compton one-piece compensated bridge on brass thumbwheels over a rosewood base; an Allparts short trapeze tailpiece. Amber speck ribbed knobs (Knobhead) for volume and tone (production: one volume per pickup, no tone knob), with a full-size Gretsch-tipped 3-way tone switch between them and the pickup selector on the bass horn, both under skirted dress nuts. Nickel silver frets, rosewood truss rod cover, Electrosocket jack on the treble side. The top is dyed black under garnet shellac, a warm black; where the bevels cut through the maple cap it shows as a natural line round the edge (faux binding).</p>
     </div>
 <div class="blk">
       <div class="lbl">Files</div>
@@ -297,6 +296,7 @@ function woodTexture(kind){
     maple_black:{base:'#15110e', line:'rgba(0,0,0,', lines:150, lw:[0.6,1.6], la:[.25,.5], wob:2.5, flame:true, flameA:.06, flameC:'90,70,55'},   // maple dyed black: the flame still shows faintly
     maple_pale:{base:'#f4d49c', line:'rgba(165,120,62,', lines:150, lw:[0.5,1.4], la:[.08,.18], wob:2, flame:true, flameA:.08},     // bigleaf maple back, clear coat
     maple_nat:{base:'#e2c08a', line:'rgba(150,100,45,', lines:150, lw:[0.5,1.4], la:[.10,.22], wob:2, flame:true, flameA:.10},
+    maple_dyed:{base:'#1f150e', line:'rgba(0,0,0,', lines:150, lw:[0.6,1.6], la:[.25,.5], wob:2.5, flame:true, flameA:.07, flameC:'130,80,40'},   // maple dyed black under garnet shellac: a warm black
     walnut:   {base:'#3a2010', line:'rgba(12,5,1,',    lines:150, lw:[0.7,2.2], la:[.22,.45], wob:2.5, flame:true, flameA:.07, flameC:'150,95,50', pores:2500, poreA:.25},
     ebony_brown:{base:'#2a1a12', line:'rgba(8,4,2,',   lines:70,  lw:[1.5,6],   la:[.30,.55], wob:5, streaks:'95,58,32'},
     rosewood: {base:'#3d1f14', line:'rgba(12,4,2,',    lines:90,  lw:[1.0,4.0], la:[.30,.55], wob:5, streaks:'110,50,30', pores:7000, poreA:.45},
@@ -522,7 +522,7 @@ function burstify(mat, geom, o = {}){
   mat.customProgramCacheKey = () => key;
 }
 const FINISHES = {
-  black:  () => ({map: TEX.spruce_black || (TEX.spruce_black = woodTexture('spruce_black')), ...SHELLAC, clearcoat:.6, clearcoatRoughness:.2, envMapIntensity:.6}),
+  black:  () => ({map: TEX.maple_dyed || (TEX.maple_dyed = woodTexture('maple_dyed')), ...SHELLAC, clearcoat:.5, clearcoatRoughness:.25, envMapIntensity:.55}),   // black dye under garnet shellac
   garnet: () => ({map: TEX.maple_neck || (TEX.maple_neck = woodTexture('maple_neck')), ...SHELLAC}),
   white:  () => ({color:0xddd2ae, roughness:.55, clearcoat:.25, clearcoatRoughness:.45, envMapIntensity:.4}),
   primer: () => ({color:0x8e908c, roughness:.92, envMapIntensity:.25}),
@@ -542,7 +542,7 @@ const BACK_FINISH = {
   primer:  () => FINISHES.primer(),
   burst:   () => ({map: tx('maple'), ...SHELLAC, clearcoat:.55, clearcoatRoughness:.22, envMapIntensity:.7}),
 };
-let finish = 'walnut';
+let finish = 'black';
 try { const f = localStorage.getItem('juris-c75-finish'); if (f && FINISHES[f]) finish = f; } catch (e) {}
 function setFinish(kind){
   finish = kind;
