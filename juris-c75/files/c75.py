@@ -126,6 +126,8 @@ def build_neck():
         post = rot_man(m3.Manifold.cylinder(16, 3.0, 3.0, 20).translate([v, Y_N + s, zgp]), -HA, hpiv)
         btn = rot_man(B.hull([(v + sv * dx, Y_N + s + dy, zgp - HT - dz) for dx in (2, 26) for dy in (-7, 7) for dz in (0, 13)]), -HA, hpiv)
         tun += [post, btn]
+    # PROTOTYPE badge (24 x 30 plate). Production: the INSIGNIA as nine brushed nickel-silver tiles, 27 mm, inlaid flush
+    # in the veneer, plus JURIS engraved on the truss-rod cover (part truss_engrave). The published model carries the production parts.
     badge = rot_man(B.prism(B.rrect(24, 30, 2.0) + np.array([0, Y_N + 131]), zgp + 0.5, zgp + 1.3), -HA, hpiv)
     tcov, tscr = build_truss_cover(hpiv, zgp, HA)
     # fingerboard + frets
