@@ -12,7 +12,7 @@
     // until the form is in service: show the notice and hold the submit button
     notLive: true,
     opensBy: 'Friday, 13 November 2026',
-    instagram: 'jurisinstruments'
+    instagram: 'juris_instruments'
   };
 
   // ---- analytics
