@@ -19,3 +19,6 @@ form.wl{border:1.5px solid var(--ink);background:var(--paper)}
 .nowalloc .k{font-family:var(--f-letter);font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase}
 .nowalloc .v{font-family:var(--f-letter);font-weight:600;font-size:22px;letter-spacing:.04em;text-transform:uppercase}
 .nowalloc .sp{flex:1 1 auto}
+.wl .wl-notice{border-bottom:1.5px solid var(--ink);padding:12px 14px;background:var(--ink);color:var(--paper);font-size:15px;line-height:1.45}
+.wl .wl-notice b{font-family:var(--f-letter);letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-right:6px}
+.wl .wl-notice a{color:var(--paper);text-decoration:underline}

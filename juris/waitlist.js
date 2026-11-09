@@ -8,7 +8,11 @@
     entries: { email: '', instrument: '', finish: '', fee: '', profession: '', heard: '', source: '' },
     // Cloudflare Web Analytics beacon token
     cfToken: '',
-    mailto: 'info@jurisinstruments.com'
+    mailto: 'info@jurisinstruments.com',
+    // until the form is in service: show the notice and hold the submit button
+    notLive: true,
+    opensBy: 'Friday, 13 November 2026',
+    instagram: 'jurisinstruments'
   };
 
   // ---- analytics
@@ -37,6 +41,15 @@
 
   // ---- forms
   document.querySelectorAll('form[data-waitlist]').forEach(function (f) {
+    if (CONFIG.notLive) {
+      var n = document.createElement('div'); n.className = 'wl-notice';
+      n.innerHTML = '<b>Notice.</b> Form JPI-R-1 is not yet in service. Requisitions will open by ' + CONFIG.opensBy +
+        '. In the interim the Corporation may be reached on Instagram, <a href="https://www.instagram.com/' + CONFIG.instagram + '/" rel="noopener">@' + CONFIG.instagram + '</a>.';
+      var hd = f.querySelector('.fh'); if (hd && hd.nextSibling) f.insertBefore(n, hd.nextSibling); else f.insertBefore(n, f.firstChild);
+      var sb = f.querySelector('button[type=submit]'); if (sb) { sb.disabled = true; sb.textContent = 'Not yet in service'; }
+      f.addEventListener('submit', function (ev) { ev.preventDefault(); ev.stopImmediatePropagation(); }, true);
+      return;
+    }
     var r = f.querySelector('.receipt'), e = f.querySelector('input[type=email]'), btn = f.querySelector('button[type=submit]');
     if (entered()) { r.hidden = false; r.textContent = 'A requisition from this device is already on file. Another may be filed.'; }
     f.addEventListener('submit', function (ev) {

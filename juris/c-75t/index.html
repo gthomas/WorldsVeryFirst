@@ -284,7 +284,7 @@ h1.cut{white-space:nowrap;font-size:clamp(80px,9.4vw,136px)}
 .sworn .sigline{display:block;height:44px;border-bottom:1px solid var(--ink)}
 @media (max-width:760px){.sworn{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="../waitlist.css">
+<link rel="stylesheet" href="../waitlist.css?v=2">
 </head>
 <body>
 <div class="strip" role="banner">
@@ -1202,6 +1202,6 @@ function drawCallouts(){
 requestAnimationFrame(drawCallouts);
 const bootDraw = setInterval(() => { if (Object.keys(parts).length){ clearInterval(bootDraw); showFig(1, false); } }, 120);
 </script>
-<script src="../waitlist.js"></script>
+<script src="../waitlist.js?v=2"></script>
 </body>
 </html>
