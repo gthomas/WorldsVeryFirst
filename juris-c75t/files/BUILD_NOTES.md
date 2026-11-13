@@ -16,7 +16,7 @@ A T-style solid body on the C-75 body as Chuck (WyreCustomGuitars) modelled it, 
 ## Body
 
 - **Stock:** swamp ash, alder or roasted pine, two-piece glued up to about 14¾ × 19¼ × 2⅛ in (8/4 rough), finished 2 in (50.8 mm), the same as the C-75.
-- **Bevels:** Chuck's, from his C-75 model: flat facets that fall 5/8" (15.9 mm) from the flat of the top to the edge, and the same on the back, leaving a 3/4" square band round the side on this 2" body, as on the C-75. They are about 20 mm wide up the sides and widen to about 41 mm on the bass lower bout. The middle of the tail is left square, and the bevels narrow to nothing as they reach it. Around the jack they ease to an 11 mm drop to leave a flat for it. One change from the C-75: the treble side of the neck tongue and the cutaway are eased out 7.5 mm, so the standard 2.2" pocket keeps a wall on that side. The setup DXF has the top and back flat outlines.
+- **Bevels:** Chuck's, from his C-75 model: flat facets that fall 5/8" (15.9 mm) from the flat of the top to the edge, and the same on the back, leaving a 3/4" square band round the side on this 2" body, as on the C-75. They are about 20 mm wide up the sides and widen to about 41 mm on the bass lower bout. The middle of the tail is left square, and the bevels narrow to nothing as they reach it. They run unbroken past the jack, as on the C-75. One change from the C-75: the treble side of the neck tongue and the cutaway are eased out 7.5 mm, so the standard 2.2" pocket keeps a wall on that side. The setup DXF has the top and back flat outlines.
 - **Setup A, from the top:** bevel facets (1/4" ball-nose, fine stepover), then:
   - neck pocket
   - bridge pickup route
@@ -27,7 +27,7 @@ A T-style solid body on the C-75 body as Chuck (WyreCustomGuitars) modelled it, 
 - **Drilled through (vertical, so they can be done on the machine or a drill press):** the six 1/8" string holes and the four neck screw holes.
 - **Drilled by hand after machining:**
   - wire channels: neck pickup to bridge pickup, bridge pickup to control cavity, control cavity to jack
-  - the 7/8" cup jack bore, square to the side at the C-75's jack position. Both bevels ease very slightly around it (about 1/8" each) so the side band is 26 mm (just over 1") tall across the cup, then blend back to full depth over about 1-1/4" either side, so the cup sits flat
+  - the 7/8" jack bore, square to the side at the C-75's jack position, centred on the side band. No easing of the bevels: as on the C-75, the Electrosocket plate sits on the side band and lips over the bevel edges.
   - strap button holes
 - **Undercut check (body):** clean. Every vertical line crosses the body surface at most twice.
 
@@ -47,7 +47,7 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 | Bridge | Vintage 3-saddle T plate with string-through ferrules. The model uses about 82.5 × 92 mm with the back edge 25 mm behind the saddles. Lay your plate on the body before routing the bridge pickup. |
 | Pickups | Standard T bridge and neck set (the model shows a vintage bridge pickup on its brass baseplate and a chrome-covered neck pickup). The bridge pickup hangs from the bridge plate as usual; the neck pickup screws to the body on springs through its tabs, since there's no pickguard. |
 | Controls | 5½ × 1¼ in T control plate, 3-way switch, 250k volume and tone pots. |
-| Jack | Electrosocket-style cup jack (7/8" bore) |
+| Jack | Electrosocket (round plate, two screws), as on the C-75 (7/8" bore) |
 | Neck plate | Neck plate, four screws, and ferrules. The body is 1/4" thicker than a Telecaster, so use screws about 1/4" longer than stock (2" #8 instead of 1-3/4") |
 
 ## Check against your hardware before cutting
