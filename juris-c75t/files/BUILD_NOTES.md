@@ -45,8 +45,8 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 | Tuners | Grover 133N, 3+3 (same as your other builds). |
 | Headstock furniture | As on the C-75: nickel-silver insignia plate (27 mm octagon, 1.2 mm, gutters filled black) glued flush in its pocket; rosewood truss rod cover, JURIS engraved, three screws; asset tag riveted to the back of the headstock. |
 | Bridge | Vintage 3-saddle T plate with string-through ferrules. The model uses about 82.5 × 92 mm with the back edge 25 mm behind the saddles. Lay your plate on the body before routing the bridge pickup. |
-| Pickups | Standard T bridge and neck set (the model shows a vintage bridge pickup on its brass baseplate and a chrome-covered neck pickup). The bridge pickup hangs from the bridge plate as usual; the neck pickup screws to the body on springs through its tabs, since there's no pickguard. |
-| Controls | 5½ × 1¼ in T control plate, 3-way switch, 250k volume and tone pots. |
+| Pickups | Bridge: standard vintage T bridge pickup on its brass baseplate, hanging from the bridge plate as usual. Neck: Lollar Gold Foil Soapbar (item 10-701-2, neck wind, about 6.2k), which fits a standard P-90 soapbar route: 86.4 × 35.4 mm, two screws through the cover (20 mm apart) into the route floor on springs. It sits about 10 mm proud of the top because of the bolt-on neck's height; Lollar's soapbar spacer ring is an option if you want the gap closed. |
+| Controls | 5½ × 1¼ in T control plate, 3-way switch, 250k volume and tone pots, 0.047 µF tone cap (what Lollar recommends for the gold foil, and standard T values). |
 | Jack | Electrosocket (round plate, two screws), as on the C-75 (7/8" bore) |
 | Neck plate | Neck plate, four screws, and ferrules. The body is 1/4" thicker than a Telecaster, so use screws about 1/4" longer than stock (2" #8 instead of 1-3/4") |
 
@@ -55,7 +55,7 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 | Part | Assumed | Parameter in `tstyle.py` |
 |---|---|---|
 | Bridge pickup route | 76 × 41 mm, 19 mm deep, slanted 8° (fits a vintage T bridge pickup with its flatwork and baseplate) | `BRIDGE_PU` |
-| Neck pickup route | 76 × 22 mm, 19 mm deep, round ends (T neck pickup in its chrome cover, 65 × 16 mm, plus mounting tabs) | `NECK_PU` |
+| Neck pickup route | 87.5 × 36.5 mm, 10 mm deep, 4.5 mm corner radius: a P-90 soapbar route for the Lollar Gold Foil Soapbar (86.4 × 35.4 mm, 16 mm tall), with 4 mm under it for the springs; 6.75 mm of wood to the neck pocket. Check against the pickup before cutting. | `NECK_PU` |
 | Control cavity | 118 × 28 mm, 36 mm deep, under a 139.7 × 31.75 mm plate | `CTRL` |
 | Bridge plate | 82.5 × 92 mm, string holes 20 mm behind the saddles, 2⅛" spacing | `BRIDGE`, `FERRULE_Y`, `string_spacing_bridge` |
 | Neck heel | 2.2 × 3 in, 25.4 mm thick including the board | `pocket_w`, `pocket_L`, `heel_t` |

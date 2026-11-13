@@ -242,7 +242,12 @@ NECK_SCREWS = [(sx * 19.0, Y_END - 12.7 - k * 50.8) for sx in (-1, 1) for k in (
 
 BRIDGE = dict(W=82.5, L=92.0, back=25.0, ang=0.0)             # vintage 3-saddle plate stand-in: rear edge 25 mm behind the saddles
 BRIDGE_PU = dict(cy=Y_SADDLE + 35.0, L=76.0, W=41.0, d=19.0, ang=-8.0)   # route for a Tele bridge pickup (baseplate 2.87 x 1.51 in), slanted: treble toward the bridge
-NECK_PU = dict(cy=Y_HEEL - 22.0, L=76.0, W=22.0, d=19.0)       # route for a Tele neck pickup (cover 2.56 x 0.62 in) with its two mounting tabs; screwed to the body on springs
+# neck pickup: Lollar Gold Foil Soapbar (fits a standard P-90 soapbar route). Cover 3.40 x 1.395 in (86.4 x 35.4 mm),
+# 16 mm tall; two mounting screws through the cover, 20 mm apart between poles 2-3 and 4-5, into the route floor on springs.
+# Route 87.5 x 36.5 mm with 1/32 in clearance; 6.75 mm of wood left between it and the neck pocket.
+GF = dict(L=86.4, W=35.4, H=16.0, r=4.0, screws=10.0, poles=50.0)
+NECK_PU = dict(cy=Y_HEEL - 25.0, L=87.5, W=36.5, r=4.5)
+NECK_PU['d'] = math.ceil(2 * (T - (string_z(NECK_PU['cy']) - 3.2 - GF['H']) + 4.0)) / 2   # case bottom + 4 mm for the springs
 FERRULE_Y = Y_SADDLE - 20.0
 CTRL = dict(cx=101.0, cy=176.0, L=139.7, W=31.75, cav_L=118.0, cav_W=28.0, d=36.0)     # 5-1/2 x 1-1/4" plate
 
@@ -255,7 +260,7 @@ def routes():
     r = []
     r.append(neck_pocket())
     r.append(B.prism(rrect_at(0, BRIDGE_PU['cy'], BRIDGE_PU['L'], BRIDGE_PU['W'], 6.0, BRIDGE_PU['ang']), T - BRIDGE_PU['d'], T + 50))
-    r.append(B.prism(rrect_at(0, NECK_PU['cy'], NECK_PU['L'], NECK_PU['W'], 12.0), T - NECK_PU['d'], T + 50))
+    r.append(B.prism(rrect_at(0, NECK_PU['cy'], NECK_PU['L'], NECK_PU['W'], NECK_PU['r']), T - NECK_PU['d'], T + 50))
     ang = ctrl_angle()
     r.append(B.prism(rrect_at(CTRL['cx'], CTRL['cy'], CTRL['cav_L'], CTRL['cav_W'], 6.0, ang), T - CTRL['d'], T + 50))
     # string-through: 1/8" holes and ferrule counterbores on the back
@@ -308,13 +313,25 @@ def build_bridge_pickup():
                      for x in np.linspace(-26.25, 26.25, 6)])
     return bobbin + flat, poles, base
 
+def gf_top():
+    return string_z(NECK_PU['cy']) - 3.2                 # cover top 1/8 in under the strings
+
 def build_neck_pickup():
-    """Tele neck pickup: chrome cover 2.56 x 0.62 in with round ends, two mounting tabs; top 3 mm under the strings"""
-    p = NECK_PU; cy = p['cy']; ztop = string_z(cy) - 3.0
-    cover = B.prism(rrect_at(0, cy, 65.1, 15.9, 7.9, 0.0), T - 6.0, ztop - 1.5) + \
-            B.hull([(x, cy + y, z) for x, y in B.rrect(62.0, 13.0, 6.4) for z in (ztop - 1.5, ztop)])
-    tabs = B.prism(rrect_at(0, cy, 75.0, 11.0, 4.0, 0.0), T - 6.0, T - 5.0)
-    return cover + tabs
+    """Lollar Gold Foil Soapbar: black soapbar case, nickel grille over the gold foil, six screw poles down the middle,
+    two mounting screws. Returns (ring, cover, foil, poles+screws)."""
+    cy = NECK_PU['cy']; zt = gf_top(); zb = zt - GF['H']
+    case = B.prism(rrect_at(0, cy, GF['L'], GF['W'], GF['r']), zb, zt - 0.8) + \
+           B.hull([(x, cy + y, z) for x, y in B.rrect(GF['L'] - 1.6, GF['W'] - 1.6, GF['r'] - 0.8) for z in (zt - 0.8, zt)])
+    win = rrect_at(0, cy, 70.0, 23.0, 2.0)
+    ring = case - B.prism(win, zt - 1.6, zt + 1)
+    foil = B.prism(win, zt - 1.6, zt - 1.1)
+    plate = B.prism(rrect_at(0, cy, 70.0, 23.0, 2.0), zt - 1.1, zt - 0.4)
+    slots = B.union([B.prism(rrect_at(x, cy + s * 6.6, 3.0, 6.5, 1.4), zt - 2, zt) for x in np.linspace(-30.0, 30.0, 13) for s in (-1, 1)])
+    cover = plate - slots
+    xs = np.linspace(-GF['poles'] / 2, GF['poles'] / 2, 6)
+    poles = B.union([m3.Manifold.cylinder(1.2, 2.4, 2.2, 20).translate([x, cy, zt - 0.4]) for x in xs] +
+                    [m3.Manifold.cylinder(0.9, 2.6, 2.3, 20).translate([s * GF['screws'], cy, zt - 0.4]) for s in (-1, 1)])
+    return ring, cover, foil, poles
 
 def build_control_plate():
     ang = ctrl_angle()
@@ -424,7 +441,7 @@ def main():
     parts['body'] = body - bore
     parts['bridge'] = build_bridge()
     bpu, poles, bbase = build_bridge_pickup(); parts['bridge_pickup'] = bpu; parts['pickup_poles'] = poles; parts['bridge_pickup_base'] = bbase
-    parts['neck_pickup'] = build_neck_pickup()
+    parts['neck_pickup_ring'], parts['neck_pickup'], parts['neck_pickup_foil'], parts['neck_pickup_poles'] = build_neck_pickup()
     plate, knobs = build_control_plate(); parts['control_plate'] = plate; parts['knobs'] = knobs
     parts['jack'] = jack
     parts['neck'] = build_neck(); parts['faceplate'] = build_neck.face
@@ -436,9 +453,9 @@ def main():
     fb, frets = build_fingerboard(); parts['fingerboard'] = fb; parts['frets'] = frets
     parts['tuners'] = build_tuners()
     st, lines = build_strings(); parts['strings'] = st
-    MAT = dict(bridge_pickup_base='brass', faceplate='maple', body='ash', bridge='nickel', bridge_pickup='black', pickup_poles='nickel', neck_pickup='nickel',  control_plate='nickel',
+    MAT = dict(bridge_pickup_base='brass', faceplate='maple', body='ash', bridge='nickel', bridge_pickup='black', pickup_poles='nickel', neck_pickup='nickel', neck_pickup_ring='black_plastic', neck_pickup_foil='gold', neck_pickup_poles='nickel',  control_plate='nickel',
                knobs='nickel', jack='nickel', neck='maple', fingerboard='ebony', frets='nickel', tuners='nickel', strings='steel', badge='nickel', badge_fill='black_plastic', truss_cover='rosewood', truss_screws='nickel', truss_engrave='black_plastic', asset_tag='nickel')
-    GROUP = dict(bridge_pickup_base='Pickups', faceplate='Neck', body='Body', bridge='Hardware', bridge_pickup='Pickups', pickup_poles='Pickups', neck_pickup='Pickups', control_plate='Hardware',
+    GROUP = dict(bridge_pickup_base='Pickups', faceplate='Neck', body='Body', bridge='Hardware', bridge_pickup='Pickups', pickup_poles='Pickups', neck_pickup='Pickups', neck_pickup_ring='Pickups', neck_pickup_foil='Pickups', neck_pickup_poles='Pickups', control_plate='Hardware',
                  knobs='Hardware', jack='Hardware', neck='Neck', fingerboard='Neck', frets='Neck', tuners='Hardware', strings='Strings', badge='Neck', badge_fill='Neck', truss_cover='Neck', truss_screws='Neck', truss_engrave='Neck', asset_tag='Neck')
     EXPLODE = dict(Body=(0, 0, 0), Neck=(0, 60, 40), Pickups=(0, 0, 50), Hardware=(0, 0, 80), Strings=(0, 0, 110))
     scene = trimesh.Scene(); man_ok = {}; vols = {}
@@ -449,7 +466,7 @@ def main():
     scene.export(os.path.join(OUT, 'juris_c75t.glb'))
     DENS = dict(ash=480, maple=700)
     mass = dict(body=vols['body'] * 480e-6, neck=vols['neck'] * 700e-6 + vols['fingerboard'] * 1150e-6)
-    hw = dict(bridge=130, pickups=150, control=110, tuners=198, strings=10, frets=20, jack=10, neckplate=40)
+    hw = dict(bridge=130, pickups=200, control=110, tuners=198, strings=10, frets=20, jack=10, neckplate=40)
     total = sum(mass.values()) + sum(hw.values())
     report = dict(units='mm', params=P, body_length=float(OUTL[:, 1].max()), lower_bout=float(OUTL[:, 0].max() - OUTL[:, 0].min()),
                   y_end=float(Y_END), y_nut=float(Y_NUT), y_saddle=float(Y_SADDLE), fb_top_above_body=float(FB_TOP_Z - T),
