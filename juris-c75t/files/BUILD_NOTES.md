@@ -10,7 +10,7 @@ A T-style solid body on the C-75 body as Chuck (WyreCustomGuitars) modelled it, 
 | `body/body_setup.dxf` | Stock outline, pin holes and origin, plus layers for the profile, bevel lines (top and back flats), neck pocket, both pickup routes, control cavity, bridge plate and control plate outlines, string-through holes and neck screws. |
 | `neck/neck.step`, `neck/neck.stl`, `neck/neck_setup.dxf` | Custom bolt-on neck: X along the neck, Z0 at the fingerboard gluing plane. Setup A: gluing plane, truss rod channel, the 11.2° headstock face and the rod access slot. Setup B, flipped: back carve, volute, heel and headstock back. |
 | `fingerboard/fingerboard.step`, `.stl`, `_setup.dxf` | 12" radius board, 21 fret slots, flat side down. |
-| `headstock_face_template.dxf` | Headstock outline (from Chuck's C-75 model) and 10 mm tuner holes, measured along the angled face from the nut line. |
+| `headstock_face_template.dxf` | Headstock outline (from Chuck's C-75 model), 10 mm tuner holes, truss slot and cover, the insignia pocket (27 mm octagon, 1.2 mm deep, centred 131 mm up the face) and the asset tag on the back (shown through), measured along the angled face from the nut line. The neck STEP has the pocket cut. |
 | `../model/juris_c75t.glb`, `report.json` | The full 3D model and its numbers. |
 
 ## Body
@@ -43,6 +43,7 @@ The four neck screw holes are drawn at a typical Fender spacing. **Check them ag
 |---|---|
 | Neck | **Made to the files, not bought:** stock T necks have flat headstocks. It's a maple blank about 26 × 3.75 × 2½ in, so the 11.2° headstock can be cut from one piece (or scarf-jointed). It has a standard Fender heel, 2.2 × 3 in, so the pocket stays standard. Board: 1/4 in ebony, 12 in radius. Add a 15 in dual-action truss rod, 1/4 × 3/8 in channel, adjusted at the headstock. Drill the tuner holes 11/32 in, square to the angled face, as a separate operation. The neck undercut check reads 2.5 mm², all where rays graze the angled headstock edges. |
 | Tuners | Grover 133N, 3+3 (same as your other builds). |
+| Headstock furniture | As on the C-75: nickel-silver insignia plate (27 mm octagon, 1.2 mm, gutters filled black) glued flush in its pocket; rosewood truss rod cover, JURIS engraved, three screws; asset tag riveted to the back of the headstock. |
 | Bridge | Vintage 3-saddle T plate with string-through ferrules. The model uses about 82.5 × 92 mm with the back edge 25 mm behind the saddles. Lay your plate on the body before routing the bridge pickup. |
 | Pickups | Standard T bridge and neck set (the model shows a vintage bridge pickup on its brass baseplate and a chrome-covered neck pickup). The bridge pickup hangs from the bridge plate as usual; the neck pickup screws to the body on springs through its tabs, since there's no pickguard. |
 | Controls | 5½ × 1¼ in T control plate, 3-way switch, 250k volume and tone pots. |

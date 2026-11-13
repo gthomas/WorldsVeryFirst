@@ -353,6 +353,8 @@ def build_neck():
         neck = neck - m3.Manifold.cylinder(25, 1.6, 1.6, 12).translate([x, y, T - P['pocket_d'] - 1])
     # truss rod channel, 1/4 x 3/8 in, adjusting at the headstock through the access slot
     neck = neck - B.prism(np.array([(-3.175, Y_HEEL + 12), (3.175, Y_HEEL + 12), (3.175, Y_NUT + 22), (-3.175, Y_NUT + 22)]), z_fbp - 9.5, z_fbp + 1)
+    import insignia as INS                                      # insignia pocket, 1.2 mm below the finished face (into the wood)
+    _rc = INS.recess(INS.affine_from(head_pt)); neck = neck - _rc; face = face - _rc
     build_neck.face = face; build_neck.tilt = tilt
     return neck
 
@@ -422,13 +424,18 @@ def main():
     plate, knobs = build_control_plate(); parts['control_plate'] = plate; parts['knobs'] = knobs
     parts['jack'] = cup
     parts['neck'] = build_neck(); parts['faceplate'] = build_neck.face
+    # production headstock, as on the C-75 (insignia.py): insignia plate in an octagonal recess, rosewood truss
+    # cover engraved JURIS over the access slot, asset tag on the back
+    import insignia as INS
+    _M = INS.affine_from(head_pt)
+    parts.update(INS.parts(_M))
     fb, frets = build_fingerboard(); parts['fingerboard'] = fb; parts['frets'] = frets
     parts['tuners'] = build_tuners()
     st, lines = build_strings(); parts['strings'] = st
     MAT = dict(bridge_pickup_base='brass', faceplate='maple', body='ash', bridge='nickel', bridge_pickup='black', pickup_poles='nickel', neck_pickup='nickel',  control_plate='nickel',
-               knobs='nickel', jack='nickel', neck='maple', fingerboard='ebony', frets='nickel', tuners='nickel', strings='steel')
+               knobs='nickel', jack='nickel', neck='maple', fingerboard='ebony', frets='nickel', tuners='nickel', strings='steel', badge='nickel', badge_fill='black_plastic', truss_cover='rosewood', truss_screws='nickel', truss_engrave='black_plastic', asset_tag='nickel')
     GROUP = dict(bridge_pickup_base='Pickups', faceplate='Neck', body='Body', bridge='Hardware', bridge_pickup='Pickups', pickup_poles='Pickups', neck_pickup='Pickups', control_plate='Hardware',
-                 knobs='Hardware', jack='Hardware', neck='Neck', fingerboard='Neck', frets='Neck', tuners='Hardware', strings='Strings')
+                 knobs='Hardware', jack='Hardware', neck='Neck', fingerboard='Neck', frets='Neck', tuners='Hardware', strings='Strings', badge='Neck', badge_fill='Neck', truss_cover='Neck', truss_screws='Neck', truss_engrave='Neck', asset_tag='Neck')
     EXPLODE = dict(Body=(0, 0, 0), Neck=(0, 60, 40), Pickups=(0, 0, 50), Hardware=(0, 0, 80), Strings=(0, 0, 110))
     scene = trimesh.Scene(); man_ok = {}; vols = {}
     for k, m in parts.items():

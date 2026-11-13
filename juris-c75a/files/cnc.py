@@ -251,12 +251,17 @@ def flat_parts():
     pl = lambda ms, pts, lay: ms.add_lwpolyline([tuple(map(float, p)) for p in pts], close=True, dxfattribs={'layer': lay})
 
     # faceplate (headstock-face coordinates: x across, y from the nut back face toward the tip)
-    doc, ms = doc_with([('OUTLINE', 7), ('TUNER_HOLES', 1), ('TRUSS_ACCESS', 2), ('TRUSS_COVER', 3)])
+    import insignia as INS, head_c75 as H
+    doc, ms = doc_with([('OUTLINE', 7), ('TUNER_HOLES', 1), ('TRUSS_ACCESS', 2), ('TRUSS_COVER', 3), ('INSIGNIA_POCKET_1.2_DEEP', 6), ('ASSET_TAG_BACK', 4)])
     pl(ms, B.HEAD_POLY, 'OUTLINE')
     for v, s, _ in B.TUNER_LIST: circ(ms, (v, s), B.P['tuner_hole'], 'TUNER_HOLES')
     pl(ms, B.open_poly(B.TRUSS_ACCESS, 2.0), 'TRUSS_ACCESS')
-    pl(ms, B.TRUSS_COVER, 'TRUSS_COVER')
-    for s_ in (8.0, 38.0): circ(ms, (0, s_), 2.0, 'TRUSS_COVER')
+    dS = 1.0 - INS.TRUSS_COVER_S0                         # cover moved down to the nut (see build.py)
+    pl(ms, np.array(H.TRUSS_COVER) + [0, dS], 'TRUSS_COVER')
+    for x_, s_ in H.TRUSS_SCREWS: circ(ms, (x_, s_ + dS), 2.0, 'TRUSS_COVER')
+    pl(ms, INS.RECESS_POLY, 'INSIGNIA_POCKET_1.2_DEEP')      # pocket in the 1.6 mm maple overlay, from its finished face
+    pl(ms, INS.ASSET_TAG_POLY, 'ASSET_TAG_BACK')            # on the back of the headstock, shown through
+    for x_, s_ in INS.ASSET_TAG_RIVETS: circ(ms, (x_, s_), 1.6, 'ASSET_TAG_BACK')
     doc.saveas(os.path.join(d, 'faceplate_and_truss_cover.dxf'))
 
     # gold foil bracket flat pattern (strip along y from the fingerboard tab; shelf crosses at the far end)

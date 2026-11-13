@@ -1334,8 +1334,13 @@ def main():
     print('rim...');  parts['rim'] = build_rim()
     print('neck...'); parts['neck'] = build_neck() - tuner_holes()
     parts['fingerboard'] = build_fingerboard()
-    parts['faceplate'] = build_faceplate()
-    parts['truss_cover'] = build_truss_cover()
+    # production headstock, as on the C-75: insignia plate in an octagonal recess, rosewood truss cover engraved
+    # JURIS, asset tag on the back (insignia.py). Face veneer is 1.6 mm; the cover's nut end sits at s = 1.
+    import insignia as INS
+    _M = INS.affine_from(h2b)
+    parts['faceplate'] = build_faceplate() - INS.recess(_M, face_t=1.6)
+    parts['neck'] = parts['neck'] - INS.recess(_M, face_t=1.6)
+    parts.update(INS.parts(_M, face_t=1.6, truss_s0=1.0))
     parts['frets'] = build_frets()
     parts['nut'] = build_nut()
     parts['side_dots'] = build_side_dots()
@@ -1358,18 +1363,18 @@ def main():
     for k, v in parts.items():
         if v.is_empty(): print('EMPTY', k)
 
-    MAT = dict(goldfoil='nickel', goldfoil_foil='gold', goldfoil_bracket='brass', top_binding='poc', truss_cover='nickel', badge='nickel', badge_qr='black', top='spruce_black', back='maple_back', rim='alder', neck='maple_nat', fingerboard='richlite', faceplate='maple',
+    MAT = dict(goldfoil='nickel', goldfoil_foil='gold', goldfoil_bracket='brass', top_binding='poc', truss_cover='rosewood', truss_screws='nickel', truss_engrave='black_plastic', badge='nickel', badge_fill='black_plastic', asset_tag='nickel', top='spruce_black', back='maple_back', rim='alder', neck='maple_nat', fingerboard='richlite', faceplate='maple',
                frets='nickel', nut='bone', side_dots='bone', tuners='nickel', bridge='ebony', tailpiece='nickel',
                pickup='black', pickup_plate='brass', pickup_poles='nickel', pickup_bracket='nickel', control_plate='black', controls='black', battery='steel', battery_door='black', battery_sleeve='black',
                jack='nickel', strap_buttons='nickel', strings='steel')
-    GROUP = dict(goldfoil='Pickup', goldfoil_foil='Pickup', goldfoil_bracket='Pickup', top_binding='Top', truss_cover='Neck', badge='Neck', badge_qr='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
+    GROUP = dict(goldfoil='Pickup', goldfoil_foil='Pickup', goldfoil_bracket='Pickup', top_binding='Top', truss_cover='Neck', truss_screws='Neck', truss_engrave='Neck', badge='Neck', badge_fill='Neck', asset_tag='Neck', top='Top', back='Back', rim='Rim', neck='Neck', fingerboard='Neck', faceplate='Neck', frets='Neck',
                  nut='Neck', side_dots='Neck', tuners='Hardware', bridge='Hardware', tailpiece='Hardware',
                  pickup='Pickup', pickup_plate='Pickup', pickup_poles='Pickup', pickup_bracket='Pickup', control_plate='Hardware', controls='Hardware', battery='Hardware', battery_door='Hardware', battery_sleeve='Hardware',
                  jack='Hardware', strap_buttons='Hardware', strings='Strings')
     EXPLODE = dict(Top=[0, 0, 70], Back=[0, 0, -70], Rim=[0, 0, 0], Neck=[0, 120, 45], Hardware=[0, 0, 120],
                    Pickup=[0, 0, 150], Strings=[0, 0, 200])
     DENS = dict(gold=8400, brass=8500, spruce=462, spruce_black=462, poc=462,   # top: Port Orford cedar (SG 0.43 vs Sitka 0.40)
-                 spruce_back=430, maple=550, maple_nat=550, maple_back=550, mahogany=590, alder=450, ebony=1150, richlite=1400, bone=1900, nickel=8400, steel=7850, black=1400)
+                 spruce_back=430, maple=550, maple_nat=550, maple_back=550, mahogany=590, alder=450, ebony=1150, richlite=1400, bone=1900, nickel=8400, steel=7850, black=1400, rosewood=850, black_plastic=1200)
 
     scene = trimesh.Scene()
     vols = {}
@@ -1392,7 +1397,7 @@ def main():
 
     # masses (wood exact from volume; hardware nominal where solids are simplified)
     mass = {k: vols[k] * 1e-9 * DENS[MAT[k]] * 1000 for k in parts}
-    nominal = dict(goldfoil=110, goldfoil_foil=0, goldfoil_bracket=12, tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=50, control_plate=6, battery_door=4, battery_sleeve=14, jack=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_qr=0, truss_cover=3)
+    nominal = dict(goldfoil=110, goldfoil_foil=0, goldfoil_bracket=12, tuners=6 * 33, tailpiece=95, pickup=85, battery=45, frets=22, strings=10, strap_buttons=8, controls=50, control_plate=6, battery_door=4, battery_sleeve=14, jack=12, pickup_bracket=10, pickup_plate=0, pickup_poles=0, badge=8, badge_fill=0, asset_tag=3, truss_cover=3, truss_screws=1, truss_engrave=0)
     for k, g in nominal.items(): mass[k] = g
     total_g = sum(v for k, v in mass.items() if not k.startswith('goldfoil'))     # gold foil is the alternative pickup
 
