@@ -301,7 +301,7 @@ def main():
     ring = cv.buffer(-4.5).exterior; scr = [np.array(ring.interpolate(t, normalized=True).coords[0]) for t in np.linspace(0, 1, 6, endpoint=False)]
     parts['ctrl_cover'] = plate + B.union([m3.Manifold.cylinder(0.6, 2.2, 1.6, 20).translate([p[0], p[1], -0.55]) for p in scr])
     parts['strings'] = build_strings(anchor, posts)
-    MAT = dict(faceplate='maple', body='mahogany_nat', cap='maple', cap_edge='maple_nat', neck='mahogany', fingerboard='ebony_brown', frets='fretgold', nut='bone', tuners='nickel',
+    MAT = dict(faceplate='maple', body='mahogany_nat', cap='maple', cap_edge='maple_nat', neck='mahogany', fingerboard='ebony_brown', frets='nickel', nut='bone', tuners='nickel',
                badge='nickel', badge_fill='black_plastic', asset_tag='nickel', truss_engrave='black_plastic', truss_cover='rosewood', truss_screws='nickel', neck_pickup_ring='black_plastic', neck_pickup='chrome', neck_pickup_poles='chrome',
                bridge_pickup_ring='black_plastic', bridge_pickup='chrome', bridge_pickup_poles='chrome', bridge='rosewood', thumbwheels='brass', compton='brass',
                tailpiece='chrome', ctrl_cover='black_plastic', knobs='amber', switches='chrome', jack='chrome', strings='steel')

@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461357.690578704
+2461362.345833333
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461357.690578704
+2461362.345833333
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-3C
+3F
   9
 $SURFTAB1
  70
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{187FCACD-58D8-4FC2-B69E-B927A4FEF3EE}
+{90026EE8-840C-4422-AF06-BF65150E1492}
   9
 $VERSIONGUID
   2
-{700B02DD-743B-4DFD-A14F-E75BA02343A5}
+{E4B21C50-2659-44FE-9D34-6D4EB79E8AE6}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1549,7 +1549,7 @@ LAYER
 100
 AcDbSymbolTable
  70
-5
+6
   0
 LAYER
   5
@@ -1611,7 +1611,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-OUTLINE
+CUT
  70
 0
  62
@@ -1635,7 +1635,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-ETCH_FILL_BLACK
+HOLES_1.8
  70
 0
  62
@@ -1652,6 +1652,30 @@ Continuous
 LAYER
   5
 31
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+MARK_BLACK_FIBRE_LASER
+ 70
+0
+ 62
+6
+  6
+Continuous
+370
+-3
+390
+13
+347
+21
+  0
+LAYER
+  5
+32
 330
 1
 100
@@ -1773,7 +1797,7 @@ ACAD
   0
 APPID
   5
-39
+3C
 330
 3
 100
@@ -1787,7 +1811,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-3A
+3D
 330
 3
 100
@@ -2097,13 +2121,13 @@ ENTITIES
   0
 LWPOLYLINE
   5
-32
+33
 330
 17
 100
 AcDbEntity
   8
-OUTLINE
+CUT
 100
 AcDbPolyline
  90
@@ -2163,15 +2187,55 @@ AcDbPolyline
  20
 136.06387820577686
   0
-LWPOLYLINE
+CIRCLE
   5
-33
+34
 330
 17
 100
 AcDbEntity
   8
-ETCH_FILL_BLACK
+HOLES_1.8
+100
+AcDbCircle
+ 10
+0.0
+ 20
+136.07
+ 30
+0.0
+ 40
+0.9
+  0
+CIRCLE
+  5
+35
+330
+17
+100
+AcDbEntity
+  8
+HOLES_1.8
+100
+AcDbCircle
+ 10
+0.0
+ 20
+125.93
+ 30
+0.0
+ 40
+0.9
+  0
+LWPOLYLINE
+  5
+36
+330
+17
+100
+AcDbEntity
+  8
+MARK_BLACK_FIBRE_LASER
 100
 AcDbPolyline
  90
@@ -2329,13 +2393,13 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-34
+37
 330
 17
 100
 AcDbEntity
   8
-ETCH_FILL_BLACK
+MARK_BLACK_FIBRE_LASER
 100
 AcDbPolyline
  90
@@ -2365,97 +2429,97 @@ AcDbPolyline
   0
 TEXT
   5
-35
-330
-17
-100
-AcDbEntity
-  8
-NOTES
-100
-AcDbText
- 10
--13.5
- 20
-113.5013497797404
- 30
-0.0
- 40
-1.6
-  1
-JURIS INSIGNIA PLATE  1 off
- 11
--13.5
- 21
-113.5013497797404
- 31
-0.0
-100
-AcDbText
-  0
-TEXT
-  5
-36
-330
-17
-100
-AcDbEntity
-  8
-NOTES
-100
-AcDbText
- 10
--13.5
- 20
-110.7013497797404
- 30
-0.0
- 40
-1.6
-  1
-Nickel silver 1.2 thick, brushed. Outline 27.0 x 27.0 octagon.
- 11
--13.5
- 21
-110.7013497797404
- 31
-0.0
-100
-AcDbText
-  0
-TEXT
-  5
-37
-330
-17
-100
-AcDbEntity
-  8
-NOTES
-100
-AcDbText
- 10
--13.5
- 20
-107.9013497797404
- 30
-0.0
- 40
-1.6
-  1
-ETCH_FILL_BLACK: etch 0.6 deep, fill black, level flush.
- 11
--13.5
- 21
-107.9013497797404
- 31
-0.0
-100
-AcDbText
-  0
-TEXT
-  5
 38
+330
+17
+100
+AcDbEntity
+  8
+NOTES
+100
+AcDbText
+ 10
+-13.5
+ 20
+113.5013497797404
+ 30
+0.0
+ 40
+1.6
+  1
+JURIS INSIGNIA BADGE  1 off per instrument
+ 11
+-13.5
+ 21
+113.5013497797404
+ 31
+0.0
+100
+AcDbText
+  0
+TEXT
+  5
+39
+330
+17
+100
+AcDbEntity
+  8
+NOTES
+100
+AcDbText
+ 10
+-13.5
+ 20
+110.7013497797404
+ 30
+0.0
+ 40
+1.6
+  1
+304 stainless 1.2 (.048 in), brushed. Octagon 27.0 x 27.0.
+ 11
+-13.5
+ 21
+110.7013497797404
+ 31
+0.0
+100
+AcDbText
+  0
+TEXT
+  5
+3A
+330
+17
+100
+AcDbEntity
+  8
+NOTES
+100
+AcDbText
+ 10
+-13.5
+ 20
+107.9013497797404
+ 30
+0.0
+ 40
+1.6
+  1
+MARK layer: gutters, fibre-laser black. 2 x 1.8 holes for #0 black pan-head screws.
+ 11
+-13.5
+ 21
+107.9013497797404
+ 31
+0.0
+100
+AcDbText
+  0
+TEXT
+  5
+3B
 330
 17
 100
@@ -2473,7 +2537,7 @@ AcDbText
  40
 1.6
   1
-Glued flush into a 1.2 deep pocket in the headstock face (see juris_headstock_production.dxf).
+Screws onto the headstock face, proud (see juris_headstock_production.dxf). Coordinates: s from the nut line.
  11
 -13.5
  21
@@ -3473,7 +3537,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-3B
+3E
   0
 DICTIONARYVAR
   5
@@ -3485,11 +3549,11 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-13T00:34:26.808858+00:00
+1.4.5 @ 2026-11-17T16:18:00.200934+00:00
   0
 DICTIONARYVAR
   5
-3B
+3E
 330
 2D
 100
@@ -3497,7 +3561,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-13T00:34:26.810441+00:00
+1.4.5 @ 2026-11-17T16:18:00.203041+00:00
   0
 ENDSEC
   0

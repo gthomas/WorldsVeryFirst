@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461357.6531134257
+2461362.347777778
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461357.6531134257
+2461362.347777778
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-4E
+51
   9
 $SURFTAB1
  70
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{1E5AF964-7D67-4650-B89C-329EAB225F7B}
+{FA592ACB-D17E-4991-AB14-51A05D206A3F}
   9
 $VERSIONGUID
   2
-{90181175-3BD6-4D74-A34F-725E0F65B2D9}
+{EA7CD6A5-1A7C-40A3-9BC7-3BA4F72725A5}
   9
 $EXTNAMES
 290
@@ -1549,7 +1549,7 @@ LAYER
 100
 AcDbSymbolTable
  70
-11
+12
   0
 LAYER
   5
@@ -1731,7 +1731,7 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
-INSIGNIA_POCKET_1.2_DEEP
+INSIGNIA_BADGE_SURFACE
  70
 0
  62
@@ -1755,6 +1755,30 @@ AcDbSymbolTableRecord
 100
 AcDbLayerTableRecord
   2
+BADGE_PILOT_HOLES_1.1
+ 70
+0
+ 62
+1
+  6
+Continuous
+370
+-3
+390
+13
+347
+21
+  0
+LAYER
+  5
+3D
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
 TRUSS_SLOT
  70
 0
@@ -1771,7 +1795,7 @@ Continuous
   0
 LAYER
   5
-3D
+3E
 330
 1
 100
@@ -1795,7 +1819,7 @@ Continuous
   0
 LAYER
   5
-3E
+3F
 330
 1
 100
@@ -1917,7 +1941,7 @@ ACAD
   0
 APPID
   5
-4B
+4E
 330
 3
 100
@@ -1931,7 +1955,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-4C
+4F
 330
 3
 100
@@ -2837,13 +2861,13 @@ AcDbCircle
   0
 LWPOLYLINE
   5
-3F
+40
 330
 17
 100
 AcDbEntity
   8
-INSIGNIA_POCKET_1.2_DEEP
+INSIGNIA_BADGE_SURFACE
 100
 AcDbPolyline
  90
@@ -2899,9 +2923,49 @@ AcDbPolyline
  20
 136.90763916731362
   0
+CIRCLE
+  5
+41
+330
+17
+100
+AcDbEntity
+  8
+BADGE_PILOT_HOLES_1.1
+100
+AcDbCircle
+ 10
+0.0
+ 20
+136.07
+ 30
+0.0
+ 40
+0.55
+  0
+CIRCLE
+  5
+42
+330
+17
+100
+AcDbEntity
+  8
+BADGE_PILOT_HOLES_1.1
+100
+AcDbCircle
+ 10
+0.0
+ 20
+125.93
+ 30
+0.0
+ 40
+0.55
+  0
 LWPOLYLINE
   5
-40
+43
 330
 17
 100
@@ -2933,7 +2997,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-41
+44
 330
 17
 100
@@ -2969,7 +3033,7 @@ AcDbPolyline
   0
 CIRCLE
   5
-42
+45
 330
 17
 100
@@ -2989,7 +3053,7 @@ AcDbCircle
   0
 CIRCLE
   5
-43
+46
 330
 17
 100
@@ -3009,7 +3073,7 @@ AcDbCircle
   0
 CIRCLE
   5
-44
+47
 330
 17
 100
@@ -3029,7 +3093,7 @@ AcDbCircle
   0
 LWPOLYLINE
   5
-45
+48
 330
 17
 100
@@ -3077,7 +3141,7 @@ AcDbPolyline
   0
 CIRCLE
   5
-46
+49
 330
 17
 100
@@ -3097,7 +3161,7 @@ AcDbCircle
   0
 CIRCLE
   5
-47
+4A
 330
 17
 100
@@ -3117,7 +3181,7 @@ AcDbCircle
   0
 LINE
   5
-48
+4B
 330
 17
 100
@@ -3141,7 +3205,7 @@ AcDbLine
   0
 LINE
   5
-49
+4C
 330
 17
 100
@@ -3165,7 +3229,7 @@ AcDbLine
   0
 TEXT
   5
-4A
+4D
 330
 17
 100
@@ -3183,7 +3247,7 @@ AcDbText
  40
 3.0
   1
-Juris headstock face (tilt-back, 11.2 deg, from the C-75 model): outline, 10 mm tuner holes for Grover 133N, insignia pocket 1.2 mm deep, truss slot and cover, asset tag (back), measured along the face from the nut line.
+Juris headstock face (tilt-back, 11.2 deg, from the C-75 model): outline, 10 mm tuner holes for Grover 133N, insignia badge outline and its two pilot holes, truss slot and cover, asset tag (back), measured along the face from the nut line.
  11
 -60.0
  21
@@ -4183,7 +4247,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-4D
+50
   0
 DICTIONARYVAR
   5
@@ -4195,11 +4259,11 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T23:40:29.056794+00:00
+1.4.5 @ 2026-11-17T16:20:48.733131+00:00
   0
 DICTIONARYVAR
   5
-4D
+50
 330
 2D
 100
@@ -4207,7 +4271,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T23:40:29.058577+00:00
+1.4.5 @ 2026-11-17T16:20:48.736700+00:00
   0
 ENDSEC
   0
