@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Juris A-6: build sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: impersonal corporate engineering record, dry, exact.
+   IDEA: a patent sheet / drawing set: Fig. 1 is the object, the BOM is the parts schedule.
+   PICTURE: the cabinet in 3D, aged computer white, orbitable, explodable.
+   COLOUR and TYPE: white sheet, black ink, concrete planes, one signal red for totals. Archivo.
+   LAYOUT: strict left edge, big figure first, schedule table below, totals hanging large. */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#111110);--ink:light-dark(#111,#ecebe6);--mut:light-dark(#6b6a65,#9a9890);--pl:light-dark(#e6e5e0,#1d1d1b);--ln:light-dark(#111,#ecebe6);--hair:light-dark(#cfcdc6,#33322f);--red:#e4002b}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Archivo,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px);max-width:1240px;margin:0 auto}
+h1{font:800 clamp(32px,5vw,52px)/1.05 Archivo;font-stretch:112%;margin:0 0 10px;text-wrap:balance}
+h2{font:800 22px/1.2 Archivo;font-stretch:112%;margin:0 0 6px}
+.lede{max-width:66ch;color:var(--mut);margin:0}
+.top{border-top:6px solid var(--ln)}
+.sheet{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;margin-top:24px}
+.fig{position:relative;min-height:440px;background:var(--pl)}
+.fig>canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
+.figcap{position:absolute;left:14px;top:12px;font-size:13px;color:var(--mut);pointer-events:none}
+.ctl{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;flex-wrap:wrap}
+button{font:600 14px Archivo;min-height:44px;padding:0 16px;border:1.5px solid var(--ln);background:var(--bg);color:var(--ink);cursor:pointer}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.facts{display:grid;gap:0;align-content:start}
+.fact{border-top:1.5px solid var(--ln);padding:12px 0}
+.fact b{display:block;font:800 clamp(30px,4vw,44px)/1 Archivo;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fact.total b{color:var(--red)}
+.fact span{font-size:14px;color:var(--mut)}
+.legend{font-size:13px;color:var(--mut);margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-weight:700;border-bottom:1.5px solid var(--ln);padding:8px 8px 8px 0}
+td{border-bottom:1px solid var(--hair);padding:9px 8px 9px 0;vertical-align:top}
+td.n,th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.grp td{border-bottom:1.5px solid var(--ln);padding-top:22px;font-weight:800;font-stretch:112%}
+tr.grp td.n{font-weight:700}
+.est{display:inline-block;font-size:12px;border:1px solid var(--mut);color:var(--mut);padding:0 5px;margin-left:6px;white-space:nowrap}
+.q{display:inline-block;font-size:12px;background:var(--ink);color:var(--bg);padding:0 5px;margin-left:6px}
+.spec{color:var(--mut);font-size:14px}
+.bar{display:flex;height:14px;margin:14px 0 6px;border:1.5px solid var(--ln)}
+.bar i{display:block;height:100%}
+.keys{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--mut)}
+.keys i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+.notes{columns:2 320px;column-gap:40px;font-size:15px}
+.notes p{margin:0 0 12px;break-inside:avoid}
+.sch{margin:22px 0 0;background:#fff;border:1px solid var(--hair);padding:12px;overflow-x:auto}.sch img{display:block;width:100%;min-width:640px;height:auto}
+#parts2 tr.on td{background:var(--pl)}
+.row{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+#copied{font-size:13px;color:var(--mut);min-height:1em}
+@media(max-width:860px){.sheet{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));column-gap:16px}}
+pre,.scroll{overflow-x:auto}code{overflow-wrap:anywhere}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}.stack tr.grp td{padding-inline-start:0}.stack tr.grp td::before{display:none}.fig{min-height:340px}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head><body>
+
+<section class="band top">
+  <h1>The Juris A-6 costs about <span id="hTotal">$—</span> in parts to build one</h1>
+  <p class="lede">Juris A-6 combo amp: Mini-Brute-derived preamp, Baxandall bass and treble, Accu-Bell plate reverb module, a 100 W TPA3255 class D stage with soft clipping into an Eminence Beta-6A, in a 3D-printed cabinet drawn from the insignia. Single-unit prices in USD, before shipping and tax.</p>
+  <div class="sheet">
+    <div class="fig" id="fig">
+      <canvas id="cv" aria-label="3D model of the octagonal amp cabinet. Drag to rotate."></canvas>
+      <div class="figcap">Fig. 1 · CAD model, 240 × 240 × 176 mm · drag to rotate</div>
+      <div class="ctl">
+        <button id="bEx" aria-pressed="false">Exploded</button>
+        <button id="bSpin" aria-pressed="true">Turntable</button>
+        <button id="bSec" aria-pressed="false">Section</button>
+        <button id="bDamp" aria-pressed="false">Damping</button>
+      <button id="bFront">Front</button>
+      </div>
+    </div>
+    <div class="facts">
+      <div class="fact total"><b id="fTotal">$—</b><span>parts total, one unit</span></div>
+      <div class="fact"><b id="fQuoted">—</b><span>of cost from listed prices; the rest estimated</span></div>
+      <div class="fact"><b>100 W</b><span>into 8 Ω from a 48 V brick, rounding off gently above ~30 W</span></div>
+      <div class="fact"><b>~114 dB</b><span>at 1 m, full power (Beta-6A rated 94 dB at 1 W)</span></div>
+    </div>
+  </div>
+  <div class="bar" id="bar" role="img" aria-label="Cost share by group"></div>
+  <div class="keys" id="keys"></div>
+</section>
+
+<section class="band">
+  <div class="row"><h2>Parts schedule</h2><div><button id="bCopy">Copy as CSV</button> <span id="copied" aria-live="polite"></span></div></div>
+  <p class="legend"><span class="q">listed</span> price seen at a distributor &nbsp; <span class="est">est.</span> estimate, not yet quoted</p>
+  <table class="stack" id="bom"><thead><tr><th>Part</th><th>Spec</th><th class="n">Qty</th><th class="n">Unit</th><th class="n">Ext.</th></tr></thead><tbody></tbody></table>
+</section>
+
+<section class="band">
+  <h2>Power amp and how it mounts</h2>
+  <p class="lede">A TI TPA3255 class D chip, one channel bridged, on a 48 V supply: 100 W into the 8 Ω Beta-6A. A soft-clip stage after the master volume rounds the signal off gradually, so the amp saturates instead of slamming into the chip's hard limit. At about 90 % efficiency it makes little heat, so there is no heatsink: the amp board's own aluminium heat-sink frame bolts flat to the plain back plate.</p>
+  <div class="facts" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));column-gap:24px;margin-top:18px">
+    <div class="fact"><b>14 W</b><span>chip heat at 100 W sine out</span></div>
+    <div class="fact"><b>81 °C</b><span>chip at 100 W continuous; plate 50 °C on average</span></div>
+    <div class="fact"><b>46 °C</b><span>chip during loud playing (~4 W heat)</span></div>
+    <div class="fact"><b>124 °C</b><span>chip flat-out into a near-square wave; built-in thermal shutdown is the backstop</span></div>
+  </div>
+  <figure style="margin:24px 0 0"><img src="pa_response.png" alt="Soft-clip behaviour: speaker voltage against drive with and without soft clipping, waveforms past clipping, and average power" style="width:100%;height:auto;background:#fff"><figcaption class="legend">Fig. 2 · Soft clip into the class D stage (ngspice). Clean to about 30 W, then a plateau at 41.7 V peak, below the chip's 45.6 V hard limit. Without it, overdrive goes straight to a hard square.</figcaption></figure>
+  <figure style="margin:24px 0 0"><img src="thermal_plate.png" alt="Back-plate temperature maps with the class D chip at 100 W sine and at flat-out clipping" style="width:100%;max-width:820px;height:auto;background:#fff"><figcaption class="legend">Fig. 3 · Plain black back plate, no heatsink. Room 25 °C, cabinet air 40 °C.</figcaption></figure>
+  <div class="notes" style="margin-top:24px">
+    <p><b>Soft clip.</b> An inverting op-amp stage (gain 3.3) with two strings of seven 1N4148W diodes and 330 Ω across its feedback resistor, then a divider into the amp board. It gives a gradual knee from about 30 W and levels off below the point where the TPA3255 runs out of supply. Driven flat out it still averages up to about 170 W into a near-square wave, inside the Beta-6A's 175 W rating.</p>
+    <p><b>Back-plate module.</b> The power stage is a 3e Audio 480-1-29A: one TPA3255 in parallel-bridged mono, 85 × 120 mm, rated 180 W into 8 Ω on 36–51 V, with its own low-voltage supplies, so it needs nothing but 48 V and a signal. Its TPA3255 sits on the underside on a 2 mm raised pad of an 85 × 120 × 10 mm aluminium heat-sink frame, which bolts flat to the back plate: six M3 countersunk screws from outside go into the frame's own chassis holes (four at 63 × 102 mm and two mid-side, 75 mm apart), with a thermal pad between. The routed main board (48 V input, fuse, bulk cap, 12 V buck, 9 V and 30 V regulators, reverb module, and a balanced driver for the amp) stands beside it on its side, on four 7 mm standoffs. The power inlet and switch sit at the top of the plate. The whole module lifts out as one piece.</p>
+    <p><b>Layout matters.</b> Class D switches at a few hundred kHz. The bought board takes care of the power stage and output filter; keep the input jack wiring and the reverb module's leads away from it, keep the speaker leads short, and ground the plate.</p>
+    <p><b>Control board.</b> The control board hangs from the plate on the bushings of five board-mounted Alpha 9 mm pots, about 7 mm below it. The voice toggle mounts on the plate, drops through a window in the board, and wires to three pads beside it. A 6-way JST-XH harness (twist the send and return pairs) runs to the main board, and a 3-way lead carries the balanced drive to the amp board's input. The input jack sits on the control plate too, so it wires straight to the control board with no long signal run.</p>
+    <p><b>Speaker.</b> The Beta-6A is a 175 W pro-audio mid-bass with a 2 in voice coil and a 125 mm magnet. Its useful range stops around 4 kHz, which suits a jazz voice; Henriksen adds a tweeter if you want more top end. Sealed in about 6 L it is 3 dB down at about 155 Hz, and the Baxandall bass control does real work.</p>
+  </div>
+</section>
+
+<section class="band">
+  <h2>Circuit</h2>
+  <p class="lede">Five sheets, from the input jack to the speaker, plus the supplies. Values match the simulations on this page. VG is the 15 V virtual ground the single-supply op-amps work around. Values marked * are set on the bench. The class D chip and the reverb module are drawn as blocks: build them to TI's reference design and the module's datasheet.</p>
+  <div class="scroll" style="margin-top:12px"><nav style="display:flex;gap:16px;flex-wrap:wrap;font-size:14px"><a href="#sch-a">A · Input and voice</a><a href="#sch-b">B · Tone stack</a><a href="#sch-c">C · Reverb, mix, master</a><a href="#sch-d">D · Soft clip and power amp</a><a href="#sch-e">E · Supplies</a></nav></div>
+  <figure id="sch-a" class="sch"><img src="A_input.svg" alt="Sheet A: input jack, Polytone-derived input stage with bright and dark switch legs, and volume control"><figcaption class="legend">A · Input stage (control board). Polytone Mini-Brute front end with the gain raised 10 dB.</figcaption></figure>
+  <figure id="sch-b" class="sch"><img src="B_tone.svg" alt="Sheet B: Baxandall bass and treble tone stack around an inverting op-amp"><figcaption class="legend">B · Baxandall bass and treble (control board). Polytone tone-amp values.</figcaption></figure>
+  <figure id="sch-c" class="sch"><img src="C_reverb_mix.svg" alt="Sheet C: reverb send divider, plate reverb module, reverb level, dry/wet mixer and master volume"><figcaption class="legend">C · Plate reverb send and return, mixer and master (main board).</figcaption></figure>
+  <figure id="sch-d" class="sch"><img src="D_softclip_power.svg" alt="Sheet D: diode soft-clip stage, drive divider, TPA3255 class D block, output filter and speaker"><figcaption class="legend">D · Soft clip (control board), TPA3255 and output filter (bought amp board).</figcaption></figure>
+  <figure id="sch-e" class="sch"><img src="E_power.svg" alt="Sheet E: 48 V input, switch and fuse, 12 V buck, 9 V regulator, 30 V LM317 rail and TLE2426 virtual ground"><figcaption class="legend">E · Supplies from the single 48 V brick (main board).</figcaption></figure>
+</section>
+
+<section class="band" id="pcb">
+  <h2>Printed circuit boards</h2>
+  <p class="lede">Two routed, two-layer boards in Juris technical dress: black mask, white legend, gold pads. The power stage is an off-the-shelf TPA3255 mono board, so these carry everything else. Both pass design-rule checks with no unconnected pads and no clearance errors. What remains in the report is cosmetic: legend text touching other legend text or copper.</p>
+  <div class="pcbgrid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px">
+    <figure style="margin:0"><img src="pcb_control_top.png" alt="Control board, top: five 9 mm pots labelled volume, bass, treble, reverb and master, and the bright-normal-dark voice toggle" style="width:100%;height:auto;border-radius:6px"><figcaption class="legend">Fig. 5a · Control board, top, 80 × 80 mm. Pots and toggle face the control plate.</figcaption></figure>
+    <figure style="margin:0"><img src="pcb_control_bottom.png" alt="Control board, bottom: surface-mount op-amps, resistors, capacitors and the clipping diodes, with input and harness connectors" style="width:100%;height:auto;border-radius:6px"><figcaption class="legend">Fig. 5b · Control board, bottom. Op-amps, passives, J1 input and J2 harness.</figcaption></figure>
+    <figure style="margin:0"><img src="pcb_main_top.png" alt="Main board, top: 48 V input, fuse, bulk capacitor, buck module header, 9 V and 30 V regulators, reverb module header and trimmers" style="width:100%;height:auto;border-radius:6px"><figcaption class="legend">Fig. 5c · Main board, top, 110 × 64 mm, four M3 holes at ±49 / ±26 mm.</figcaption></figure>
+    <figure style="margin:0"><img src="pcb_main_bottom.png" alt="Main board, bottom: ground pour and surface-mount regulator parts" style="width:100%;height:auto;border-radius:6px"><figcaption class="legend">Fig. 5d · Main board, bottom. Ground pour and the regulator passives.</figcaption></figure>
+  </div>
+  <table class="stack" style="margin-top:18px"><thead><tr><th>Board</th><th>Size</th><th>Holds</th><th>Connects to</th></tr></thead><tbody>
+  <tr><td>Control, JPI-A6-C</td><td class="spec">80 × 74 mm, 1.6 mm, 2 layers; window for the toggle body</td><td class="spec">VR1–VR5 Alpha 9 mm pots, U1/U2 NJM4558, U8 TLE2426ID (all SOIC-8), soft-clip diode strings, S1 pads for the toggle leads</td><td class="spec">J1 input jack (XH-2), J2 to main (XH-6: +30 V, GND, send, return, drive, GND)</td></tr>
+  <tr><td>Main, JPI-A6-M</td><td class="spec">110 × 64 mm, 1.6 mm, 2 layers</td><td class="spec">F1 4 A T fuse, C20 2200 µF 63 V, U4 buck module, U5 7809, U6 LM317, U7 reverb module socket, RV1–RV3 reverb trimmers, U9 balanced amp driver</td><td class="spec">J10 48 V in, J11 48 V and J12 drive to the amp board, J13 to control</td></tr>
+  </tbody></table>
+  <h3 style="margin-top:22px">Built for these exact parts</h3>
+  <table class="stack" style="margin-top:8px"><thead><tr><th>Part</th><th>What the board follows</th><th>Source</th></tr></thead><tbody>
+  <tr><td>Accu-Bell Effector (U7)</td><td class="spec">Single row, 13 pins, 0.1 in: VDD, GND, IN, OUT1−, OUT1+, OUT2+, OUT2−, GPIO1–5, VPOT. Runs on +9 V. GPIO1 at 2.3–3.3 V selects plate reverb; an 18k / 33k divider from VPOT puts it near 2.9 V. GPIO2–4 (tone, decay, pre-delay) each get a 50k trimmer between VPOT and ground. OUT1+ and OUT2+ are AC-coupled and summed into the reverb pot; the input is AC-coupled from the send. Every socket pin is labelled on the board.</td><td class="spec">Accu-Bell ABE datasheet</td></tr>
+  <tr><td>Alpha 9 mm pots (VR1–VR5)</td><td class="spec">RD901F-40 vertical footprint from KiCad's library, drawn from Alpha's drawing: three pins at 2.5 mm, two bracket tabs, shaft 7.5 mm ahead of the pins. Wired so clockwise is louder, more bass and more treble. M7 bushing, so the plate holes stay 7.5 mm. The board hangs about 7 mm under the plate.</td><td class="spec">Alpha / KiCad library</td></tr>
+  <tr><td>C&amp;K 7103 toggle (S1)</td><td class="spec">Mounts on the plate by its bushing; its body drops through a window in the board, and its three lugs wire to the S1 pads beside it. A board-mounted toggle would stand too tall next to 9 mm pots.</td><td class="spec">C&amp;K 7000 series</td></tr>
+  <tr><td>TLE2426ID (U8)</td><td class="spec">SOIC-8: pin 1 out, 2 common, 3 in, 8 noise reduction (1 µF to ground).</td><td class="spec">TI datasheet</td></tr>
+  <tr><td>3e Audio 480-1-29A (amp)</td><td class="spec">36–51 V on Faston tabs from J11. Input on a 3-pin JST: IN+, IN−, AGND; J12 matches it, fed by the U9 balanced driver. Its input is balanced by default, and 3e says single-ended use needs a modification to the board, so U9 on the main board drives it properly: one half buffers the drive, the other inverts it, both AC-coupled into IN+ and IN−. With the datasheet's 20.5 dB gain, R17 / R18 at 10k / 10k and seven diodes per string put the soft-clip plateau at about 40 V peak. If you measure a different gain, the divider is 10.6 ÷ (2 × gain in V/V). Fault and clip outputs on its 10-pin header can drive LEDs. Speaker leads to its output tabs.</td><td class="spec">3e Audio EAUMT-FB datasheet Rev 1.1</td></tr>
+  <tr><td>7809, LM317</td><td class="spec">Standard TO-220 pinouts: 7809 in, ground, out; LM317 adjust, out, in.</td><td class="spec">Standard</td></tr>
+  </tbody></table>
+  <p style="margin-top:14px">Still to check against the parts you actually buy: the 12 V buck module, since generic modules vary,. The amp board's frame holes are now in the back-plate cut file, taken from 3e's datasheet drawing (Rev 1.1); check them against the frame before you cut. U4 expects 48 V in on pin 1, ground on pins 2 and 3 and 12 V out on pin 4, so wire the buck module to those pads if its pins differ. Also check that the reverb module's printed pin labels match the board legend before you plug it in; one copy of the datasheet numbers the pins from the VPOT end, though the order is the same.</p>
+  <p style="margin-top:10px">To order: upload each Gerber zip to JLCPCB with defaults, 1.6 mm, black mask. The BOM and placement CSVs are there if you want the surface-mount parts assembled; otherwise every part is 0805/1206, SOD-123 or SOIC and hand-solderable.</p>
+</section>
+
+<section class="band" id="bringup">
+  <h2>Bring-up and test</h2>
+  <p class="lede">Power it up one stage at a time, so a fault shows up on the cheapest part it can. You need a multimeter; a current-limited bench supply and a small 8 Ω dummy load or test speaker help. Unplug and wait a minute before changing anything: the 2200 µF cap holds charge.</p>
+  <table class="stack" style="margin-top:14px"><thead><tr><th>Stage</th><th>Do</th><th>Expect</th><th>If not</th></tr></thead><tbody>
+  <tr><td>0 · Before power</td><td class="spec">Check C20's stripe (negative) matches the legend, the 7809 and LM317 face the right way, and the op-amps' pin-1 dots match. Leave the reverb module out and the amp board unplugged. Set the buck module to 12.0 V on the bench before fitting it, if it is adjustable.</td><td class="spec">More than 1 kΩ from +48 V to GND (it climbs as C20 charges from the meter). No short from +30 V, VG or +9 V to GND.</td><td class="spec">Find the short before going on.</td></tr>
+  <tr><td>1 · Main board alone</td><td class="spec">Power the main board from the brick, or a bench supply at 48 V limited to 100 mA.</td><td class="spec">J10: 47.5–48.5 V. U4 out: 11.5–12.5 V. U5 (7809) out: 8.6–9.4 V. U6 (LM317) out: 29.5–31.3 V (240 Ω and 5.6k set 30.4 V). Draw: tens of mA.</td><td class="spec">A rail at 0 V: check the fuse and that part's orientation. 30 V wrong: check R20 / R21.</td></tr>
+  <tr><td>2 · Reverb module</td><td class="spec">Power off. Plug the module into U7 with its VDD pin on the VDD legend. Power on.</td><td class="spec">Supply current rises about 90 mA. VPOT (pin 13): about 4.5 V. GPIO1 (pin 8): 2.3–3.3 V, about 2.9 V. Each trimmer wiper sweeps 0 to VPOT.</td><td class="spec">VPOT at 0 V or the module warm: power off at once; it is probably reversed.</td></tr>
+  <tr><td>3 · Control board</td><td class="spec">Power off. Connect J13 to J2 and the input jack to J1. Power on, amp board still unplugged.</td><td class="spec">VG (U8 pin 1): half of +30 V, about 15.2 V. U1 and U2 pins 1 and 7: within 0.1 V of VG. U9 pins 1 and 7 on the main board: about 15 V. J12 pins 1 and 2: about 0 V DC.</td><td class="spec">An op-amp output stuck near 0 or 30 V: check its feedback parts and solder joints.</td></tr>
+  <tr><td>4 · Signal check</td><td class="spec">Play guitar or a 100 mV, 1 kHz tone into the input. Volume and master up, meter on AC volts across J12 pins 1 and 2.</td><td class="spec">The reading rises smoothly with the master to around 2.7 V AC, then levels off; that is the soft clip. Pins 1 and 2 to ground each read half that. Bass and treble change it; the voice switch changes the top end.</td><td class="spec">Nothing at DRIVE: trace the signal back with the meter, stage by stage.</td></tr>
+  <tr><td>5 · Amp board</td><td class="spec">Power off. Bolt the heat-sink frame to the back plate over a thermal pad, connect the speaker or a dummy load, master at zero. Connect J11 and J12 and power on.</td><td class="spec">No fault light on the amp board. Less than 50 mV DC across the speaker terminals. Total draw well under 0.5 A at idle.</td><td class="spec">Fault light or high draw: power off; check the 48 V polarity at J11 and the speaker wiring. Neither speaker wire may touch ground.</td></tr>
+  <tr><td>6 · Set up and soak</td><td class="spec">Set tone, decay and pre-delay by ear; mid-way is a good start. Then play loud for 15 minutes.</td><td class="spec">Back plate warm, not too hot to keep a hand on. No hum with the volume down.</td><td class="spec">Hot plate: reseat the frame and its thermal pad. Hum: check the input lead's shield and the plate ground.</td></tr>
+  </tbody></table>
+</section>
+
+<section class="band">
+  <h2>Boards</h2>
+  <p class="lede">The three boards in place, cabinet hidden. The main and control boards are built straight from the routed PCB files, so every part sits where it is on the boards above. The amp board is the 3e Audio 480-1-29A, shown at its 85 × 120 mm size on its heat-sink frame and its tallest parts, 35 mm caps and the output inductors, as envelopes. Everything clears the shell and speaker; the tallest main-board part, the 2200 µF cap, clears the magnet by 52 mm. The reverb module is drawn at its datasheet size, standing in its socket; the buck module's size is assumed.</p>
+  <div class="fig" id="fig2" style="margin-top:18px">
+    <canvas id="cv2" aria-label="3D model of the main, control and amp boards with their components, in place in the cabinet. Drag to rotate."></canvas>
+    <div class="figcap">Fig. 4 · Boards in place, cabinet hidden · drag to rotate</div>
+    <div class="ctl">
+      <button id="bBoth" aria-pressed="true">Both</button>
+      <button id="bMain" aria-pressed="false">Main board</button>
+      <button id="bCtrl" aria-pressed="false">Control board</button>
+      <button id="bAmp" aria-pressed="false">Amp board</button>
+    </div>
+  </div>
+  <div class="keys" id="keys2" style="margin-top:10px"></div>
+  <table class="stack" id="parts2" style="margin-top:14px"><thead><tr><th>Part</th><th>Group</th><th>Note</th><th>Board</th></tr></thead><tbody><tr data-k="p00"><td>Main board JPI-A6-M</td><td class="spec">Board</td><td class="spec">110 × 64 mm, 2-layer, black mask; turned on its side</td><td class="spec">Main</td></tr><tr data-k="p01"><td>U7 ACCU-BELL EFFECTOR</td><td class="spec">Signal</td><td class="spec">PinSocket</td><td class="spec">Main</td></tr><tr data-k="p02"><td>RV2 DECAY 50k</td><td class="spec">Reverb</td><td class="spec">Potentiometer</td><td class="spec">Main</td></tr><tr data-k="p03"><td>J11 48V TO AMP BOARD</td><td class="spec">Connectors</td><td class="spec">TerminalBlock</td><td class="spec">Main</td></tr><tr data-k="p04"><td>J13 TO CONTROL</td><td class="spec">Connectors</td><td class="spec">JST</td><td class="spec">Main</td></tr><tr data-k="p05"><td>J10 48V IN (from DIN + switch)</td><td class="spec">Connectors</td><td class="spec">TerminalBlock</td><td class="spec">Main</td></tr><tr data-k="p06"><td>F1 4A T 5x20</td><td class="spec">Supplies</td><td class="spec">Fuseholder</td><td class="spec">Main</td></tr><tr data-k="p07"><td>RV1 TONE 50k</td><td class="spec">Reverb</td><td class="spec">Potentiometer</td><td class="spec">Main</td></tr><tr data-k="p08"><td>U6 LM317</td><td class="spec">Supplies</td><td class="spec">TO-220-3</td><td class="spec">Main</td></tr><tr data-k="p09"><td>U5 7809</td><td class="spec">Supplies</td><td class="spec">TO-220-3</td><td class="spec">Main</td></tr><tr data-k="p10"><td>J12 TO AMP IN+ IN- AGND</td><td class="spec">Connectors</td><td class="spec">JST</td><td class="spec">Main</td></tr><tr data-k="p11"><td>U4 12V BUCK MODULE (60V in)</td><td class="spec">Connectors</td><td class="spec">PinHeader</td><td class="spec">Main</td></tr><tr data-k="p12"><td>C20 2200u 63V</td><td class="spec">Supplies</td><td class="spec">CP</td><td class="spec">Main</td></tr><tr data-k="p13"><td>RV3 PRE 50k</td><td class="spec">Reverb</td><td class="spec">Potentiometer</td><td class="spec">Main</td></tr><tr data-k="p14"><td>Bottom-side parts (regulator and reverb coupling)</td><td class="spec">Signal</td><td class="spec">0805 / 1206, hand-solderable</td><td class="spec">Main</td></tr><tr data-k="p15"><td>12 V buck module (on U4)</td><td class="spec">Supplies</td><td class="spec">Off-the-shelf, 60 V in; envelope assumed</td><td class="spec">Main</td></tr><tr data-k="p16"><td>Accu-Bell reverb module (in U7)</td><td class="spec">Reverb</td><td class="spec">36 × 21 × 6.5 mm card, stands upright in the 13-way socket</td><td class="spec">Main</td></tr><tr data-k="p17"><td>Control board JPI-A6-C</td><td class="spec">Board</td><td class="spec">80 × 74 mm, hangs on the pot bushings; window for the toggle body</td><td class="spec">Control</td></tr><tr data-k="p18"><td>Voice toggle C&amp;K 7103 (on the plate)</td><td class="spec">Controls</td><td class="spec">Solder lugs, wired to S1; body drops through the board window</td><td class="spec">Control</td></tr><tr data-k="p19"><td>VR1 VOLUME 50kA</td><td class="spec">Controls</td><td class="spec">Alpha RD901F-40 9 mm vertical</td><td class="spec">Control</td></tr><tr data-k="p20"><td>VR4 REVERB 50kA</td><td class="spec">Controls</td><td class="spec">Alpha RD901F-40 9 mm vertical</td><td class="spec">Control</td></tr><tr data-k="p21"><td>VR2 BASS 100kB</td><td class="spec">Controls</td><td class="spec">Alpha RD901F-40 9 mm vertical</td><td class="spec">Control</td></tr><tr data-k="p22"><td>VR3 TREBLE 100kB</td><td class="spec">Controls</td><td class="spec">Alpha RD901F-40 9 mm vertical</td><td class="spec">Control</td></tr><tr data-k="p23"><td>VR5 MASTER 50kA</td><td class="spec">Controls</td><td class="spec">Alpha RD901F-40 9 mm vertical</td><td class="spec">Control</td></tr><tr data-k="p24"><td>U8 TLE2426ID</td><td class="spec">Signal</td><td class="spec">SOIC-8, underside</td><td class="spec">Control</td></tr><tr data-k="p25"><td>S1 TO VOICE TOGGLE</td><td class="spec">Connectors</td><td class="spec">JST-XH</td><td class="spec">Control</td></tr><tr data-k="p26"><td>J1 INPUT (to jack)</td><td class="spec">Connectors</td><td class="spec">JST-XH</td><td class="spec">Control</td></tr><tr data-k="p27"><td>U2 NJM4558</td><td class="spec">Signal</td><td class="spec">SOIC-8, underside</td><td class="spec">Control</td></tr><tr data-k="p28"><td>J2 TO MAIN</td><td class="spec">Connectors</td><td class="spec">JST-XH</td><td class="spec">Control</td></tr><tr data-k="p29"><td>U1 NJM4558</td><td class="spec">Signal</td><td class="spec">SOIC-8, underside</td><td class="spec">Control</td></tr><tr data-k="p30"><td>Underside passives and clip diodes</td><td class="spec">Signal</td><td class="spec">0805 / 1206 / SOD-123</td><td class="spec">Control</td></tr><tr data-k="p31"><td>Input jack (on the plate, wired to J1)</td><td class="spec">Controls</td><td class="spec">Switchcraft 11</td><td class="spec">Control</td></tr><tr data-k="p32"><td>3e Audio 480-1-29A amp board</td><td class="spec">Board</td><td class="spec">TPA3255 PBTL mono, 85 × 120 mm, parts toward the speaker</td><td class="spec">Amp (3e)</td></tr><tr data-k="p33"><td>Heat-sink frame (TPA3255 underneath the board)</td><td class="spec">Power stage</td><td class="spec">85 × 120 × 10 mm aluminium frame; six M3 into it from outside, thermal pad between</td><td class="spec">Amp (3e)</td></tr><tr data-k="p34"><td>Output inductors (on amp board)</td><td class="spec">Power stage</td><td class="spec">VER2923-type, envelope</td><td class="spec">Amp (3e)</td></tr><tr data-k="p35"><td>Bulk caps (on amp board)</td><td class="spec">Supplies</td><td class="spec">35 mm tall, the board&#x27;s tallest parts</td><td class="spec">Amp (3e)</td></tr></tbody></table>
+  <p class="legend">Hover or tap a row to highlight the part.</p>
+</section>
+
+<section class="band">
+  <h2>Construction details</h2>
+  <p class="lede">Every hole, boss and fastener is now in the CAD model. The shell prints in one piece, front face down, with no supports. The three plates are flat laser-cut parts with true circles in the DXFs.</p>
+  <div class="notes" style="margin-top:20px">
+    <p><b>Front.</b> 9 mm integral baffle with a 144.5 mm speaker cutout for the Beta-6A. The speaker mounts from inside, on four M4 short inserts sunk into the back of the baffle, so nothing shows on the front. The brushed stainless grille sits proud on the face and is held by eight M3 button heads on the insignia gutters, outside the speaker opening, like the headstock badge.</p>
+    <p><b>Rear.</b> A 12 mm inward ledge, 5 mm in from the rear edge, carries eight M4 inserts, one per edge. The back plate drops into that recess on a foam gasket and sits flush. A 45° chamfer under the ledge lets it print without support. The opening inside the ledge is 197 mm, so the 165 mm speaker goes in through the back.</p>
+    <p><b>Top.</b> An 80 × 120 mm aluminium control plate (0.090 in) sits flush in a 2.3 mm pocket on the top flat, with four M3 screws into gusseted bosses. The pots mount to the metal, not the plastic. The window through the wall has a 45° roof at its rear edge so it prints without a long bridge. Layout: volume, bass, treble in the front row; reverb, master and the voice toggle behind; the input jack at the back.</p>
+    <p><b>Jack.</b> The input jack is on the control plate, centred behind the back row of knobs (a 9.6 mm hole for a Switchcraft 11), 34 mm behind the reverb and master knobs. It goes through the control-plate window, clear of the handle strap and the speaker, and the cable leaves from the top.</p>
+    <p><b>Stance and tilt.</b> No feet. Two runners are printed as part of the shell, one along each lower facet, 168 mm apart. Their bottoms are cut on a 5° slope, so the cabinet leans back and the speaker aims up at the player, and a strip of adhesive rubber under each keeps it from sliding. It would tip sideways at about 36°, steadier than the feet or the cradles. The tilt is set by the bed: the runners take the print to 240 × 253 mm, just inside a 256 mm bed, so 5° is the most it can carry. Their front ends rise at 45° to the front face, so the shell still prints without supports.</p>
+    <p><b>Handle.</b> A generic black replacement amp handle (molded strap with two screw-on end caps). Its two end caps screw into the upper facets, two M4 inserts each in internal bosses, at the balance point about 84 mm back from the front. The strap arches 42 mm over the top flat, 22 mm clear of the knob tops. The 50 mm screw pitch is a placeholder: set it to your handle's caps.</p>
+    <p><b>Checked in the model.</b> No interference between the speaker, shell, both boards, pots and jack. 52 mm between the magnet and the tallest part on the main board. About 6.7 L of air inside. Grille: 379 holes of 6.4 mm on a 9.2 mm stagger, about 26% open, with the gutters solid and a solid patch under the badge.</p>
+    <p><b>Badge.</b> A 40 mm Juris insignia in brass sits on the grille's lower centre panel, below the cone. It is the cabinet's own octagon at one-sixth scale, with the two gutter crosses cut as slots; small bridges at the four crossings keep it one piece. The grille leaves a solid patch under it, so the badge bonds to flat metal with 3M VHB tape. Brass picks up the amber knobs; cut it from stainless instead for a quieter look.</p>
+    <p><b>Damping and lining.</b> Printed PETG walls are lighter and springier than plywood, so damp them first: 2 mm foil-backed butyl sheet on the inside of every wall except the top, about two-thirds of each panel, kept clear of the inserts and handle bosses. Then absorb the sound inside: 3/4 in acoustic foam or wool felt on the two sides, 1/2 in on the bottom (thinner there to keep 20 mm from the amp board), and a loose handful of polyester fill around the speaker magnet, in a thin cloth bag so it can't drift into the electronics. Leave the back plate's inside face, 20 mm around both boards and the control assembly bare; the Damping button on the model shows those keep-clear zones in red. Fit the lining with the speaker out, before the boards go in.</p>
+    <p><b>Verify before printing.</b> The Beta-6A's published cutout (144.5 mm) and bolt circle (153.9 mm) are in the model; check the number of mounting holes on the driver itself. Check your insert supplier's hole sizes too (M3 4.0 mm, M4 5.6 mm assumed).</p>
+  </div>
+  <h2 style="margin-top:28px">Fastener schedule</h2>
+  <table class="stack" style="margin-top:10px"><thead><tr><th>Joint</th><th>Hardware</th><th class="n">Qty</th></tr></thead><tbody><tr><td>Back plate to shell</td><td class="spec">M4 x 10 button head + M4 heat-set insert</td><td class="n">8</td></tr><tr><td>Speaker to baffle (from inside)</td><td class="spec">M4 x 8 pan head + washer + M4 short insert (5.7 mm)</td><td class="n">4</td></tr><tr><td>Grille to baffle, in the gutters</td><td class="spec">M3 x 6 button head, stainless + M3 insert</td><td class="n">8</td></tr><tr><td>Control plate to top flat</td><td class="spec">M3 x 6 flat head + M3 insert</td><td class="n">4</td></tr><tr><td>Main board standoffs</td><td class="spec">M3 x 7 F-F standoff + 2 x M3 x 5 screw</td><td class="n">4</td></tr><tr><td>Amp heat-sink frame to back plate</td><td class="spec">M3 x 8 countersunk from outside into the frame's chassis holes (63 x 102 and the two mid-side) + thermal pad</td><td class="n">6</td></tr><tr><td>Runner pads</td><td class="spec">Adhesive EPDM or neoprene strip, 12 x 1.6 mm, ~140 mm under each runner</td><td class="n">2</td></tr><tr><td>Strap handle end caps (one per upper facet)</td><td class="spec">M4 x 12 machine screws + M4 short inserts in internal bosses (match the cap&#x27;s hole pitch, 50 mm assumed)</td><td class="n">4</td></tr><tr><td>Back plate gasket</td><td class="spec">1.5 mm closed-cell foam tape on ledge</td><td class="n">1</td></tr></tbody></table>
+  <p class="legend" style="margin-top:14px">Files: <a href="files/juris_a6_shell.stl">juris_a6_shell.stl</a> (print), <a href="files/juris_a6_back_plate.dxf">juris_a6_back_plate.dxf</a> (5052, 0.125 in, black outside), <a href="files/juris_a6_control_plate.dxf">juris_a6_control_plate.dxf</a> (5052, 0.090 in), <a href="files/juris_a6_grille.dxf">juris_a6_grille.dxf</a> (304 stainless, brushed, 0.048 in), <a href="files/juris_a6_badge.dxf">juris_a6_badge.dxf</a> (brass, 0.040 in), <a href="files/juris_a6_assembly.glb">juris_a6_assembly.glb</a> (this model), <a href="files/juris_a6_boards_revB.zip">juris_a6_boards_revB.zip</a> (Gerbers, BOMs, placement, KiCad).</p>
+</section>
+
+<section class="band">
+  <h2>Notes on the numbers</h2>
+  <div class="notes">
+    <p><b>Listed prices.</b> Mean Well GST120A48-R7B at Jameco ($44.70). Accu-Bell Effector at Next Gen Guitars (C$36.99, about US$27).  Eminence Beta-6A at Adorama ($89.99). </p>
+    <p><b>Biggest unknowns.</b> The amp board's US price, which varies by seller. The SendCutSend grille, which is priced largely by cut time, so its 406 perforations dominate its cost. Get a live quote before building. The reverb module has gone in and out of stock at US dealers, so buy one early.</p>
+    <p><b>Not included.</b> Shipping (several suppliers, so budget $40–60), the printer and filament waste, tools, and your time. A JLCPCB order makes five boards, so boards for units 2–5 are almost free.</p>
+    <p><b>Power rails.</b> One 120 W, 48 V brick feeds everything (enough for playing; continuous full-power sine testing runs it close to its rating): the amp board directly, and through the main board a 12 V buck feeding a 9 V regulator for the reverb module and an LM317 at 30 V split by a TLE2426 for the op-amps. No mains inside the printed box.</p>
+    <p><b>Cabinet.</b> Printed in PETG, front face down, in one piece; it fits a 256 mm bed and doesn't need an enclosed printer. About 1.05 kg with 6 mm walls, a 9 mm baffle and 45% gyroid infill. With class D the cabinet stays well under PETG's softening point; ASA is still the choice for a car in summer. A print service would cost roughly $80–200 plus shipping instead of the filament line. Shown in black with a brushed stainless grille and amber knobs.</p>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script>
+{
+const BOM=[
+ ['Amplification','3e Audio 480-1-29A amp board','TPA3255 PBTL mono on its heat-sink frame (not the -NHS version); 36–51 V, 180 W into 8 Ω; €129 at Audiophonics',1,90,0],
+ ['Amplification','12 V buck module','Plugs into U4 on the main board; feeds the 9 V and 30 V regulators',1,5,0],
+ ['Amplification','Thermal pad + M3 countersunk screws','Pad between the heat-sink frame and the back plate; six M3 × 8 countersunk',1,5,0],
+ ['Amplification','Balanced driver for the amp input','NJM4558 (SOIC-8), resistors, 10 µF couplings on the main board',1,2,0],
+ ['Amplification','Soft-clip diodes','14 × 1N4148W, SOD-123',1,1.5,0],
+ ['Amplification','Op-amps, NJM4558 (SOIC-8)','U1 preamp and tone; U2 mixer and soft clip; OPA2134UA drops in',2,0.9,0],
+ ['Amplification','Aluminium back plate','5052 .125 in, SendCutSend, black finish outside',1,40,0],
+ ['Reverb','Accu-Bell Effector (ABE) module','Plate reverb with tone, decay and pre-delay; runs on 5.5–9.5 V',1,27,1],
+ ['Reverb','13-way 0.1 in socket, 3 × 50k trimmers, 7809','Bourns 3296W for tone, decay, pre-delay; 18k / 33k divider selects plate reverb',1,7,0],
+ ['Power','Mean Well GST120A48-R7B brick','48 V 2.5 A, 4-pin DIN output',1,44.7,1],
+ ['Power','LM317 + TLE2426ID','30 V preamp rail; virtual ground in SOIC-8 with noise-reduction cap',1,5,0],
+ ['Power','4-pin power DIN inlet + power toggle','Matches the R7B plug',1,10,0],
+ ['Power','F1 fuse + PCB holder','5 × 20 mm, 4 A slow-blow',1,3,0],
+ ['Controls','Alpha 9 mm vertical pots, RD901F-40-15R1','50kA volume, reverb, master; 100kB bass, treble; M7 bushing, 6.35 mm shaft',5,1.29,1],
+ ['Controls','Amber ribbed knobs','Matches the C-75 knobs',5,2.5,0],
+ ['Controls','C&K 7103SYZQE mini toggle, on-off-on','Bright / normal / dark; solder lugs, wired to S1',1,7,0],
+ ['Controls','Switchcraft 11 input jack','On the control plate',1,4,0],
+ ['Board','PCBs, 2-layer, black mask','Main 110 × 64 mm and control 80 × 74 mm, 5 of each, JLCPCB',1,15,0],
+ ['Board','JST-XH harnesses','6-way control to main, 3-way drive to amp board; input lead shielded',1,4,0],
+ ['Board','Resistors, film and electrolytic caps','Includes .039 / .0047 tone-stack films',1,15,0],
+ ['Board','Wire, speaker leads, connectors','',1,8,0],
+ ['Speaker','Eminence Beta-6A, 8 Ω','6.5 in, 175 W, 94 dB, 2 in voice coil',1,89.99,1],
+ ['Cabinet','Black PETG filament, home printed','~1.2 kg part incl. runners; 1.45 kg allows for one failed start',1.45,20,0],
+ ['Cabinet','Juris insignia badge','40 mm, laser-cut 0.040 in brass, SendCutSend; 3M VHB onto the grille',1,12,0],
+ ['Cabinet','Perforated stainless grille','304 brushed, 0.048 in, SendCutSend, 379 holes, gutters solid; add deburring',1,35,0],
+ ['Cabinet','Aluminium control plate','5052 .090 in, SendCutSend, 80 × 120 mm',1,18,0],
+ ['Cabinet','Heat-set inserts, screws, standoffs','See fastener schedule: 12 M3 + 16 M4 inserts',1,18,0],
+ ['Cabinet','Adhesive rubber strip for the runners','12 × 1.6 mm EPDM or neoprene, about 300 mm',1,3,0],
+ ['Cabinet','Generic black amp strap handle with end caps','Molded vinyl/nylon replacement handle; caps on the upper facets',1,8,0],
+ ['Cabinet','Closed-cell foam gasket tape','Back-plate seal',1,6,0],
+ ['Cabinet','Butyl damping sheet, 2 mm, foil-backed','About 620 cm² on the inside walls; one 30 × 45 cm sheet',1,10,0],
+ ['Cabinet','Acoustic foam or wool felt','3/4 in on the two sides, 1/2 in on the bottom; about 0.1 m² in all',1,10,0],
+ ['Cabinet','Polyester fibre fill','A loose handful around the speaker magnet, in a thin cloth bag',1,5,0],
+];
+const COL={Amplification:'#111111',Reverb:'#e4002b',Power:'#8d8b84',Controls:'#c9a227',Board:'#4f6b5a',Speaker:'#3d5a80',Cabinet:'#d8d8d4'};
+const f=v=>'$'+v.toFixed(2);
+const grand=BOM.reduce((s,r)=>s+r[3]*r[4],0);
+const quoted=BOM.filter(r=>r[5]).reduce((s,r)=>s+r[3]*r[4],0);
+const groups=[...new Set(BOM.map(r=>r[0]))];
+const gsum=g=>BOM.filter(r=>r[0]===g).reduce((s,r)=>s+r[3]*r[4],0);
+const T=Math.round(grand);
+document.getElementById('hTotal').textContent='$'+T;
+document.getElementById('fTotal').textContent='$'+T;
+document.getElementById('fQuoted').textContent=Math.round(quoted/grand*100)+'%';
+document.querySelector('#bom tbody').innerHTML=groups.map(g=>
+ `<tr class="grp"><td colspan="4">${g}</td><td class="n">${f(gsum(g))}</td></tr>`+
+ BOM.filter(r=>r[0]===g).map(r=>`<tr><td>${r[1]}${r[5]?'<span class="q">listed</span>':'<span class="est">est.</span>'}</td><td class="spec">${r[2]}</td><td class="n">${r[3]}</td><td class="n">${f(r[4])}</td><td class="n">${f(r[3]*r[4])}</td></tr>`).join('')
+).join('')+`<tr class="grp"><td colspan="4">Total</td><td class="n" style="color:var(--red)">${f(grand)}</td></tr>`;
+document.getElementById('bar').innerHTML=groups.map(g=>`<i title="${g}" style="width:${gsum(g)/grand*100}%;background:${COL[g]}"></i>`).join('');
+document.getElementById('keys').innerHTML=groups.map(g=>`<span><i style="background:${COL[g]}"></i>${g} ${f(gsum(g))}</span>`).join('');
+document.getElementById('bCopy').addEventListener('click',async()=>{
+ const csv=['Group,Part,Spec,Qty,Unit,Ext,Source'].concat(BOM.map(r=>[r[0],r[1],r[2],r[3],r[4].toFixed(2),(r[3]*r[4]).toFixed(2),r[5]?'listed':'estimate'].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(','))).join('\n');
+ try{await navigator.clipboard.writeText(csv);document.getElementById('copied').textContent='Copied.'}catch(e){document.getElementById('copied').textContent='Copy was blocked by the browser.'}
+});
+
+/* ---------- 3D: loads the CAD export (juris_a6_assembly) ---------- */
+const fig=document.getElementById('fig'),cv=document.getElementById('cv');
+const fail=m=>fig.insertAdjacentHTML('beforeend','<p style="position:absolute;inset:auto 14px 70px;color:var(--mut)">'+m+'</p>');
+if(!window.THREE||!THREE.GLTFLoader){fail('3D view unavailable in this browser.');}
+else{
+const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.localClippingEnabled=true;
+const S=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(30,1,1,6000);cam.position.set(430,280,560);
+const oc=new THREE.OrbitControls(cam,cv);oc.enableDamping=true;oc.minDistance=250;oc.maxDistance=1600;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+oc.autoRotate=!reduce;oc.autoRotateSpeed=0.8;
+if(reduce)document.getElementById('bSpin').setAttribute('aria-pressed','false');
+if(THREE.RoomEnvironment){const pm=new THREE.PMREMGenerator(R);S.environment=pm.fromScene(new THREE.RoomEnvironment(),0.04).texture;}
+S.add(new THREE.HemisphereLight(0xffffff,0x8a8780,0.55));
+const dl=new THREE.DirectionalLight(0xffffff,0.75);dl.position.set(300,500,400);S.add(dl);
+const dl2=new THREE.DirectionalLight(0xffffff,0.3);dl2.position.set(-400,-100,-300);S.add(dl2);
+const cut=new THREE.Plane(new THREE.Vector3(-1,0,0),0);
+const MAT={shell:[0x161616,0.72,0],grille:[0xc6c9cb,0.3,1.0],badge:[0xc9a24a,0.32,1.0],back_plate:[0x2a2a2a,0.55,0.3],chip:[0x9a9da0,0.4,0.8],main_board:[0x16181a,0.6,0],amp_board:[0x1d3f6e,0.6,0],
+ control_plate:[0xa9acae,0.4,0.9],control_board:[0x16181a,0.6,0],knobs:[0xa8651a,0.35,0],toggle:[0xcfd2d4,0.2,0.9],jack:[0xcfd2d4,0.2,0.9],speaker:[0x2b2a28,0.8,0.2],feet:[0x1c1c1c,0.7,0],inductors:[0x3a3a3a,0.6,0.2],handle:[0x2a2a2a,0.5,0.1],butyl:[0x5a5e62,0.45,0.7],lining:[0x3b3631,1.0,0],keepclear:[0xd04030,0.9,0,0.22]};
+const EX={grille:[0,0,90],badge:[0,0,90],speaker:[0,0,-95],back_plate:[0,0,-200],chip:[0,0,-200],main_board:[0,0,-200],amp_board:[0,0,-200],control_plate:[0,70,0],knobs:[0,70,0],toggle:[0,70,0],control_board:[0,35,0],jack:[0,70,0],feet:[0,-70,0],inductors:[0,0,-200],handle:[0,110,0]};
+const TILT=5.0*Math.PI/180;const root=new THREE.Group();root.position.z=88;root.rotation.x=-TILT;S.add(root);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(330,64),new THREE.MeshStandardMaterial({color:0x9a988f,roughness:1,transparent:true,opacity:0.18}));floor.rotation.x=-Math.PI/2;S.add(floor);
+const nodes={};let ex=0,exT=0;
+new THREE.GLTFLoader().load('juris_a6_assembly.gltf.json',g=>{
+  g.scene.traverse(o=>{if(o.isMesh){const k=o.name in MAT?o.name:(o.parent&&o.parent.name in MAT?o.parent.name:null);const m=MAT[k]||[0x888888,0.6,0];
+    o.material=new THREE.MeshStandardMaterial({color:m[0],roughness:m[1],metalness:m[2],side:THREE.DoubleSide,clippingPlanes:[],flatShading:true,envMapIntensity:m[2]>0.5?0.9:0.35});if(m[3]){o.material.transparent=true;o.material.opacity=m[3];o.material.depthWrite=false;}if(k==='keepclear')o.visible=false;if(k){nodes[k]=nodes[k]||[];nodes[k].push(o);o.userData.base=o.position.clone();}}});
+  root.add(g.scene);root.updateMatrixWorld(true);floor.position.y=new THREE.Box3().setFromObject(root).min.y-0.5;
+  const edges=nodes.shell&&nodes.shell[0];if(edges){const l=new THREE.LineSegments(new THREE.EdgesGeometry(edges.geometry,28),new THREE.LineBasicMaterial({color:0x3d3d3d}));edges.add(l);}
+},undefined,()=>fail('Could not load the CAD model.'));
+const place=()=>{for(const k in nodes){const d=EX[k]||[0,0,0];for(const o of nodes[k])o.position.set(o.userData.base.x+d[0]*ex,o.userData.base.y+d[1]*ex,o.userData.base.z+d[2]*ex);}};
+const bEx=document.getElementById('bEx'),bSpin=document.getElementById('bSpin'),bSec=document.getElementById('bSec');
+bEx.addEventListener('click',()=>{exT=exT?0:1;cam.position.setLength(exT?Math.max(cam.position.length(),1050):760);bEx.setAttribute('aria-pressed',exT?'true':'false');if(reduce){ex=exT;place();}});
+bSpin.addEventListener('click',()=>{oc.autoRotate=!oc.autoRotate;bSpin.setAttribute('aria-pressed',String(oc.autoRotate));});
+bSec.addEventListener('click',()=>{const on=bSec.getAttribute('aria-pressed')!=='true';bSec.setAttribute('aria-pressed',String(on));
+  S.traverse(o=>{if(o.isMesh&&o.material)o.material.clippingPlanes=on?[cut]:[];});});
+document.getElementById('bDamp').addEventListener('click',e=>{const on=e.currentTarget.getAttribute('aria-pressed')!=='true';e.currentTarget.setAttribute('aria-pressed',String(on));
+  for(const k of ['shell','grille','speaker']){for(const o of nodes[k]||[]){o.material.transparent=on;o.material.opacity=on?0.12:1;o.material.depthWrite=!on;}}
+  for(const o of nodes.keepclear||[])o.visible=on;});
+document.getElementById('bFront').addEventListener('click',()=>{oc.autoRotate=false;bSpin.setAttribute('aria-pressed','false');cam.position.set(0,0,760);oc.target.set(0,0,0);});
+const size=()=>{const w=fig.clientWidth,h=fig.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();};
+const ro=new ResizeObserver(size);ro.observe(fig);size();
+const loop=()=>{if(Math.abs(exT-ex)>0.001){ex+=(exT-ex)*0.12;place();}oc.update();R.render(S,cam);requestAnimationFrame(loop);};
+loop();
+}
+}
+
+/* ---------- boards viewer ---------- */
+{
+const fig2=document.getElementById('fig2'),cv2=document.getElementById('cv2');
+const LEG=[{"key": "p00", "cat": "board", "board": "main"}, {"key": "p01", "cat": "signal", "board": "main"}, {"key": "p02", "cat": "reverb", "board": "main"}, {"key": "p03", "cat": "connector", "board": "main"}, {"key": "p04", "cat": "connector", "board": "main"}, {"key": "p05", "cat": "connector", "board": "main"}, {"key": "p06", "cat": "supply", "board": "main"}, {"key": "p07", "cat": "reverb", "board": "main"}, {"key": "p08", "cat": "supply", "board": "main"}, {"key": "p09", "cat": "supply", "board": "main"}, {"key": "p10", "cat": "connector", "board": "main"}, {"key": "p11", "cat": "connector", "board": "main"}, {"key": "p12", "cat": "supply", "board": "main"}, {"key": "p13", "cat": "reverb", "board": "main"}, {"key": "p14", "cat": "signal", "board": "main"}, {"key": "p15", "cat": "supply", "board": "main"}, {"key": "p16", "cat": "reverb", "board": "main"}, {"key": "p17", "cat": "board", "board": "control"}, {"key": "p18", "cat": "control", "board": "control"}, {"key": "p19", "cat": "control", "board": "control"}, {"key": "p20", "cat": "control", "board": "control"}, {"key": "p21", "cat": "control", "board": "control"}, {"key": "p22", "cat": "control", "board": "control"}, {"key": "p23", "cat": "control", "board": "control"}, {"key": "p24", "cat": "signal", "board": "control"}, {"key": "p25", "cat": "connector", "board": "control"}, {"key": "p26", "cat": "connector", "board": "control"}, {"key": "p27", "cat": "signal", "board": "control"}, {"key": "p28", "cat": "connector", "board": "control"}, {"key": "p29", "cat": "signal", "board": "control"}, {"key": "p30", "cat": "signal", "board": "control"}, {"key": "p31", "cat": "control", "board": "control"}, {"key": "p32", "cat": "board", "board": "amp"}, {"key": "p33", "cat": "power", "board": "amp"}, {"key": "p34", "cat": "power", "board": "amp"}, {"key": "p35", "cat": "supply", "board": "amp"}];
+const CC={board:0x16181a,power:0xa0a0a8,supply:0x3c5aa0,signal:0x6b6b6b,reverb:0xb43c3c,connector:0xe6e6dc,control:0xb8741a};
+const CN={board:'Board',power:'Power stage',supply:'Supplies',signal:'Signal',reverb:'Reverb',connector:'Connectors',control:'Controls'};
+document.getElementById('keys2').innerHTML=Object.keys(CN).map(k=>`<span><i style="background:#${CC[k].toString(16).padStart(6,'0')}"></i>${CN[k]}</span>`).join('');
+if(window.THREE&&THREE.GLTFLoader){
+const R=new THREE.WebGLRenderer({canvas:cv2,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene();const cam=new THREE.PerspectiveCamera(30,1,1,5000);
+const oc=new THREE.OrbitControls(cam,cv2);oc.enableDamping=true;
+S.add(new THREE.HemisphereLight(0xffffff,0x8a8780,0.95));const dl=new THREE.DirectionalLight(0xffffff,0.7);dl.position.set(300,500,400);S.add(dl);
+const parts={},meta={};LEG.forEach(l=>meta[l.key]=l);
+const root=new THREE.Group();S.add(root);
+new THREE.GLTFLoader().load('juris_a6_boards.gltf.json',g=>{
+  g.scene.traverse(o=>{if(!o.isMesh)return;const k=(o.name in meta)?o.name:(o.parent&&o.parent.name in meta?o.parent.name:o.name);
+    const m=meta[k];const ref=k.startsWith('ref_');
+    o.material=new THREE.MeshStandardMaterial({color:ref?(k.includes('back')?0x2a2a2a:0xbfc2c4):CC[m?m.cat:'board'],roughness:0.6,metalness:ref?0.4:0.1,transparent:ref,opacity:ref?0.25:1,side:THREE.DoubleSide});
+    o.geometry.computeVertexNormals();(parts[k]=parts[k]||[]).push(o);});
+  root.add(g.scene);frame('both');
+},undefined,()=>fig2.insertAdjacentHTML('beforeend','<p style="position:absolute;inset:auto 14px 70px;color:var(--mut)">Could not load the board model.</p>'));
+const frame=w=>{const box=new THREE.Box3();let any=false;
+  for(const k in parts){const m=meta[k];const show=w==='both'||(k.startsWith('ref_')?(((w==='main'||w==='amp')&&k.includes('back'))||(w==='control'&&k.includes('control'))):(!!m&&m.board===w));
+    const vis=w==='both'?true:show&&(!k.startsWith('ref_')||show);for(const o of parts[k]){o.visible=vis;if(vis&&!k.startsWith('ref_')){box.expandByObject(o);any=true;}}}
+  if(!any)return;const c=box.getCenter(new THREE.Vector3()),sz=box.getSize(new THREE.Vector3()).length();
+  oc.target.copy(c);cam.position.copy(c).add(new THREE.Vector3(0.55,0.5,0.75).multiplyScalar(sz*(w==='amp'?2.1:1.7)));cam.near=1;cam.updateProjectionMatrix();};
+const btns={both:'bBoth',main:'bMain',control:'bCtrl',amp:'bAmp'};
+for(const w in btns)document.getElementById(btns[w]).addEventListener('click',()=>{for(const v in btns)document.getElementById(btns[v]).setAttribute('aria-pressed',String(v===w));frame(w);});
+const hi=(k,on)=>{(parts[k]||[]).forEach(o=>{o.material.emissive=new THREE.Color(on?0xe4002b:0x000000);o.material.emissiveIntensity=on?0.6:0;});};
+document.querySelectorAll('#parts2 tbody tr').forEach(tr=>{const k=tr.dataset.k;
+  tr.addEventListener('mouseenter',()=>{tr.classList.add('on');hi(k,true);});tr.addEventListener('mouseleave',()=>{tr.classList.remove('on');hi(k,false);});
+  tr.addEventListener('click',()=>{const on=!tr.classList.contains('on');tr.classList.toggle('on',on);hi(k,on);});});
+const size=()=>{const w=fig2.clientWidth,h=fig2.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();};
+const ro2=new ResizeObserver(size);ro2.observe(fig2);size();
+const loop=()=>{oc.update();R.render(S,cam);requestAnimationFrame(loop);};loop();
+}
+}
+</script>
+</body></html>
